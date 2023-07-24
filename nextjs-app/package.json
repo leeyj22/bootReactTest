@@ -4,7 +4,7 @@
   "private": true,
   "main": "index.js",
   "author": "Bodyfriend FrontDevelop",
-  "proxy": "http://localhost:3000",
+  "proxy": "http://localhost:4343",
   "scripts": {
     "dev": "next",
     "build": "next build && next export",
