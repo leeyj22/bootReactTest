@@ -24,7 +24,6 @@ public class ApiTestController {
     public JSONObject apiDataController(HttpServletRequest request, Model model) {
         try {
             Map<String, Object> returnData = getUserInfoApi(request.getParameter("userid"));
-            System.out.println(returnData);
 
             JSONObject jo = new JSONObject();
             jo.put("test", "datasdfsdfasdf");
