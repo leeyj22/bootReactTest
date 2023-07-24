@@ -36,3 +36,11 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+/node_modules
+/nextjs-app/node
+/nextjs-app/out
+/nextjs-app/node_modules
+.env
+.next
+/.next

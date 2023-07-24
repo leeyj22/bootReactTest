@@ -22,11 +22,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  env: {
+    BASE_URL: process.env.BASE_URL,
+  },
   async rewrites() {
     return [
       {
         source: "/:path*",
-        destination: "http://localhost:4343/api/:path*",
+        destination: `${process.env.BASE_URL}/api/:path*`,
       },
     ];
   },
