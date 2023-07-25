@@ -1,4 +1,4 @@
-package com.example.ApiTest;
+package com.bf.ApiTest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpResponse;
@@ -7,10 +7,8 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.json.JSONObject;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,13 +20,10 @@ import java.util.Map;
 public class ApiTestController {
 
     @GetMapping("/api/userdata")
-    public JSONObject apiDataController(HttpServletRequest request, Model model) {
+    public Map<String, Object> apiDataController(HttpServletRequest request, Model model) {
         try {
             Map<String, Object> returnData = getUserInfoApi(request.getParameter("userid"));
-
-            JSONObject jo = new JSONObject();
-            jo.put("test", "datasdfsdfasdf");
-            return jo;
+            return returnData;
 
         }catch (Exception e){
             e.printStackTrace();
