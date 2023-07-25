@@ -22,7 +22,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .env
+
+### nextjs ###
 .next
 /.next
 /src/node
 /src/node_modules
+/node
+/out
+/target
+

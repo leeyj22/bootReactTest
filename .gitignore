@@ -37,10 +37,22 @@ build/
 ### Mac OS ###
 .DS_Store
 
+### nextjs ###
 /node_modules
 /nextjs-app/node
+/nextjs-app/node/node_modules
 /nextjs-app/out
 /nextjs-app/node_modules
+/nextjs-app/.next
+/nextjs-app/target
+/node
+/out
 .env
 .next
 /.next
+package-lock.json
+
+# IntelliJ project files
+.idea
+out
+gen
