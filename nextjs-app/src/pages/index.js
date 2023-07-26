@@ -7,7 +7,6 @@ const index = () => {
   const dispatch = useDispatch();
 
   const plz = () => {
-  console.log('asdsadasd');
      dispatch({
           type: GET_TEST_APT_REQUEST,
           data: "jm91",
@@ -16,7 +15,7 @@ const index = () => {
   return (
     <AppLayout>
       <button onClick={() => plz()}>버튼</button>
-      <h3>리스트</h3>sfdgsdgsdgsdg
+      <h3>리스트</h3>
     </AppLayout>
   );
 };

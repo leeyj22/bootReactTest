@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import Head from "next/head";
 import { Provider } from "react-redux";
 import wrapper from "../store/configureStore";
+import '../../public/css/index.min.css';
 
 const Cs = ({ Component, ...rest }) => {
   const { store, props } = wrapper.useWrappedStore(rest);

@@ -1,24 +1,24 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Link from "next/link";
+import Headers from "./headers";
+import Footer from "./footer";
+import FooterNotice from "./footerNotice";
 
 const AppLayout = ({ children }) => {
-  return (
-    <div>
-      <ul>
-        <li>
-          <Link href="/page2" target="_blank" rel="noopener noreferrer">
-            page2
-          </Link>
-        </li>
-      </ul>
-      {children}
-    </div>
-  );
+    return (
+        <>
+            <Headers />
+
+            {children}
+
+            <FooterNotice />
+            <Footer />
+        </>
+    );
 };
 
 AppLayout.propTypes = {
-  children: PropTypes.node.isRequired,
+    children: PropTypes.node.isRequired,
 };
 
 export default AppLayout;
