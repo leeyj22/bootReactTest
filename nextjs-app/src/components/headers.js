@@ -1,8 +1,12 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { ImgUrl } from "../hooks/imgurl";
+import { useDispatch } from "react-redux";
+import { LOGIN_REQUEST } from "../reducers/user";
 
 const Headers = () => {
+    const dispatch = useDispatch();
+
     useEffect(() => {
         const headerEl = document.querySelector("#header");
         const depth1Items = headerEl.querySelectorAll(".depth1 > li > a");
@@ -88,6 +92,12 @@ const Headers = () => {
         const otherLinkPop = document.querySelector(".other-link-pop");
         e.currentTarget.classList.toggle("active");
         otherLinkPop.classList.toggle("active");
+    };
+
+    const login = () => {
+        dispatch({
+            type: LOGIN_REQUEST,
+        });
     };
 
     return (
@@ -271,7 +281,7 @@ const Headers = () => {
                     <Link href="/" className="join">
                         회원가입
                     </Link>
-                    <Link href="/" className="login">
+                    <Link href="/" className="login" onClick={() => login()}>
                         로그인
                     </Link>
                 </div>
