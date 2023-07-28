@@ -1,9 +1,13 @@
 @import "abstracts/links";
 @import "abstracts/var";
 @import "abstracts/mixins";
+@import "abstracts/btn";
 @import 'base/reset';
 @import 'base/fonts';
 @import 'base/common';
 
 @import "layout/header";
 @import "layout/footer";
+@import "components/bradcrumb.scss";
+@import "components/form.scss";
+@import "components/file.scss";

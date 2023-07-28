@@ -1,98 +1,117 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { ImgUrl } from "../hooks/imgurl";
 import { useDispatch } from "react-redux";
 import { LOGIN_REQUEST } from "../reducers/user";
 
-const Headers = () => {
-    const dispatch = useDispatch();
+const headerUi = (otherLinkRef) => {
+    const headerEl = document.querySelector("#header");
+    const depth1Items = headerEl.querySelectorAll(".depth1 > li > a");
+    const depth2Menu = headerEl.querySelectorAll(".depth2");
+    const logoLink = headerEl.querySelector(".logo");
+    const joinMenu = headerEl.querySelector(".join");
+    const otherLinkPop = document.querySelector(".other-link-pop");
+    const otherLinks = document.querySelector(".other-links");
 
-    useEffect(() => {
-        const headerEl = document.querySelector("#header");
-        const depth1Items = headerEl.querySelectorAll(".depth1 > li > a");
-        const depth2Menu = headerEl.querySelectorAll(".depth2");
-        const logoLink = headerEl.querySelector(".logo");
-        const joinMenu = headerEl.querySelector(".join");
+    const addDepth2Bg = () => {
+        const bgDepth2 = document.createElement("span");
+        bgDepth2.classList.add("bg-depth2");
+        headerEl.appendChild(bgDepth2);
+    };
+    const removeDepth2Bg = () => {
+        const bgDepthEL = headerEl.getElementsByClassName("bg-depth2");
+        if (bgDepthEL.length > 0) {
+            bgDepthEL[0].remove();
+        }
+    };
+    const removeOtherPop = () => {
+        otherLinkPop.classList.remove("active");
+        otherLinks.classList.remove("active");
+    };
 
-        const addDepth2Bg = () => {
-            const bgDepth2 = document.createElement("span");
-            bgDepth2.classList.add("bg-depth2");
-            headerEl.appendChild(bgDepth2);
-        };
-        const removeDepth2Bg = () => {
-            const bgDepthEL = headerEl.getElementsByClassName("bg-depth2");
-            if (bgDepthEL.length > 0) {
-                bgDepthEL[0].remove();
-            }
-        };
-        const removeOtherPop = () => {
-            const otherLinkPop = headerEl.querySelector(".other-link-pop");
-            const otherLinks = headerEl.querySelector(".other-links");
-            otherLinkPop.classList.remove("active");
-            otherLinks.classList.remove("active");
-        };
-
-        // gnb mouse enter
-        const handleHoverDepth1 = (event) => {
-            const depth1Item = event.currentTarget;
-            if (!depth1Item.classList.contains("other-links")) {
-                removeDepth2Bg();
-                addDepth2Bg();
-                removeOtherPop();
-                const depth2 = depth1Item.parentNode.querySelector(".depth2");
-                depth2Menu.forEach((item) => {
-                    item.classList.remove("active");
-                    item.style.display = "block";
-                });
-                if (depth2 !== null) {
-                    depth2.classList.add("active");
-                }
-            }
-        };
-
-        // gnb mouse leaves
-        const handleMouseLeaveDepth2 = (event) => {
+    // gnb mouse enter
+    const handleHoverDepth1 = (event) => {
+        const depth1Item = event.currentTarget;
+        if (!depth1Item.classList.contains("other-links")) {
             removeDepth2Bg();
+            addDepth2Bg();
+            removeOtherPop();
+            const depth2 = depth1Item.parentNode.querySelector(".depth2");
             depth2Menu.forEach((item) => {
-                item.style.display = "none";
+                item.classList.remove("active");
+                item.style.display = "block";
             });
-        };
+            if (depth2 !== null) {
+                depth2.classList.add("active");
+            }
+        }
+    };
 
+    // gnb mouse leaves
+    const handleMouseLeaveDepth2 = () => {
+        removeDepth2Bg();
         depth2Menu.forEach((item) => {
-            item.addEventListener("mouseenter", handleHoverDepth1);
-            item.addEventListener("mouseleave", handleMouseLeaveDepth2);
+            item.style.display = "none";
         });
+    };
 
-        depth1Items.forEach((item) => {
-            item.addEventListener("mouseenter", handleHoverDepth1);
-            item.addEventListener("focus", handleHoverDepth1);
-            item.addEventListener("mouseleave", handleMouseLeaveDepth2);
-        });
-
-        logoLink.addEventListener("focus", handleMouseLeaveDepth2);
-        joinMenu.addEventListener("focus", handleMouseLeaveDepth2);
-
-        // Clean up event listeners when the component unmounts
-        return () => {
-            depth1Items.forEach((item) => {
-                item.removeEventListener("mouseenter", handleHoverDepth1);
-                item.removeEventListener("focus", handleHoverDepth1);
-                item.removeEventListener("mouseleave", handleMouseLeaveDepth2);
-            });
-            depth2Menu.forEach((item) => {
-                item.removeEventListener("mouseenter", handleHoverDepth1);
-                item.removeEventListener("mouseleave", handleMouseLeaveDepth2);
-            });
-            logoLink.removeEventListener("focus", handleMouseLeaveDepth2);
-            joinMenu.removeEventListener("focus", handleMouseLeaveDepth2);
-        };
-    }, []);
-
-    const handleOtherLinkPop = (e) => {
-        const otherLinkPop = document.querySelector(".other-link-pop");
-        e.currentTarget.classList.toggle("active");
+    const handleClickOtherLink = () => {
+        otherLinks.classList.toggle("active");
         otherLinkPop.classList.toggle("active");
     };
+
+    const handleClickWindow = (event) => {
+        const targetItem = event.target;
+        const otherLinkWrap = otherLinkRef.current;
+        if (otherLinkWrap && !otherLinkWrap.contains(targetItem.parentNode)) {
+            removeOtherPop();
+        }
+    };
+
+    depth2Menu.forEach((item) => {
+        item.addEventListener("mouseenter", handleHoverDepth1);
+        item.addEventListener("mouseleave", handleMouseLeaveDepth2);
+    });
+
+    depth1Items.forEach((item) => {
+        item.addEventListener("mouseenter", handleHoverDepth1);
+        item.addEventListener("focus", handleHoverDepth1);
+        item.addEventListener("mouseleave", handleMouseLeaveDepth2);
+    });
+
+    logoLink?.addEventListener("focus", handleMouseLeaveDepth2);
+    joinMenu?.addEventListener("focus", handleMouseLeaveDepth2);
+
+    otherLinks.addEventListener("click", handleClickOtherLink);
+    window.addEventListener("mousedown", handleClickWindow);
+
+    // Clean up event listeners when the component unmounts
+    return () => {
+        depth1Items.forEach((item) => {
+            item.removeEventListener("mouseenter", handleHoverDepth1);
+            item.removeEventListener("focus", handleHoverDepth1);
+            item.removeEventListener("mouseleave", handleMouseLeaveDepth2);
+        });
+        depth2Menu.forEach((item) => {
+            item.removeEventListener("mouseenter", handleHoverDepth1);
+            item.removeEventListener("mouseleave", handleMouseLeaveDepth2);
+        });
+        logoLink?.removeEventListener("focus", handleMouseLeaveDepth2);
+        joinMenu?.removeEventListener("focus", handleMouseLeaveDepth2);
+        otherLinks.removeEventListener("click", handleClickOtherLink);
+        window.removeEventListener("mousedown", handleClickWindow);
+    };
+};
+
+const Headers = () => {
+    const dispatch = useDispatch();
+    const otherLinkRef = useRef(null);
+    const loginstate = false;
+
+    useEffect(() => {
+        //header UI
+        headerUi(otherLinkRef);
+    }, [otherLinkRef]);
 
     const login = () => {
         dispatch({
@@ -114,11 +133,8 @@ const Headers = () => {
                 </Link>
                 <nav className="gnb">
                     <ul className="depth1">
-                        <li>
-                            <button
-                                className="other-links"
-                                onClick={(e) => handleOtherLinkPop(e)}
-                            >
+                        <li ref={otherLinkRef}>
+                            <button className="other-links">
                                 고객센터<i></i>
                             </button>
                             <div className="other-link-pop">
@@ -277,17 +293,35 @@ const Headers = () => {
                         </li>
                     </ul>
                 </nav>
+
                 <div className="util">
-                    <Link href="/" className="join">
-                        회원가입
-                    </Link>
-                    <Link href="/" className="login" onClick={() => login()}>
-                        로그인
-                    </Link>
+                    {loginstate ? (
+                        <>
+                            <Link href="/" className="">
+                                마이페이지
+                            </Link>
+                            <Link href="/" className="" onClick={() => login()}>
+                                로그아웃
+                            </Link>
+                        </>
+                    ) : (
+                        <>
+                            <Link href="/" className="join">
+                                회원가입
+                            </Link>
+                            <Link
+                                href="/"
+                                className="login"
+                                onClick={() => login()}
+                            >
+                                로그인
+                            </Link>
+                        </>
+                    )}
                 </div>
             </div>
         </header>
     );
 };
 
-export default Headers;
+export default React.memo(Headers);
