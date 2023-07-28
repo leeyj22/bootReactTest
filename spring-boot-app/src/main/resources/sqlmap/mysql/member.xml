@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MemberDao">
+
+	<resultMap id='MemberMap' type='com.bf.web.member.bean.Member'>
+		<result property='userIdx' column='USER_IDX' />
+		<result property='userId' column='USER_ID' />
+		<result property='pwd' column='PWD' />
+		<result property='name' column='NAME' />
+		<result property='nick' column='NICK' />
+		<result property='email' column='EMAIL' />
+		<result property='approval' column='APPROVAL' />
+		<result property='phone' column='PHONE' />
+		<result property='levelCode' column='LEVEL_CODE' />
+		<result property='levelName' column='LEVEL_NAME' />
+	</resultMap>
+	
+	<resultMap id='SiteInfoMap' type='com.bf.web.member.bean.SiteInfo'>
+		<result property='memberIdx' column='member_idx' />
+		<result property='serviceNbr' column='service_nbr' />
+		<result property='apiKey' column='api_key' />
+		<result property='siteName' column='site_name' />
+		<result property='siteUrl' column='site_url' />
+		<result property='siteTel' column='site_tel' />
+		<result property='siteMail' column='site_mail' />
+		<result property='mallKey' column='mall_key' />
+		<result property='useComLevel' column='use_com_level' />
+		<result property='popFileSize' column='pop_file_size' />
+		<result property='tablePadding' column='table_padding' />
+		<result property='spamTime' column='spam_time' />
+		<result property='bankbookState' column='bankbook_state' />
+		<result property='depositState' column='deposit_state' />
+		<result property='siteTitle' column='site_title' />
+		<result property='siteCell' column='site_cell' />
+	</resultMap>
+	
+	<resultMap id='OrdersMap' type='com.bf.web.member.bean.Orders'>
+		<result property='ordNbr' column='ord_nbr' />
+		<result property='ordGoods' column='ord_goods' />
+		<result property='amount' column='amount' />
+		<result property='tranState' column='tran_state' />
+		<result property='regDate' column='reg_date' />
+		<result property='paymentType' column='payment_type' />
+		<result property='escrowState' column='escrow_state' />
+		<result property='orderType' column='order_type' />
+	</resultMap>
+
+	<select id="loginCheck" parameterType="com.bf.web.member.bean.Member" resultMap="MemberMap">
+		SELECT 
+			a.USER_IDX
+			, a.LEVEL_CODE
+			, a.USER_ID
+			, a.PWD
+			, a.ADDR_1		AS addr1
+			, a.ADDR_2		AS addr2
+			, a.NAME
+			, a.NICK
+			, a.EMAIL
+			, a.APPROVAL 
+			, concat(CELL_1,CELL_2,CELL_3) AS PHONE
+            , b.name as level_name
+            , a.AUTHORIZATION_IP authorizationIp
+		FROM MEMBER a
+        LEFT OUTER JOIN member_level b ON a.level_code = b.level_code
+		WHERE USER_ID = #{userId}
+		AND PWD = #{pwd} 
+	</select>
+	
+	<!-- 회원 탈퇴 -->
+	<delete id="memberOutCheck" parameterType="HashMap">
+		DELETE FROM member
+		WHERE USER_ID = #{userId}
+		<if test="pwd !='' and pwd != null ">
+		AND PWD = #{pwd}
+		</if>
+	</delete>
+	
+	<!-- 회원 탈퇴시 쿠폰 삭제 -->
+	<delete id="memberCouponDel" parameterType="HashMap">
+		DELETE FROM coupon_issue
+		WHERE USER_IDX = #{userIdx}
+	</delete>
+	
+	<!-- 회원 탈퇴시 후기 삭제 -->
+	<delete id="memberReviewDel" parameterType="HashMap">
+		DELETE FROM goods_review
+		WHERE USER_IDX = #{userIdx}
+	</delete>
+	<!-- 회원 탈퇴시 1:1문의 삭제 -->
+	<delete id="memberQnaDel" parameterType="HashMap">
+		DELETE FROM bbs_one_to_one
+		WHERE USER_IDX = #{userIdx}
+	</delete>
+	<!-- 회원 탈퇴시 서비스접수 삭제 -->
+	<delete id="memberOnServiceDel" parameterType="HashMap">
+		DELETE FROM online_service
+		WHERE USER_IDX = #{userIdx}
+	</delete>
+	<!-- 회원 이벤트 댓글 삭제 -->
+	<delete id="memberCommentDel" parameterType="HashMap">
+		DELETE FROM bbs_gallery_comment
+		WHERE USER_IDX = #{userIdx}
+	</delete>
+	<!-- 프랜드TV 접속자 로그 삭제 -->
+	<delete id="friendTvJoinLogDel" parameterType="HashMap">
+		DELETE FROM bbs_auction_friend_tv
+		WHERE USER_IDX = #{userIdx}
+	</delete>
+	<!-- 회원 탈퇴시 소셜 히스토리 삭제 -->
+	<delete id="socialHistoryDel" parameterType="HashMap">
+		DELETE FROM SOCIAL_HISTORY
+		WHERE USER_IDX = #{userIdx}
+	</delete>
+	
+	<select id="loginCheck_social" parameterType="hashMap" resultMap="MemberMap">
+		SELECT 
+			a.USER_IDX
+			, a.LEVEL_CODE
+			, a.USER_ID
+			, a.PWD
+			, a.ADDR_1		AS addr1
+			, a.ADDR_2		AS addr2
+			, a.NAME
+			, a.NICK
+			, a.EMAIL
+			, a.APPROVAL 
+			, concat(CELL_1,CELL_2,CELL_3) AS PHONE
+            , b.name as level_name
+             FROM MEMBER a
+		LEFT OUTER JOIN member_level b ON a.level_code = b.level_code
+		INNER JOIN SOCIAL_HISTORY c ON A.USER_IDX = c.USER_IDX
+		WHERE c.ID = #{userId}
+	</select>
+	
+	<update id="updateBasketUser" parameterType="com.bf.web.member.bean.Member">
+		update basket 
+		set session_id = #{sessionId}
+		<if test="userIdx !='' and userIdx != null "> 
+			where user_idx = #{userIdx}
+		</if>
+	</update>
+	
+	<update id="updateMemberVisit" parameterType="com.bf.web.member.bean.Member">
+		update member set visit_date = now(), visit_cnt = visit_cnt + 1, ip = #{ip} where user_idx = #{userIdx}
+	</update>
+	
+	<select id="loginCheckNomember" parameterType="hashmap" resultMap="OrdersMap">
+		SELECT ORD_NBR, ORD_GOODS, AMOUNT, TRAN_STATE, REG_DATE, PAYMENT_TYPE, ESCROW_STATE, ORDER_TYPE
+		FROM ORDERS 
+		WHERE USER_IDX IS NULL AND ORD_NAME = #{name} AND ORD_NBR = #{orderNum} AND TRAN_STATE > 0 AND DEL_STATE= 0
+		LIMIT 1
+	</select>
+	
+	<select id="getSiteInfo" resultMap="SiteInfoMap">
+		select member_idx, service_nbr, api_key, site_name, site_url, site_tel, site_mail, mall_key
+			, use_com_level, pop_file_size, table_padding, spam_time, bankbook_state, deposit_state
+			, site_title, site_cell 
+		from site_info
+	</select>
+	
+	<select id="getUserId" parameterType="com.bf.web.member.bean.Member" resultMap="MemberMap">
+		select USER_ID, NAME from member where name = #{name} and email = #{email}
+	</select>
+	
+	<select id="getUserPw" parameterType="com.bf.web.member.bean.Member" resultMap="MemberMap">
+		select name, email, user_id, user_idx, cell_1, cell_2, cell_3 
+		from member 
+		where name = #{name} and email = #{email} and user_id = #{userId}
+	</select>
+	
+	<update id="updateMemberPwd" parameterType="com.bf.web.member.bean.Member">
+		update member set pwd = #{pwd} where user_idx = #{userIdx}
+	</update>
+	
+	<update id="updateMemberPoint" parameterType="HashMap">
+		UPDATE member SET
+		point = point + ${point}
+		WHERE user_idx = #{user_idx}
+	</update>
+	
+	<insert id="insertPointLog" parameterType="HashMap">
+		INSERT INTO member_point (user_idx, ord_nbr, log, point, handler, section, reg_date) VALUES (
+		#{user_idx}
+		<choose>
+			<when test="ord_nbr!=null and ord_nbr!=''">, #{ord_nbr}</when>
+			<otherwise>, NULL</otherwise>
+		</choose>
+		, #{log}
+		, #{point}
+		, '시스템'
+		, #{section}
+		, now()
+		)
+	</insert>
+	<select id="chkEmail" parameterType="String" resultType="HashMap">
+		SELECT COUNT(*) as cnt
+		FROM member 
+		WHERE email = #{email}
+	</select>
+	
+	<select id="checkId" parameterType="String" resultType="HashMap">
+		SELECT COUNT(*) as cnt
+		FROM member 
+		WHERE user_id = #{id}
+	</select>
+	
+	<select id="checkJoin" parameterType="HashMap" resultType="HashMap">
+		SELECT 
+		       USER_IDX 	AS userIdx
+		     , USER_ID 		AS userId
+		     , PWD			AS pwd
+		     , NAME 		AS name
+		     , EMAIL 		AS email
+		     , CERT_YN 		AS certYn
+		     , IFNULL((SELECT TYPE FROM SOCIAL_HISTORY WHERE USER_IDX = M.USER_IDX ORDER BY CREATE_DATE DESC LIMIT 1), '') as socialType
+		FROM   MEMBER M
+		WHERE  1 = 1
+		AND    NAME = #{name}
+		<!-- AND    BIRTH_DAY = #{birthDay} -->
+		AND    CONCAT(CELL_1, CELL_2, CELL_3) = #{phoneNo}
+		ORDER BY ACCESS_DATE DESC
+        LIMIT 1
+	</select>
+	
+<!-- 	<select id="outCheckId" parameterType="String" resultType="HashMap">
+		SELECT COUNT(*) as cnt
+		FROM member_out_log 
+		WHERE user_id = #{id}
+	</select> -->
+	
+	<select id="findPwChkId" parameterType="String" resultType="HashMap">
+		SELECT COUNT(*) as cnt
+		FROM member 
+		WHERE user_id = #{id} and name= #{name}
+	</select>
+	
+	<select id="checkCompany" parameterType="HashMap" resultType="HashMap">
+		SELECT COUNT(*) as cnt
+		FROM member 
+		WHERE com_no_1 = #{comNo1} and com_no_2 = #{comNo2} and com_no_3 = #{comNo3}
+	</select>
+	
+	<insert id="join" parameterType="com.bf.web.member.bean.Member">
+		INSERT INTO MEMBER (
+			LEVEL_CODE
+			,USER_ID
+			,PWD
+			,NAME
+			,REAL_NAME_CERT_TYPE
+			,SEX
+			,BIRTH_DAY
+			,BIRTH_OP
+			,TEL_1
+			,TEL_2
+			,TEL_3
+			<if test="companyName !='' and companyName != null ">
+			, COM_TEL_1
+			, COM_TEL_2
+			, COM_TEL_3
+			</if>
+			,CELL_1
+			,CELL_2
+			,CELL_3
+			,EMAIL
+			<if test="companyName =='' or companyName == null ">
+			,ZIP_1
+			,ZIP_2
+			</if>
+			,ADDR_1
+			,ADDR_2
+			<if test="companyName =='' or companyName == null ">
+			,AREA
+			</if>
+			,EMAIL_STATE
+			,SMS_STATE
+			,MARKETING_AGREE
+			,MARRIED
+			,VISIT_DATE
+			,VISIT_CNT
+			,IP
+			,APPROVAL
+			,PURCHASE_PRICE
+			,POINT
+			,DEPOSIT
+			,ACCESS_DATE
+			,COMPANY_NAME
+			,DEPARTMENT
+			,BUSINESS_NO_1
+			,BUSINESS_NO_2
+			,BUSINESS_NO_3
+			,CERT_YN
+			,REG_SITE
+		) VALUES (
+			#{levelCode}
+			, #{userId}
+			, #{pwd}
+			, #{name}
+			, #{realNameCertType}
+			<!-- , #{sex} -->
+			, NULL
+			, #{birthDay}
+			, #{birthOp}
+			, #{tel1}
+			, #{tel2}
+			, #{tel3}
+			<if test="companyName !='' and companyName != null ">
+			, #{comTel1}
+			, #{comTel2}
+			, #{comTel3}
+			</if>
+			, #{cell1}
+			, #{cell2}
+			, #{cell3}
+			, #{email}
+			<if test="companyName =='' or companyName == null ">
+			, #{zip1}
+			, #{zip2}
+			</if>
+			, #{addr1}
+			, #{addr2}
+			<if test="companyName =='' or companyName == null ">
+			, #{area}
+			</if>
+			, #{emailState}
+			, #{smsState}
+			, #{marketingAgree}
+			, #{married}
+			, now()
+			, #{visitCnt}
+			, #{ip}
+			, #{approval}
+			, #{purchasePrice}
+			, #{point}
+			, #{deposit}
+			, now()
+			, #{companyName}
+			, #{department}
+			, #{businessNo1}
+			, #{businessNo2}
+			, #{businessNo3}
+			, 'Y'
+			, 'BM'
+		);
+	</insert>
+	
+	<insert id="insertSocialLogin" parameterType="hashMap">
+		INSERT INTO SOCIAL_HISTORY (
+			ID
+			, TOKEN
+			, EMAIL
+			, TYPE
+			, CNT
+			, CREATE_DATE
+			, UPDATE_DATE	
+			, DEVICE	
+		) VALUES (
+			#{userId}
+			, #{token}
+			, #{email}
+			, #{type}
+			, '0'
+			, now()
+			, now()
+			, 'w'
+		)
+	</insert>
+	
+	<select id="findIdFromPhone" parameterType="HashMap" resultType="HashMap">
+		SELECT 
+			NAME
+			, USER_ID
+		FROM 
+			member 
+		WHERE 
+			NAME = #{name} and cell_1 = #{setCell1} and cell_2 = #{setCell2} and cell_3 = #{setCell3}
+		ORDER BY ACCESS_DATE DESC
+        limit 1
+	</select>
+	
+	<select id="findIdFromEmail" parameterType="HashMap" resultType="HashMap">
+		SELECT 
+			USER_ID
+			, NAME
+			, EMAIL
+		FROM 
+			member 
+		WHERE 
+			NAME = #{name} and EMAIL = #{email} and user_id not like '%BF%'
+		ORDER BY ACCESS_DATE DESC
+        limit 1
+	</select>
+	
+	<update id="updatePw" parameterType="HashMap">
+		UPDATE
+			member 
+		SET
+			pwd = #{pwd}
+		WHERE 
+			NAME = #{name} and EMAIL = #{email} and user_id=#{id}
+	</update>
+	
+	<update id="replacePw" parameterType="HashMap">
+		UPDATE
+			member 
+		SET
+			pwd = #{pw}
+		WHERE 
+			user_id = #{id}
+	</update>
+	
+	<select id="findPwCheck" parameterType="HashMap" resultType="HashMap">
+		SELECT 
+			ifnull(count(*),0) cnt
+		FROM 
+			member 
+		WHERE 
+			NAME = #{name} and EMAIL = #{email} and USER_ID = #{id}
+	</select>
+	
+	<select id="socialMemberCheck" resultType="integer">
+		SELECT COUNT(ID) as cnt FROM SOCIAL_HISTORY WHERE ID=#{socialId}
+	</select>
+	
+	<select id="checkTbMember" parameterType="hashMap" resultType="String">
+		SELECT USER_IDX FROM MEMBER 
+		WHERE NAME = #{name}
+		AND CELL_1 = #{cell1}
+		AND CELL_2 = #{cell2}
+		AND CELL_3 = #{cell3}
+		LIMIT 1
+	</select>
+	
+	<insert id="insertTbSocial" parameterType="hashMap">
+		INSERT INTO SOCIAL_HISTORY (
+			ID
+			, TOKEN
+			, EMAIL
+			, TYPE
+			, CNT
+			, CREATE_DATE
+			, UPDATE_DATE
+			, USER_IDX
+		) VALUES (
+			#{userId}
+			, #{token}
+			, #{email}
+			, #{type}
+			, '0'
+			, now()
+			, now()
+			, #{userIdx}
+		)
+	</insert>
+		
+	<insert id="insertTbMember" parameterType="com.bf.web.member.bean.MemberVO" useGeneratedKeys="true" keyProperty="userIdx">
+		INSERT INTO MEMBER (
+			LEVEL_CODE
+			,USER_ID
+			,PWD
+			,NAME
+			,REAL_NAME_CERT_TYPE
+			,SEX
+			,BIRTH_OP
+			,CELL_1
+			,CELL_2
+			,CELL_3
+			,EMAIL
+			,EMAIL_STATE
+			,SMS_STATE
+			,MARRIED
+			,VISIT_DATE
+			,VISIT_CNT
+			,IP
+			,APPROVAL
+			,PURCHASE_PRICE
+			,POINT
+			,DEPOSIT
+			,ACCESS_DATE
+			,REG_SITE
+		) VALUES (
+			#{levelCode}
+			, (select * from (select concat('BF-', max(user_idx)+1) from member) A)
+			, #{pwd}
+			, #{name}
+			, #{realNameCertType}
+			, #{sex}
+			, #{birthOp}
+			, #{cell1}
+			, #{cell2}
+			, #{cell3}
+			, #{email}
+			, #{emailState}
+			, #{smsState}
+			, #{married}
+			, now()
+			, #{visitCnt}
+			, #{ip}
+			, #{approval}
+			, #{purchasePrice}
+			, #{point}
+			, #{deposit}
+			, now()
+			, 'BM'
+		)
+	</insert>
+	
+	<insert id="updateTbSocial" parameterType="HashMap">
+		UPDATE SOCIAL_HISTORY
+		   SET TOKEN = #{token}
+				, UPDATE_DATE = now()
+				, cnt = cnt + 1
+			where ID = #{userId}
+	</insert>
+	
+	<!-- 회원 정보 조회 -->
+	<select id="selectUserInfo" parameterType="HashMap" resultType="HashMap">
+		SELECT 
+			USER_IDX as userIdx
+			, NAME as name
+			, USER_ID as userId
+			, PWD as password
+			, SEX as gender
+			, BIRTH_DAY as birthday
+			, CELL_1 as mobile1
+			, CELL_2 as mobile2
+			, CELL_3 as mobile3
+			, if(EMAIL_STATE = 1, 'true', 'false') agreeEmail
+			, if(SMS_STATE = 1, 'true', 'false') agreeSms
+			, if(FRIENDTV_STATE = 1, 'true', 'false') agreeFriendTv
+			, if(push_message_agree = 1, 'true', 'false') agreePush
+			, if(marketing_agree = 1, 'true', 'false') agreeMarketing
+			, if(geolocation_agree = 1, 'true', 'false') agreeGeolocation
+			, POINT as point
+			, MEMBERSHIP_YN as membershipYn
+			, UNIX_TIMESTAMP(access_date) AS createdAt
+		FROM MEMBER
+		WHERE USER_IDX = #{userIdx}
+	</select>
+	
+	
+</mapper>
