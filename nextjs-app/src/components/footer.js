@@ -42,7 +42,7 @@ const Footer = () => {
                             <Link href="/" title="유튜브">
                                 <img
                                     src={
-                                        ImgUrl + "cs/icon/app_logo_youtube.svg"
+                                        ImgUrl + "/cs/icon/app_logo_youtube.svg"
                                     }
                                     alt=""
                                 />
@@ -50,7 +50,8 @@ const Footer = () => {
                             <Link href="/" title="페이스북">
                                 <img
                                     src={
-                                        ImgUrl + "cs/icon/app_logo_facebook.svg"
+                                        ImgUrl +
+                                        "/cs/icon/app_logo_facebook.svg"
                                     }
                                     alt=""
                                 />
@@ -60,7 +61,7 @@ const Footer = () => {
                                 <img
                                     src={
                                         ImgUrl +
-                                        "cs/icon/app_logo_Instagram.svg"
+                                        "/cs/icon/app_logo_Instagram.svg"
                                     }
                                     alt=""
                                 />
@@ -68,14 +69,14 @@ const Footer = () => {
                             <Link href="/" title="블로그">
                                 {" "}
                                 <img
-                                    src={ImgUrl + "cs/icon/app_logo_blog.svg"}
+                                    src={ImgUrl + "/cs/icon/app_logo_blog.svg"}
                                     alt=""
                                 />
                             </Link>
                             <Link href="/" title="네이버포스트">
                                 {" "}
                                 <img
-                                    src={ImgUrl + "cs/icon/app_logo_naver.svg"}
+                                    src={ImgUrl + "/cs/icon/app_logo_naver.svg"}
                                     alt=""
                                 />
                             </Link>
@@ -88,7 +89,8 @@ const Footer = () => {
                                 {" "}
                                 <img
                                     src={
-                                        ImgUrl + "cs/icon/app_logo_appstore.svg"
+                                        ImgUrl +
+                                        "/cs/icon/app_logo_appstore.svg"
                                     }
                                     alt=""
                                 />
@@ -98,7 +100,7 @@ const Footer = () => {
                                 <img
                                     src={
                                         ImgUrl +
-                                        "cs/icon/app_logo_googleplay.svg"
+                                        "/cs/icon/app_logo_googleplay.svg"
                                     }
                                     alt=""
                                 />

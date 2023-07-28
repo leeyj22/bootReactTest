@@ -524,6 +524,7 @@ footer .bottom .app a img {
   max-width: 440px;
 }
 .form-write-basic .form-addr .btn-zip {
+  display: inline-block;
   padding: 15px;
   width: 190px;
   height: 66px;
@@ -533,6 +534,7 @@ footer .bottom .app a img {
   border-radius: 10px;
   font-size: 2rem;
   text-align: center;
+  cursor: pointer;
 }
 
 .form-write-title {
@@ -586,6 +588,49 @@ footer .bottom .app a img {
   height: 0;
 }
 
+.term-agree-wrap {
+  padding: 0 20px;
+}
+.term-agree-wrap .terms-list {
+  margin-bottom: 10px;
+}
+.term-agree-wrap .terms-list .btn-temp-pop {
+  float: right;
+  border: 1px solid #DAE0E6;
+  background: #fff;
+  position: relative;
+  width: 30px;
+  height: 30px;
+}
+.term-agree-wrap .terms-list .btn-temp-pop:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid #DAE0E6;
+  border-right: 2px solid #DAE0E6;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.btn-wrap {
+  margin-top: 100px;
+}
+.btn-wrap.service button {
+  display: inline-block;
+  padding: 22px;
+  width: 496px;
+  height: 80px;
+  background: #437EF7;
+  color: #fff;
+  border: 1px solid #DAE0E6;
+  border-radius: 10px;
+  font-size: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
 .form-file input[type=file] {
   margin: 0;
   padding: 0;
@@ -623,6 +668,7 @@ footer .bottom .app a img {
   background: url("https://bodyfriend.speedgabia.com/img/cs/icon/icon_del_nor.svg") no-repeat center;
 }
 .form-file .btn-file {
+  display: inline-block;
   padding: 15px;
   width: 190px;
   height: 66px;
@@ -632,6 +678,7 @@ footer .bottom .app a img {
   border-radius: 10px;
   font-size: 2rem;
   text-align: center;
+  cursor: pointer;
 }
 .form-file .notice {
   margin: 5px 0;

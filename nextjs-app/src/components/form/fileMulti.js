@@ -1,28 +1,54 @@
-import React from "react";
+import React, { useState } from "react";
+import useFileInput from "../../hooks/useFileInput";
 
-const FileMulti = ({ id, name, maxSize, maxLen, fileList }) => {
+const FileMulti = ({ name, maxSize, maxLen, fileList, onFormChange }) => {
+    const { inputRef, selectedFiles, handleFileChange, openFileDialog } =
+        useFileInput();
+
+    // const handleChange = (e) => {
+    //     const { name, value } = e.target;
+
+    //     console.log("file value", value);
+
+    //     setFileData({
+    //         ...fileData,
+    //         [name]: value,
+    //     });
+
+    //     onFormChange({
+    //         ...fileData,
+    //         [name]: value,
+    //     });
+    // };
+
     return (
         <div className="form-file">
             <div className="form-file-inner">
                 {fileList == "Y" && (
                     <div className="file-list">
-                        <div className="file-item">
-                            <span>파일명(용량)</span>
-                            <button className="btn-remove-file"></button>
-                        </div>
+                        {selectedFiles.map((file, index) => {
+                            <div className="file-item" key={index}>
+                                <span>{file.name}</span>
+                                <button
+                                    className="btn-remove-file"
+                                    key={index}
+                                ></button>
+                            </div>;
+                        })}
                     </div>
                 )}
-                <label htmlFor={id} className="btn-file">
-                    <input
-                        type="file"
-                        name={name}
-                        id={id}
-                        className="get-file"
-                        accept="image/*,video/*"
-                        multiple
-                    />
+                <input
+                    type="file"
+                    name={name}
+                    className="get-file"
+                    accept="image/*,video/*"
+                    multiple
+                    ref={inputRef}
+                    onChange={handleFileChange}
+                />
+                <button className="btn-file" onClick={openFileDialog}>
                     파일찾기
-                </label>
+                </button>
             </div>
             <div className="notice">
                 <p>

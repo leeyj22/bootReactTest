@@ -125,7 +125,7 @@ const Headers = () => {
                 <Link href="/" className="logo">
                     <h1>
                         <img
-                            src={ImgUrl + "bodyfriend/common/logo/logo_bf.svg"}
+                            src={ImgUrl + "/bodyfriend/common/logo/logo_bf.svg"}
                             alt="바디프랜드"
                         />
                         <span className="hdtxt">바디프랜드</span>

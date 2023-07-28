@@ -1,5 +1,6 @@
 	
 @mixin btn($padding,$width,$height,$font,$borderRadius,$bgColor,$color) {
+    display: inline-block;
     padding:$padding;
     width:$width;
     height:$height;
@@ -9,4 +10,5 @@
     border-radius:$borderRadius;
     font-size:$font;
     text-align: center;
+    cursor: pointer;
 }
