@@ -1,0 +1,49 @@
+.form-file{
+    input[type=file]{
+        margin:0;
+        padding:0;
+        width:0;
+        height: 0;
+        border:0;
+        min-width:0;
+        overflow: hidden;
+    }
+    .form-file-inner{
+        display: flex;
+    }
+    .file-list{
+        margin-right:10px;
+        padding:20px;
+        width:calc(100% - 200px);
+        min-height: 66px;
+        background-color: $color-grey-f3;
+        border:1px solid $color-border1;
+        border-radius: 10px;
+        .file-item{
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom:5px;
+            span{
+                word-break: break-all;
+                max-width:calc(100% - 30px);
+            }
+            .btn-remove-file{
+                margin-left:4px;
+                width:24px;
+                height:24px;
+                background:url($icon-del-nor)no-repeat center;
+            }
+        }
+    }
+    .btn-file{
+        @include btn(15px,190px,66px,2rem,10px,$color-white,$color-black2);
+    }
+    .notice{
+        margin:5px 0;
+        padding:0 20px;
+        p{
+            color:$color-grey-db;
+        }
+    }
+}
+

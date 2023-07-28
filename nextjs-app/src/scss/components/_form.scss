@@ -1,0 +1,117 @@
+// form-write-basic
+
+.form-write-basic{
+    *{
+        color:$color-black2;
+    }
+    .necessary{
+        &:after{
+            content: '*';
+            display: inline-block;
+            margin-left: 3px;
+            color: $color-redf0;
+            vertical-align: text-top;
+            font-weight: 700;
+        }
+    }
+    input[type=text],
+    select,
+    textarea{
+        padding:20px;
+        border-width:1px 1px 1px 1px;
+        border-radius: 10px;
+        border-color: $color-border1;
+        border-style: solid;
+        font-size:1.6rem;
+    }
+    .form-item{
+        input[type=text],
+        select,
+        textarea{
+            width:100%;
+        }
+    }
+    .form-call{
+        display: flex;
+        align-items: center;
+        & > span{
+            padding:0 10px;
+            font-size:2rem;
+        }
+        & > div{
+            width:200px;
+        }
+    }
+    .form-addr{
+        .zipcode{
+            margin-right:10px;
+            padding:20px;
+            width:calc(100% - 200px);
+            max-width: 440px;
+        }
+        .btn-zip{
+            @include btn(15px,190px,66px,2rem,10px,$color-white,$color-black2);
+        }
+    }
+}
+
+.form-write-title{
+    display: flex;
+    justify-content: space-between;
+    margin-top:100px;
+    margin-bottom:40px;
+    padding:25px 20px;
+    background-color: $color-secondary;
+    p{
+        display: inline-block;
+        font-size:2rem;
+        font-weight:700;
+    }
+    button{
+        padding-left:28px;
+        background:url($icon-info-nor)no-repeat center left;
+        background-color: transparent;
+        color:$color-grey-c9;
+        font-size:1.6rem;
+    }
+}
+
+.form-write-item{
+    margin-bottom:20px;
+    .form-item{
+        display:flex;
+        justify-content: space-between;
+        margin-bottom:10px;
+        &.col-1{
+            & > .col{
+                width:100%;
+            }
+        }
+        &.col-2{
+            & > .col{
+                width:calc(50% - 5px);
+            }
+        }
+        &.col-3{
+            & > .col{
+                width:calc(33.33% - 5px);
+            }
+        }
+    }
+    .form-title{
+        margin-bottom:15px;
+        font-size:2rem;
+        font-weight: 700;
+    }
+
+    .form-selectbox{
+        label{
+            position: absolute;
+            opacity: 0;
+            text-indent: -9999px;
+            width: 0;
+            height: 0;
+        }
+    }
+    
+}

@@ -1,0 +1,73 @@
+.bradbrumb_wrap{
+    padding:20px;
+    border-bottom:1px solid $color-grey-a4;
+    *{
+        font-size: 1.2rem;
+        color:$color-grey-a4;
+    }
+    .inner{
+        display: flex;
+        flex-wrap: wrap;
+        margin:0 auto;
+        width:1200px;
+    }
+    li{
+        position: relative;
+        margin-right:15px;
+        padding-right:15px;
+        &:after{
+            content:">";
+            position: absolute;
+            top:50%;
+            right:0;
+            transform: translateY(-50%);
+        }
+        a{
+            display: block;
+        }
+        &:last-child{
+            &::after{
+                display: none;
+            }
+            & > a{
+                padding-right:15px;
+                &::after{
+                    content:"";
+                    position: absolute;
+                    top:50%;
+                    right:0;
+                    transform: translateY(-50%);
+                    width:20px;
+                    height: 20px;
+                    background:url($arrow-grey-down)no-repeat center;
+                    transition: all .2s;
+                }
+            }
+        }
+        &.active{
+           & > a{
+            &:after{
+                transform: rotate(180deg) translateY(50%);
+            }
+           }
+           .pop{
+            display: block;
+           }
+        }
+    }
+    .pop{
+        display: none;
+        position: absolute;
+        top:calc(100% + 10px);
+        left:0;
+        padding:20px;
+        width:150px;
+        border-radius:8px;
+        border:1px solid $color-grey-b0;
+        background-color:$color-white;
+        z-index: 1;
+        a{
+            padding:5px 0;
+        }
+    }
+}
