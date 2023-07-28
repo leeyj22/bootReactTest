@@ -10,7 +10,9 @@ import com.bf.web.member.bean.SiteInfo;
 import com.bf.web.member.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -24,26 +26,30 @@ import java.util.Map;
 
 @Controller
 @Slf4j
+@CrossOrigin("http://localhost:3000")
 public class MemberController {
 
     @Resource private MemberService memberService;
 
     @Value(value="${system.auth.url}")
-    public static String systemAuthUrl;
+    public String systemAuthUrl;
     @Value(value="${system.auth.client}")
-    public static String systemAuthClient;
+    public String systemAuthClient;
     @Value(value="${system.host.name}")
-    public static String systemHostName;
+    public String systemHostName;
     @Value(value="${system.admin.url}")
-    public static String systemAdminUrl;
+    public String systemAdminUrl;
 
     Sha256 sha256 = new Sha256();
 
+    @ResponseBody
     @RequestMapping(value="/member/login")
-    public ModelAndView login(HttpSession session, HttpServletRequest request, @RequestParam Map<String, Object> params){
+    public String login(HttpSession session, HttpServletRequest request, @RequestParam Map<String, Object> params){
 
-        ModelAndView mav = new ModelAndView();
-        String loginUrl = systemAuthUrl + "/auth/common/login?client_id=" + systemAuthClient + "&redirect_uri=https://" + systemHostName + "/member/login_return";
+//        ModelAndView mav = new ModelAndView();
+        Map<String, Object> map = new HashMap<>();
+        String loginUrl = systemAuthUrl + "/auth/common/login?client_id=" + systemAuthClient + "&redirect_uri="
+        + systemHostName + "/member/login_return";
 
         String refer = request.getHeader("referer");
         String returnUrl = "/";
@@ -54,10 +60,13 @@ public class MemberController {
             returnUrl = refer;
         }
 
-        mav.addObject("returnUrl", returnUrl);
-        mav.setViewName("redirect:" + loginUrl);
+        map.put("returnUrl", returnUrl);
+//        mav.addObject("returnUrl", returnUrl);
+//        mav.setViewName("redirect:" + loginUrl);
 
-        return mav;
+//        return map;
+
+        return loginUrl;
     }
 
     @RequestMapping(value="/member/login_old")
@@ -75,7 +84,7 @@ public class MemberController {
      */
     @SuppressWarnings("rawtypes")
     @RequestMapping(value="/member/login_return", method = RequestMethod.GET)
-    public Response login_return(HttpSession session, @RequestParam Map<String, Object> params
+    public ModelAndView login_return(HttpSession session, @RequestParam Map<String, Object> params
             , HttpServletResponse response
             , @CookieValue(value= CommonCodes.CookieCode.ACCESS_TOKEN, required = false) Cookie token
             , @CookieValue(value=CommonCodes.CookieCode.ACCESS_TOKEN_RT, required = false) Cookie tokenRt
@@ -87,6 +96,7 @@ public class MemberController {
         log.info("[MEMBER][CONTROLLER][MemberController][login_return][START]");
 
         Response res = memberService.checkLoginTk(session, token, response);
+        ModelAndView mav = new ModelAndView();
 
         //토큰 만료 시 재생성 및 로그인 처리
         if (!CommonCodes.ResultCode.SUCCESS.equals(res.getStatus().get("code"))) {
@@ -94,15 +104,17 @@ public class MemberController {
             System.out.println(">>>> params tokenRt c : " + params.get("params"));
 
             if("ERR_MS_4001".equals(res.getStatus().get("code"))) {
-//                mav.setViewName("redirect:/member/loginFail");
-                return res;
+                mav.setViewName("redirect:/");
+                return mav;
             }
 
             Response reToken = memberService.checkLoginRt(session, params);
 
             if (null==reToken.getData() || "ERR_MS_5000".equals(reToken.getData().get("code"))) {
-//                mav.setViewName("redirect:/member/loginFail");
-                return res;
+                mav.setStatus(HttpStatus.BAD_REQUEST);
+                mav.setViewName("/");
+                mav.addObject("msg", "일단와라");
+                return mav;
             }
 
             token = new Cookie("bftk", reToken.getData().get("accessToken").toString());
@@ -116,7 +128,7 @@ public class MemberController {
         // URL 처리용 빈 페이지
         // 화면에서 로컬 스토리지 - returnUrl 받아서 요청한 페이지로 이동해줌
 //        mav.setViewName("/web/member/login_return");
-        return res;
+        return mav;
     }
 
     // 비회원 주문확인 로그인 페이지

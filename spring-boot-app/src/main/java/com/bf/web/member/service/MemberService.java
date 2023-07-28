@@ -40,7 +40,7 @@ import java.util.Map;
 public class MemberService {
 
     @Value(value="${system.auth.url}")
-    public static String systemAuthUrl;
+    public String systemAuthUrl;
 
     @Value(value = "${system.withdraw.url}")
     String withdrawUrl;
