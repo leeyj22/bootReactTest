@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { ImgUrl } from "../hooks/imgurl";
 import { useDispatch, useSelector } from "react-redux";
-import { LOGIN_REQUEST } from "../reducers/user";
+import { LOGIN_URL_REQUEST } from "../reducers/user";
 
 const headerUi = (otherLinkRef) => {
     const headerEl = document.querySelector("#header");
@@ -108,13 +108,15 @@ const Headers = () => {
     const otherLinkRef = useRef(null);
     const loginstate = false;
 
-    const { loginDone, user } = useSelector((state) => state.user);
+    const { loginUrlDone, loginUrl } = useSelector((state) => state.user);
 
     useEffect(() => {
-        if (loginDone) {
-            location.href = user;
+        if (loginUrlDone) {
+            // location.href = loginUrl;
+            location.href =
+                "https://tauth.bodyfriend.com/auth/common/login?client_id=tbodyfriend&redirect_uri=http://localhost:3000/login/login_return";
         }
-    }, [loginDone]);
+    }, [loginUrlDone]);
 
     useEffect(() => {
         //header UI
@@ -123,7 +125,7 @@ const Headers = () => {
 
     const login = () => {
         dispatch({
-            type: LOGIN_REQUEST,
+            type: LOGIN_URL_REQUEST,
         });
     };
 

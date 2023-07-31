@@ -42,7 +42,7 @@ const Service = () => {
                 {/* 버튼 */}
                 <Button
                     btnName="service"
-                    position="center"
+                    pos="center"
                     formData={formData}
                     checkValidation={checkValidation}
                     handleSubmit={handleSubmit}

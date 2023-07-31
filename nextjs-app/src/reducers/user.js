@@ -5,6 +5,10 @@ export const initalState = {
     getTestDone: false,
     getTestError: null,
     test: null,
+    loginUrlLoading: true,
+    loginUrlDone: false,
+    loginUrlError: null,
+    loginUrl: null,
     loginLoading: true,
     loginDone: false,
     loginError: null,
@@ -14,6 +18,10 @@ export const initalState = {
 export const GET_TEST_APT_REQUEST = "GET_TEST_APT_REQUEST";
 export const GET_TEST_APT_SUCCESS = "GET_TEST_APT_SUCCESS";
 export const GET_TEST_APT_FAILURE = "GET_TEST_APT_FAILURE";
+
+export const LOGIN_URL_REQUEST = "LOGIN_URL_REQUEST";
+export const LOGIN_URL_SUCCESS = "LOGIN_URL_SUCCESS";
+export const LOGIN_URL_FAILURE = "LOGIN_URL_FAILURE";
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
@@ -38,6 +46,20 @@ export const reducer = (state = initalState, action) => {
                 draft.getTestError = action.error;
                 break;
             // login
+            case LOGIN_URL_REQUEST:
+                draft.loginUrlLoading = true;
+                draft.loginUrlDone = false;
+                draft.loginUrlError = null;
+                break;
+            case LOGIN_URL_SUCCESS:
+                draft.loginUrlLoading = false;
+                draft.loginUrlDone = true;
+                draft.loginUrl = action.data;
+                break;
+            case LOGIN_URL_FAILURE:
+                draft.loginUrlLoading = false;
+                draft.loginUrlError = action.error;
+                break;
             case LOGIN_REQUEST:
                 draft.loginLoading = true;
                 draft.loginDone = false;
@@ -45,7 +67,7 @@ export const reducer = (state = initalState, action) => {
                 break;
             case LOGIN_SUCCESS:
                 draft.loginLoading = false;
-                draft.loginDone = true;
+                draft.loginUrlDone = true;
                 draft.user = action.data;
                 break;
             case LOGIN_FAILURE:

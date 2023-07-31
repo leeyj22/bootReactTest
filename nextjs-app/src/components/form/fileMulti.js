@@ -1,25 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useFileInput from "../../hooks/useFileInput";
 
 const FileMulti = ({ name, maxSize, maxLen, fileList, onFormChange }) => {
     const { inputRef, selectedFiles, handleFileChange, openFileDialog } =
         useFileInput();
 
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-
-    //     console.log("file value", value);
-
-    //     setFileData({
-    //         ...fileData,
-    //         [name]: value,
-    //     });
-
-    //     onFormChange({
-    //         ...fileData,
-    //         [name]: value,
-    //     });
-    // };
+    const handleChangeSelectedFiles = (files) => {
+        handleFileChange(files); // 파일 선택 상태 업데이트
+        onFormChange(files); // 상위 컴포넌트로 선택한 파일들 전달
+    };
+    const handleRemoveFile = (index) => {
+        const updateFile = selectedFiles.filter((file, i) => i !== index);
+        handleChangeSelectedFiles(updateFile);
+    };
 
     return (
         <div className="form-file">
@@ -27,13 +20,16 @@ const FileMulti = ({ name, maxSize, maxLen, fileList, onFormChange }) => {
                 {fileList == "Y" && (
                     <div className="file-list">
                         {selectedFiles.map((file, index) => {
-                            <div className="file-item" key={index}>
-                                <span>{file.name}</span>
-                                <button
-                                    className="btn-remove-file"
-                                    key={index}
-                                ></button>
-                            </div>;
+                            return (
+                                <div className="file-item" key={index}>
+                                    <span>{file.name}</span>
+                                    <button
+                                        className="btn-remove-file"
+                                        key={index}
+                                        onClick={() => handleRemoveFile(index)}
+                                    ></button>
+                                </div>
+                            );
                         })}
                     </div>
                 )}
@@ -44,7 +40,7 @@ const FileMulti = ({ name, maxSize, maxLen, fileList, onFormChange }) => {
                     accept="image/*,video/*"
                     multiple
                     ref={inputRef}
-                    onChange={handleFileChange}
+                    onChange={(e) => handleChangeSelectedFiles(e.target.files)}
                 />
                 <button className="btn-file" onClick={openFileDialog}>
                     파일찾기

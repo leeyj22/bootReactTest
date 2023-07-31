@@ -23,7 +23,7 @@ const InputChkbox = styled.span`
 
 const ButtonStyle = styled.button`
     display: flex;
-    justify-content: ${(props) => props.position};
+    justify-content: ${(props) => props.pos};
 `;
 
 export { InputChkbox, ButtonStyle };

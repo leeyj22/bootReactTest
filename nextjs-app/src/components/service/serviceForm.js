@@ -40,6 +40,14 @@ const ServiceForm = ({ onFormChange }) => {
         },
         [onFormChange, formData]
     );
+
+    const handleFileChange = (files) => {
+        onFormChange({
+            ...formData,
+            ex_filename: files,
+        });
+        // 파일 선택이 변경되었을 때 다른 작업을 수행하고 싶다면 해당 내용을 추가로 작성합니다.
+    };
     return (
         <article className="form-write-basic">
             <FormWriteTitle
@@ -189,7 +197,7 @@ const ServiceForm = ({ onFormChange }) => {
                             maxSize="300MB"
                             id="ex_filename"
                             fileList="Y"
-                            onFormChange={onFormChange}
+                            onFormChange={handleFileChange}
                         />
                     </div>
                 </div>

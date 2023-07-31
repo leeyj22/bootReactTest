@@ -6,7 +6,7 @@ const useFileInput = () => {
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
-        setSelectedFiles(files);
+        setSelectedFiles(files); // 랜덤한 값을 추가하여 상태 업데이트를 트리거
     };
 
     const openFileDialog = () => {
