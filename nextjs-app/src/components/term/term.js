@@ -49,3 +49,4 @@ const Term = ({ allChk, termslist, onFormChange }) => {
 };
 
 export default React.memo(Term);
+>>>>>>> origin/front
