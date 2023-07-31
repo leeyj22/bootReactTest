@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { ImgUrl } from "../hooks/imgurl";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { LOGIN_REQUEST } from "../reducers/user";
 
 const headerUi = (otherLinkRef) => {
@@ -107,6 +107,14 @@ const Headers = () => {
     const dispatch = useDispatch();
     const otherLinkRef = useRef(null);
     const loginstate = false;
+
+    const { loginDone, user } = useSelector((state) => state.user);
+
+    useEffect(() => {
+        if (loginDone) {
+            location.href = user;
+        }
+    }, [loginDone]);
 
     useEffect(() => {
         //header UI

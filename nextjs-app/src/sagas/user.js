@@ -34,7 +34,7 @@ function* getTest(action) {
 
 // login
 function loginAPI() {
-    return axios.get("api/member/login");
+    return axios.get("member/login");
 }
 
 function* login(action) {

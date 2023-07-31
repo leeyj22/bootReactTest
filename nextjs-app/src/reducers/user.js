@@ -40,13 +40,13 @@ export const reducer = (state = initalState, action) => {
             // login
             case LOGIN_REQUEST:
                 draft.loginLoading = true;
-                draft.loginLoadingDone = false;
+                draft.loginDone = false;
                 draft.loginError = null;
                 break;
             case LOGIN_SUCCESS:
                 draft.loginLoading = false;
-                draft.loginLoadingDone = true;
-                draft.user = acton.data;
+                draft.loginDone = true;
+                draft.user = action.data;
                 break;
             case LOGIN_FAILURE:
                 draft.loginLoading = false;
