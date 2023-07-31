@@ -17,7 +17,6 @@ public class WebConfig implements WebMvcConfigurer {
                         , "http://localhost:4343"
                         , "https://t.bodyfriend.com"
                         , "https://tauth.bodyfriend.com/"
-                        , "https://www.naver.com"
                 );
     }
 }
