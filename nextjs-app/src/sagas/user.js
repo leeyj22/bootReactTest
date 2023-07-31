@@ -60,7 +60,8 @@ function* loginRequestUrl(action) {
 
 //login
 function loginRequestAPI(data) {
-    return axios.post("member/login", data);
+    console.log("data", data);
+    return axios.post("member/login_return", data);
 }
 
 function* loginRequest(action) {

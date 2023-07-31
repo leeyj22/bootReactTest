@@ -30,11 +30,11 @@ const Service = () => {
                 <ServiceForm onFormChange={handleFormChange} />
 
                 {/* 약관동의 */}
-                {/* <Term
+                <Term
                     allChk="Y"
                     termslist={["policy", "marketing"]}
                     onFormChange={handleFormChange}
-                /> */}
+                />
 
                 {/* 유의사항 */}
                 <NoticeService noticeName="service" />
