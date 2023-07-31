@@ -46,7 +46,6 @@ public class MemberController {
     @RequestMapping(value="/member/login")
     public String login(HttpSession session, HttpServletRequest request, @RequestParam Map<String, Object> params){
 
-//        ModelAndView mav = new ModelAndView();
         Map<String, Object> map = new HashMap<>();
         String loginUrl = systemAuthUrl + "/auth/common/login?client_id=" + systemAuthClient + "&redirect_uri="
         + systemHostName + "/member/login_return";
@@ -61,25 +60,11 @@ public class MemberController {
         }
 
         map.put("returnUrl", returnUrl);
-//        mav.addObject("returnUrl", returnUrl);
-//        mav.setViewName("redirect:" + loginUrl);
-
-//        return map;
-
         return loginUrl;
     }
 
-    @RequestMapping(value="/member/login_old")
-    public ModelAndView login_old(){
-
-        ModelAndView mav = new ModelAndView();
-        mav.setViewName("/web/member/login_old");
-
-        return mav;
-    }
-
     /**
-     * 통합로그인 returnUrl 처리용 빈 페이지
+     * 통합로그인 returnUrl 처리
      * @return
      */
     @SuppressWarnings("rawtypes")
