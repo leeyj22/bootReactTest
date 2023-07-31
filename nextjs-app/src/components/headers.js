@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { ImgUrl } from "../hooks/imgurl";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { LOGIN_REQUEST } from "../reducers/user";
 
 const headerUi = (otherLinkRef) => {
@@ -108,6 +108,14 @@ const Headers = () => {
     const otherLinkRef = useRef(null);
     const loginstate = false;
 
+    const { loginDone, user } = useSelector((state) => state.user);
+
+    useEffect(() => {
+        if (loginDone) {
+            location.href = user;
+        }
+    }, [loginDone]);
+
     useEffect(() => {
         //header UI
         headerUi(otherLinkRef);
@@ -125,7 +133,7 @@ const Headers = () => {
                 <Link href="/" className="logo">
                     <h1>
                         <img
-                            src={ImgUrl + "bodyfriend/common/logo/logo_bf.svg"}
+                            src={ImgUrl + "/bodyfriend/common/logo/logo_bf.svg"}
                             alt="바디프랜드"
                         />
                         <span className="hdtxt">바디프랜드</span>

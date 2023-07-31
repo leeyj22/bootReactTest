@@ -1,19 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { terms } from "../../data/terms";
+import InputCheck from "../form/inputCheck";
 
 // const termslist = ['policy','mareting'];
 
-console.log("terms", terms);
+const Term = ({ allChk, termslist, onFormChange }) => {
+    const [formData, setFormData] = useState({
+        // 약관 항목
+    });
 
-const Term = ({ allChk, termslist }) => {
-    console.log("termslist", termslist);
+    const handleChange = (e) => {
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+        }));
+
+        onFormChange({
+            ...formData,
+        });
+    };
     return (
         <article className="term-agree-wrap" data-allchk={allChk}>
             {allChk == "Y" && (
                 <dl className="terms-list">
                     <dt className="temp-title">
-                        <input type="checkbox" id="chkAll" />
-                        <label htmlFor="chkAll">전체 동의</label>
+                        <InputCheck id="chkAll" name="모두 동의" />
                     </dt>
                 </dl>
             )}
@@ -22,11 +32,10 @@ const Term = ({ allChk, termslist }) => {
                     return (
                         <dl className="terms-list" key={term.id}>
                             <dt className="temp-title">
-                                <input type="checkbox" id={term.param} />
-                                <label htmlFor={term.param}>{term.name}</label>
-                                <button>
+                                <InputCheck id={term.id} name={term.name} />
+                                <button className="btn-temp-pop">
                                     <span className="hdtxt">
-                                        개인정보 수집 · 이용 동의 안내 팝업 열기
+                                        {term.name} 팝업 열기
                                     </span>
                                 </button>
                             </dt>
@@ -39,4 +48,5 @@ const Term = ({ allChk, termslist }) => {
     );
 };
 
-export default Term;
+export default React.memo(Term);
+>>>>>>> origin/front

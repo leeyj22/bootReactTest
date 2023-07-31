@@ -1,0 +1,28 @@
+@mixin clearfix() {
+    &::after{
+      content:'';
+      display:block;
+      clear: both;
+    }
+  }
+
+  @mixin contentArrowRight($width,$height){
+    position: relative;
+    width:$width;
+    height:$height;
+    &:after{
+      content:"";
+      position: absolute;
+      top:50%;
+      @if($width >= 30){
+        right:10px;
+      }@else{
+        right:5px;
+      }
+      width:10px;
+      height:10px;
+      border-top:2px solid $color-border1;
+      border-right:2px solid $color-border1;
+      transform:translateY(-50%) rotate(45deg);
+    }
+  }

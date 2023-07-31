@@ -112,6 +112,30 @@
             width: 0;
             height: 0;
         }
+    }   
+}
+
+
+// 이용약관
+.term-agree-wrap{
+    padding:0 20px;
+    .terms-list{
+        margin-bottom:10px;
+        .btn-temp-pop{
+            float:right;
+            border:1px solid $color-border1;
+            background:$color-white;
+            @include contentArrowRight(30px,30px);
+        }
     }
-    
+}
+
+// button
+.btn-wrap{
+    margin-top: 100px;
+    &.service{
+        button{
+            @include btn(22px,496px,80px,20px,10px,$color-primary,$color-white);
+        }
+    }
 }
