@@ -2,17 +2,19 @@ import React, { useEffect, useState } from "react";
 import useFileInput from "../../hooks/useFileInput";
 
 const FileMulti = ({ name, maxSize, maxLen, fileList, onFormChange }) => {
-    const { inputRef, selectedFiles, handleFileChange, openFileDialog } =
-        useFileInput();
+    const {
+        inputRef,
+        selectedFiles,
+        handleFileChange,
+        handleRemoveFile,
+        openFileDialog,
+    } = useFileInput(3);
 
-    const handleChangeSelectedFiles = (files) => {
-        handleFileChange(files); // 파일 선택 상태 업데이트
-        onFormChange(files); // 상위 컴포넌트로 선택한 파일들 전달
-    };
-    const handleRemoveFile = (index) => {
-        const updateFile = selectedFiles.filter((file, i) => i !== index);
-        handleChangeSelectedFiles(updateFile);
-    };
+    useEffect(() => {
+        if (selectedFiles.length > 1) {
+            onFormChange(selectedFiles); // 상위 컴포넌트로 선택한 파일들 전달
+        }
+    }, [selectedFiles]);
 
     return (
         <div className="form-file">
@@ -40,7 +42,7 @@ const FileMulti = ({ name, maxSize, maxLen, fileList, onFormChange }) => {
                     accept="image/*,video/*"
                     multiple
                     ref={inputRef}
-                    onChange={(e) => handleChangeSelectedFiles(e.target.files)}
+                    onChange={(e) => handleFileChange(e.target.files)}
                 />
                 <button className="btn-file" onClick={openFileDialog}>
                     파일찾기

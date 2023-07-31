@@ -1,12 +1,19 @@
 import React, { useRef, useState } from "react";
 
-const useFileInput = () => {
+const useFileInput = (maxFiles) => {
     const inputRef = useRef(null);
     const [selectedFiles, setSelectedFiles] = useState([]);
 
-    const handleFileChange = (e) => {
-        const files = Array.from(e.target.files);
-        setSelectedFiles(files); // 랜덤한 값을 추가하여 상태 업데이트를 트리거
+    const handleFileChange = (files) => {
+        // 기존 선택된 파일들과 새로 추가된 파일들을 합칩니다.
+        const allFiles = [...selectedFiles, ...Array.from(files)];
+
+        // 최대 파일 개수를 확인하여 제한
+        if (allFiles.length <= maxFiles) {
+            setSelectedFiles(allFiles);
+        } else {
+            alert(`최대 ${maxFiles}개의 파일만 선택할 수 있습니다.`);
+        }
     };
 
     const openFileDialog = () => {
@@ -15,10 +22,16 @@ const useFileInput = () => {
         }
     };
 
+    const handleRemoveFile = (index) => {
+        const updatedFiles = selectedFiles.filter((file, i) => i !== index);
+        setSelectedFiles(updatedFiles);
+    };
+
     return {
         inputRef,
         selectedFiles,
         handleFileChange,
+        handleRemoveFile,
         openFileDialog,
     };
 };

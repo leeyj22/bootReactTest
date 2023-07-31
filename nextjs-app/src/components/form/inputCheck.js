@@ -3,8 +3,8 @@ import { InputChkbox } from "../../style/FormStyle";
 
 const InputCheck = ({ id, name }) => {
     return (
-        <InputChkbox className="input-checkbox">
-            <input type="checkbox" id={id} checked />
+        <InputChkbox>
+            <input type="checkbox" id={id} />
             <label htmlFor={id}>{name}</label>
         </InputChkbox>
     );
