@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="common_mapper">
+
+    <sql id="pagePrefix">
+    	
+    	SELECT NAV.*
+      	FROM ( SELECT @rownum:=@rownum+1 AS rowNbr, TM.* 
+                 FROM (
+                 
+    </sql>
+     
+    <sql id="pageSuffix">
+    				) TM, (select @rownum:=0) TMP
+        	) NAV
+        LIMIT ${firstLimitIndex}, ${lastLimitIndex}
+    </sql>
+    
+    <sql id="pageSuffix01">
+    				) TM, (select @rownum:=0) TMP
+        	) NAV
+        LIMIT #{firstLimitIndex}, 15
+    </sql>
+     
+    <sql id="pageSuffix02">
+	    				) TM, (select @rownum:=0) TMP
+	        	) NAV
+       	    ORDER BY ROWNBR DESC
+        LIMIT ${firstLimitIndex}, ${lastLimitIndex}
+    </sql>
+   
+    
+</mapper>

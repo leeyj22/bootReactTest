@@ -1,0 +1,2356 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bf.web.customer.mapper.CustomerMapper">
+
+	<select id="selectNoticeList" resultType="com.bf.web.customer.vo.NoticeVO">
+		SELECT
+		       @notice_num := @notice_num + 1 AS rowNbr
+		     , bbs_idx bbsIdx
+		     , classification
+		     , subject
+		     , writer
+		     , DATE_FORMAT(reg_date, '%Y-%m-%d') AS regDate
+		     , hit
+		FROM   bbs_normal
+		     , (select @notice_num:=0) TMP
+		WHERE  1 = 1
+		AND    bbs_code = 1
+		AND    notice = 1
+		AND    bbs_idx NOT IN ('10270','10194','9933','9668')
+		AND    subject NOT LIKE '%[언론보도]%'
+		ORDER
+		BY     bbs_idx desc
+		LIMIT  10
+	</select>
+
+	<select id="selectNoticeNormalList" resultType="com.bf.web.customer.vo.NoticeVO" parameterType="com.bf.web.customer.vo.NoticeVO">
+
+		<include refid="common_mapper.pagePrefix" />
+		select
+				A.bbsCode
+				, A.bbsIdx
+				, A.classification
+				, A.subject
+				, A.writer
+				, A.regDate
+				, A.hit
+				, (select count(*) from bbs_normal where bbs_code = 1 and site_type = 'B' and subject not like '%[언론보도]%') AS totalCnt
+		from (
+			select
+				bbs_code bbsCode
+				, bbs_idx bbsIdx
+				, classification
+				, subject
+				, writer
+				, DATE_FORMAT(reg_date, '%Y-%m-%d') regDate
+				, hit
+			from bbs_normal
+				where bbs_code = 1
+				<if test="searchStr!=null and searchStr!=''">
+					and (subject like CONCAT('%',#{searchStr},'%') or contents like CONCAT('%',#{searchStr},'%'))
+				</if>
+				order by bbs_idx desc
+		) A
+		where A.bbsCode = 1
+			and A.bbsIdx not in ('10270','10194','9933','9668')
+			and subject not like '%[언론보도]%'
+		order by A.regDate desc
+		<include refid="common_mapper.pageSuffix" />
+
+	</select>
+
+	<select id="selectNoticeDetail" resultType="com.bf.web.customer.vo.NoticeVO" parameterType="String">
+		select
+			  A.classification
+			, A.subject
+			, A.writer
+			, A.hit
+			, F.up_file_name as upFileName
+			, F.ori_file_name as oriFileName
+			, F.file_size as fileSize
+			, F.file_type as fileType
+			, A.contents
+			, DATE_FORMAT(A.reg_date, '%Y-%m-%d') regDate
+		from bbs_normal A
+		LEFT JOIN BBS_NORMAL_UPFILE F on A.bbs_idx = F.bbs_idx AND A.bbs_code = F.bbs_code
+		where A.bbs_code = 1 and A.bbs_idx = #{idx}
+	</select>
+
+	<update id="updateHitCountForNotice" parameterType="String">
+		update
+			bbs_normal
+		set hit = hit + 1
+		where bbs_idx = #{idx}
+	</update>
+<!--
+
+	&lt;!&ndash; 자료실 리스트 &ndash;&gt;
+	<select id="selectReferenceList" parameterType="HashMap" resultType="com.bf.web.event.BbsGalleryVO">
+		<include refid="common_mapper.pagePrefix" />
+		SELECT
+			BBS_IDX AS bbsIdx
+			, CLASSIFICATION AS classification
+			, SUBJECT AS subject
+			&lt;!&ndash; , CONTENTS AS contents &ndash;&gt;
+			, WRITER AS writer
+			, REG_DATE AS regDate
+			, GROUPS AS groups
+			, REF AS ref
+			, HIT AS hit
+			, DEPTH AS depth
+			, USER_IDX AS userIdx
+			, ORIGIN_USER_IDX AS originUserIdx
+			, SECRET AS secret
+			, UPFILE_CNT AS upfileCnt
+			, COMMENT_CNT AS commentCnt
+			, UP_FILE_NAME AS upFileName
+			, STEP_2 AS step2
+			, LINK AS link
+			, totalCnt
+			, thumbnail
+		FROM
+		(
+			SELECT
+				A.BBS_IDX
+				, A.CLASSIFICATION
+				, A.SUBJECT
+				&lt;!&ndash; , A.CONTENTS &ndash;&gt;
+				, A.WRITER
+				, DATE_FORMAT(A.REG_DATE, '%Y-%m-%d') as REG_DATE
+				, A.GROUPS
+				, A.REF
+				, A.HIT
+				, A.DEPTH
+				, A.USER_IDX
+				, A.ORIGIN_USER_IDX
+				, A.SECRET
+				, A.UPFILE_CNT
+				, A.COMMENT_CNT
+				, UP_FILE_NAME
+				, A.STEP_2
+				, A.LINK
+				,
+					 (
+							SELECT
+								COUNT(A.BBS_IDX)
+							FROM BBS_NORMAL A LEFT JOIN (SELECT * FROM BBS_NORMAL_UPFILE WHERE BBS_CODE=9 AND FILE_TYPE = 2) B ON A.BBS_IDX = B.BBS_IDX
+							<include refid="referenceListWhere"></include>
+							&lt;!&ndash; AND A.site_type like '%B%' &ndash;&gt;
+							ORDER BY A.GROUPS DESC, A.REF ASC
+					) as totalCnt
+				, A.thumbnail
+			FROM BBS_NORMAL A LEFT JOIN (SELECT * FROM BBS_NORMAL_UPFILE WHERE BBS_CODE=9 AND FILE_TYPE = 2) B ON A.BBS_IDX = B.BBS_IDX
+			<include refid="referenceListWhere"></include>
+			&lt;!&ndash; ORDER BY A.GROUPS DESC, A.REF ASC &ndash;&gt;
+			ORDER BY A.SITE_TYPE ASC, DATE_FORMAT(A.REG_DATE, '%Y-%m-%d') DESC, A.BBS_IDX DESC
+		) C
+		&lt;!&ndash; LIMIT  0, #{selectCnt} &ndash;&gt;
+		<include refid="common_mapper.pageSuffix" />
+	</select>
+
+	&lt;!&ndash; 자료실 조건 쿼리 &ndash;&gt;
+	<sql id="referenceListWhere">
+		WHERE A.BBS_CODE = 9
+			AND A.del_state != 1		&lt;!&ndash; 노출 여부 (1:비노출 0:노출) &ndash;&gt;
+		<if test="searchStr!=null and searchStr!=''">
+			AND REPLACE(A.SUBJECT, ' ', '') LIKE CONCAT('%',REPLACE(#{searchStr}, ' ',''),'%')
+			&lt;!&ndash; AND A.SUBJECT LIKE CONCAT('%',#{searchStr},'%') &ndash;&gt;
+		</if>
+		<if test="classification!=null and classification!=''">
+			AND A.CLASSIFICATION IN (${classification})
+		</if>
+		<if test="step2!=null and step2!=''">
+			AND A.step_2 = #{step2}
+		</if>
+			AND A.site_type like '%B%'
+	</sql>
+
+	&lt;!&ndash; 자료실 카테고리 조회 &ndash;&gt;
+	<select id="selectReferenceStep2List" parameterType="string" resultType="HashMap">
+		SELECT DISTINCT A.step_2 AS step2
+		FROM BBS_NORMAL A LEFT JOIN (SELECT * FROM BBS_NORMAL_UPFILE WHERE FILE_TYPE = 2) B ON A.BBS_IDX = B.BBS_IDX
+		WHERE A.BBS_CODE = 9
+			AND A.del_state != 1		&lt;!&ndash; 노출 여부 (1:비노출 0:노출) &ndash;&gt;
+		<if test="value!=null and value!=''">
+			AND A.CLASSIFICATION IN (${value})
+		</if>
+			AND A.STEP_2 IS NOT NULL
+		ORDER BY IF (step_2='M', 0, IF (step_2='D', 0.1, IF (step_2='MD', 1, IF (step_2='L', 2, IF (step_2='W', 3, IF (step_2='MS', 5, 4))))))
+		&lt;!&ndash; M안마의자, MD마사지베드, D의료기기, W정수기, L라클라우드, MS소형안마기 &ndash;&gt;
+	</select>
+
+	&lt;!&ndash; 자료실 건수 조회 &ndash;&gt;
+	&lt;!&ndash; <select id="selectReferenceListTotalCount" resultType="Integer" parameterType="hashmap">
+		SELECT
+			count(BBS_IDX) totalCount
+		FROM
+		(
+			SELECT
+				A.BBS_IDX
+
+			FROM BBS_NORMAL A LEFT JOIN (SELECT * FROM BBS_NORMAL_UPFILE WHERE FILE_TYPE = 2) B ON A.BBS_IDX = B.BBS_IDX
+			WHERE A.BBS_CODE = 9
+			<if test="tab.equals('guide')">
+				AND A.SUBJECT LIKE '%설명서%'
+			</if>
+			<if test="tab.equals('emi')">
+				AND A.SUBJECT LIKE '%인증서%'
+			</if>
+			<if test="tab.equals('video')">
+				AND A.SUBJECT LIKE '%영상%'
+			</if>
+			<if test="tab.equals('etc')">
+				AND (A.SUBJECT not like '%영상%' and A.SUBJECT not like '%설명서%' and A.SUBJECT not like '%퀵 가이드%')
+			</if>
+			<if test="tab.equals('app')">
+				AND A.SUBJECT LIKE '%앱%'
+			</if>
+			<if test="tab.equals('quickGuide')">
+				AND A.SUBJECT LIKE '%퀵 가이드%'
+			</if>
+			<if test="searchStr!=null and searchStr!=''">
+				AND A.SUBJECT LIKE CONCAT('%',#{searchStr},'%')
+			</if>
+			ORDER BY A.GROUPS DESC, A.REF ASC
+		) C
+	</select> &ndash;&gt;
+
+	&lt;!&ndash; 자료실 내용 조회 &ndash;&gt;
+	<select id="selectReferenceDetail" parameterType="com.bf.web.customer.vo.NoticeVO" resultType="com.bf.web.customer.vo.NoticeVO">
+			SELECT
+				A.BBS_IDX as bbsIdx
+				, A.SUBJECT as subject
+				, A.HIT as hit
+				, A.WRITER as writer
+				, A.CONTENTS as contents
+				, DATE_FORMAT(A.reg_date, '%Y-%m-%d') as regDate
+				, B.UP_FILE_NAME as upFileName
+				, B.ORI_FILE_NAME as oriFileName
+			FROM BBS_NORMAL A LEFT JOIN (SELECT * FROM BBS_NORMAL_UPFILE WHERE FILE_TYPE = 2 AND bbs_code = 9) B ON A.BBS_IDX = B.BBS_IDX
+			WHERE A.BBS_CODE = 9
+			  AND A.BBS_IDX = #{bbsIdx}
+	</select>
+
+	&lt;!&ndash; 홈쇼핑 방송일정 &ndash;&gt;
+	<select id="listHomeshopping" parameterType="com.bf.web.customer.vo.HomeshoppingVO" resultType="com.bf.web.customer.vo.HomeshoppingVO">
+		SELECT
+			BBS_CODE as bbsCode
+			, SUBJECT as subject
+			, YEAR as year
+			, MONTH as month
+			, DATE as date
+		FROM
+			bbs_normal
+		WHERE
+			BBS_CODE = 13 AND YEAR = #{year} AND MONTH = #{month}
+		ORDER BY REG_DATE DESC
+	</select>
+
+	<select id="get" parameterType="com.bf.web.customer.vo.HomeshoppingVO" resultType="com.bf.web.customer.vo.HomeshoppingVO">
+		SELECT
+			BBS_CODE as bbsCode
+			, CONTENTS as contents
+			, YEAR as year
+			, MONTH as month
+			, DATE as date
+		FROM
+			bbs_normal
+		WHERE
+			BBS_CODE = 13
+			<if test="year!=0 and month!=0 and date!=0">
+				AND YEAR = #{year} AND MONTH = #{month} AND DATE=#{date}
+			</if>
+		ORDER BY REG_DATE DESC
+		<if test="top!=0">
+			limit ${top}
+		</if>
+	</select>
+-->
+
+	<select id="selectFaqList" resultType="com.bf.web.customer.vo.FaqVO" parameterType="com.bf.web.customer.vo.FaqVO">
+		select
+			bbs_code bbsCode
+			, bbs_idx bbsIdx
+			, classification
+			, classification_sub
+			, IFNULL(site_type, '') as siteType
+			, subject
+			, contents
+			, IFNULL(best, 0) as best
+			from bbs_faq
+			where bbs_code = 2 and (SITE_TYPE LIKE '%B%' AND site_type != 'B2B')
+			<if test="classification != null and classification != '' ">
+				and classification LIKE CONCAT('%', #{classification}, '%')
+			</if>
+			<if test="contents != null and contents != '' ">
+				and (contents LIKE CONCAT('%', #{contents}, '%') or subject LIKE CONCAT('%', #{contents}, '%'))
+			</if>
+		order by IFNULL(best, 0) DESC, classification_sub, reg_date desc
+	</select>
+
+	<!-- FAQ List 안마의자 전용 API용 -->
+	<select id="selectChiarFaqListApi" resultType="HashMap" parameterType="HashMap">
+		/****************[customer.selectChiarFaqListApi]****************/
+		select
+			  bbs_idx bbsIdx
+			, IFNULL(site_type, '') as siteType
+			, subject
+		 from bbs_faq
+		where bbs_code = 2
+		  and site_type REGEXP ('안마의자|공통')
+		order by classification_sub, reg_date desc
+	</select>
+
+	<!-- FAQ Detail 안마의자 전용 API용 -->
+	<select id="selectChiarFaqDetailApi" resultType="com.bf.web.customer.vo.NoticeVO" parameterType="com.bf.web.customer.vo.NoticeVO">
+		/****************[customer.selectChiarFaqDetailApi]****************/
+		select
+			  bbs_idx bbsIdx
+			, IFNULL(site_type, '') as siteType
+			, subject
+			, contents
+		 from bbs_faq
+		where bbs_code = 2
+		  and site_type REGEXP ('안마의자|공통')
+		  and bbs_idx = ${bbsIdx}
+	</select>
+
+	<!-- groups 채번 -->
+	<select id="getQnaGroups" resultType="int">
+		select ifnull(max(groups), 0) + 1 as groups from bbs_one_to_one;
+	</select>
+
+	<!--&lt;!&ndash; 1:1문의(Q&A) 등록 &ndash;&gt;
+	<insert id="insertQna" parameterType="com.bf.web.myinfo.bean.Myinfo">
+		/********************* customer.insertQna *********************/
+		insert into bbs_one_to_one (
+			origin_user_idx, user_idx, ord_nbr, product_type, product_name, groups, depth, ref
+			, subject, classification, writer, email, email_request
+			, contents, ip, reply_complete, site_type, cell_1, cell_2, cell_3, sms_request
+			<if test="imgFile!=null and imgFile!=''">, img_file</if>
+			<if test="qnaPwd!=null and qnaPwd!=''">, qna_pwd</if>
+		)values(
+			#{userIdx}, #{userIdx}, NULL, #{productType}, #{productName}, #{groups}, 1, 1
+			, #{subject}, #{classification}, #{writer}, #{email}, #{emailRequest}
+			, #{contents}, #{ip}, 0, 'BM' , #{cell1}, #{cell2}, #{cell3}, 0
+			<if test="imgFile!=null and imgFile!=''">, #{imgFile}</if>
+			<if test="qnaPwd!=null and qnaPwd!=''">, #{qnaPwd}</if>
+		)
+	</insert>
+
+	&lt;!&ndash; 1:1문의(Q&A) 게시글 수정 &ndash;&gt;
+	<update id="updateQna" parameterType="com.bf.web.myinfo.bean.Myinfo">
+		UPDATE BBS_ONE_TO_ONE SET
+			classification = #{classification}
+			, subject = #{subject}
+			, contents = #{contents}
+			, publish_status = #{publishStatus}
+			<if test="imgFile!=null and imgFile!=''">, img_file = #{imgFile}</if>
+			, qna_pwd = #{qnaPwd}
+			, reg_date = now()
+		WHERE bbs_idx = #{bbsIdx} and depth = 1 and site_type = 'B' and ref = 1
+
+	</update>
+
+	&lt;!&ndash; 1:1문의(Q&A) 비밀번호 체크 &ndash;&gt;
+	<select id="qnaPwdCheck" parameterType="com.bf.web.myinfo.bean.Myinfo" resultType="HashMap">
+		select
+			bbs_idx as bbsIdx
+			, groups
+			, user_idx as userIdx
+			, qna_pwd as qnaPwd
+		 from bbs_one_to_one
+		 where depth = 1 and site_type = 'B' and bbs_idx = #{bbsIdx} and qna_pwd = #{qnaPwd}
+	</select>
+
+	&lt;!&ndash; 1:1문의(Q&A) 리스트 데이터 조회 &ndash;&gt;
+	<select id="selectQnaList" resultType="com.bf.web.customer.vo.NoticeVO" parameterType="com.bf.web.customer.vo.NoticeVO">
+		<include refid="common_mapper.pagePrefix" />
+		select userIdx, bbsIdx, groups, depth, ref, subject, classification, writer
+			, DATE_FORMAT(regDate, '%Y-%m-%d') regDate, contents, publishStatus, qnaPwd
+			, (case classification
+				when 1 then '상품 문의'
+				when 2 then '배송 문의'
+				when 3 then '교환/반품 문의'
+				when 4 then '교환/반품 문의'
+				when 5 then '환불/취소 문의'
+				when 6 then '환불/취소 문의'
+				&lt;!&ndash; when 7 then 'A/S 문의' &ndash;&gt;
+				when 8 then '회원정보 문의'
+				when 9 then '기타 문의'
+				when 10 then '입금/결제 문의'
+				else '' end) classificationName, replyComplete
+			, (case replyComplete
+				when 0 then '대기'
+				when 1 then '완료'
+				else '' end) replyCompleteName
+			, (select count(*)
+				from bbs_one_to_one
+				where depth = 1
+					and site_type = 'B'
+					<if test="tab.equals('product')">and classification = '1'</if>
+					<if test="tab.equals('delivery')">and classification = '2'</if>
+					<if test="tab.equals('exchange')">and classification in ('3', '4')</if>
+					<if test="tab.equals('cancel')">and classification in ('5', '6')</if>
+					<if test="tab.equals('payment')">and classification = '10'</if>
+					<if test="tab.equals('etc')">and classification = '9'</if>
+					<if test="searchTxtType!=null and searchTxtType!=''">
+						<if test="searchTxtType==1 and searchStr!=null and searchStr!=''">
+							and writer like CONCAT('%',#{searchStr},'%')
+						</if>
+						<if test="searchTxtType==2 and searchStr!=null and searchStr!=''">
+							and subject like CONCAT('%',#{searchStr},'%')
+						</if>
+						<if test="searchTxtType==3 and searchStr!=null and searchStr!=''">
+							and reg_date like CONCAT('%',#{searchStr},'%')
+						</if>
+					</if>
+			) AS totalCnt
+
+		from
+		(
+			select bbs_idx as bbsIdx, groups, depth, ref, subject, classification, writer
+			, reg_date as regDate, contents, publish_status as publishStatus
+			, qna_pwd as qnaPwd, user_idx as userIdx, reply_complete as replyComplete
+			from bbs_one_to_one
+			&lt;!&ndash; where origin_user_idx = #{userIdx} &ndash;&gt;
+			where depth = 1
+				and site_type = 'B'
+				<if test="tab.equals('product')">
+					and classification = '1'
+				</if>
+				<if test="tab.equals('delivery')">
+					and classification = '2'
+				</if>
+				<if test="tab.equals('exchange')">
+					and classification in ('3', '4')
+				</if>
+				<if test="tab.equals('cancel')">
+					and classification in ('5', '6')
+				</if>
+				<if test="tab.equals('payment')">
+					and classification = '10'
+				</if>
+				<if test="tab.equals('etc')">
+					and classification = '9'
+				</if>
+
+				<if test="searchTxtType!=null and searchTxtType!=''">
+					<if test="searchTxtType==1 and searchStr!=null and searchStr!=''">
+						and writer like CONCAT('%',#{searchStr},'%')
+					</if>
+					<if test="searchTxtType==2 and searchStr!=null and searchStr!=''">
+						and subject like CONCAT('%',#{searchStr},'%')
+					</if>
+					<if test="searchTxtType==3 and searchStr!=null and searchStr!=''">
+						and reg_date like CONCAT('%',#{searchStr},'%')
+					</if>
+				</if>
+
+			order by groups desc, ref asc, depth asc
+		)  a
+		where depth = 1
+
+		<include refid="common_mapper.pageSuffix" />
+	</select>
+
+	&lt;!&ndash; 1:1문의(Q&A) 상세 데이터 조회 &ndash;&gt;
+	<select id="selectQnaDetail" parameterType="HashMap" resultType="HashMap">
+		SELECT NAV.*
+      	FROM ( SELECT @rownum:=@rownum+1 AS rowNbr, TM.*
+                 FROM (
+					select bbs_idx, groups, depth, ref, subject, classification, writer
+						, DATE_FORMAT(reg_date, '%Y-%m-%d') reg_date, contents, user_idx
+						, (case classification
+							when 1 then '상품 문의'
+							when 2 then '배송 문의'
+							when 3 then '교환/반품 문의'
+							when 4 then '교환/반품 문의'
+							when 5 then '환불/취소 문의'
+							when 6 then '환불/취소 문의'
+							when 7 then 'A/S 문의'
+							when 8 then '회원정보 문의'
+							when 10 then '입금/결제 문의'
+							when 9 then '기타 문의'
+							else '' end) classification_name, reply_complete
+						, (case reply_complete
+							when 0 then '대기'
+							when 1 then '완료'
+							else '' end) reply_complete_name
+					from
+					(
+						select bbs_idx, groups, depth, ref, subject, classification, writer, reg_date, contents, user_idx
+						, reply_complete
+						from bbs_one_to_one
+						where groups = #{groups}
+						order by depth asc, ref asc
+					)  a
+			    				) TM,
+					 (select @rownum:=0) TMP
+		        	) NAV
+	</select>
+
+	&lt;!&ndash; 1:1문의(Q&A) 수정 - 상세 데이터 조회 &ndash;&gt;
+	<select id="serviceQnaWriteData" parameterType="HashMap" resultType="HashMap">
+		SELECT NAV.*
+      	FROM ( SELECT @rownum:=@rownum+1 AS rowNbr, TM.*
+                 FROM (
+					select bbsIdx, groups, depth, ref, subject, classification, writer
+						, DATE_FORMAT(reg_date, '%Y-%m-%d') reg_date, contents, user_idx, publishStatus, phoneNm
+						, (case classification
+							when 1 then '상품 문의'
+							when 2 then '배송 문의'
+							when 3 then '교환/반품 문의'
+							when 4 then '교환/반품 문의'
+							when 5 then '환불/취소 문의'
+							when 6 then '환불/취소 문의'
+							when 7 then 'A/S 문의'
+							when 8 then '회원정보 문의'
+							when 10 then '입금/결제 문의'
+							when 9 then '기타 문의'
+							else '' end) classification_name, reply_complete
+						, (case reply_complete
+							when 0 then '대기'
+							when 1 then '완료'
+							else '' end) reply_complete_name
+					from
+					(
+						select bbs_idx as bbsIdx, groups, depth, ref, subject, classification, writer, reg_date, contents, user_idx
+						, reply_complete, publish_status as publishStatus, concat(cell_1,'-',cell_2,'-',cell_3) as phoneNm
+						from bbs_one_to_one
+						where  (site_type = 'B' or site_type = 'BM') and bbs_idx = #{bbsIdx}
+						order by depth asc, ref asc
+					)  a
+			    				) TM,
+					 (select @rownum:=0) TMP
+		        	) NAV
+	</select>
+
+	&lt;!&ndash; 1:1문의(Q&A) 게시글 작성자 IDX Check &ndash;&gt;
+	<select id="selectUserIdx" parameterType="String" resultType="String">
+		select
+			user_idx as userIdx
+		 from bbs_one_to_one
+		 where depth = 1 and site_type = 'B' and bbs_idx = #{bbsIdx}
+	</select>
+
+	&lt;!&ndash; 1:1문의(Q&A) 게시글 삭제 &ndash;&gt;
+	<delete id="qnaDelete" parameterType="HashMap">
+		DELETE FROM bbs_one_to_one
+		WHERE groups = #{groups}
+		and site_type = 'B'
+	</delete>
+
+	&lt;!&ndash; 서비스 접수 홈페이지 DB 등록 &ndash;&gt;
+	<insert id="insertOnlineService" parameterType="com.bf.web.customer.vo.OnlineVO" useGeneratedKeys="true" keyProperty="serviceIdx">
+		insert into
+		    online_service (
+		        user_idx,
+		        name,
+		        contant,
+		        zip,
+		        addr_1,
+		        addr_2,
+		        prdt_cate,
+		        prdt_name,
+		        service_group,
+		        service_group_other,
+		        prdt_shop,
+		        prdt_shop_other,
+		        content,
+		        main_type,
+		        erp_site_type,
+		        cust_code,
+		        reg_date,
+		        cert_user_name,
+		        cert_user_contact
+		    )
+		values
+		    (
+		    	#{userIdx}
+		        ,#{name}
+		        ,#{contant}
+		        ,#{zip}
+		        ,#{addr1}
+		        ,#{addr2}
+		        ,#{prdtCate}
+		        ,#{prdtName}
+		        ,#{serviceGroup}
+		        ,#{serviceGroupOther}
+		        ,#{prdtShop}
+		        ,#{prdtShopOther}
+		        ,#{content}
+		        ,'BM'
+		        ,'M'
+		        ,#{custCode}
+		        ,SYSDATE()
+		        ,#{certUserName}
+		        ,#{certUserContact}
+		    );
+	</insert>
+
+	&lt;!&ndash; 에브리알 상담접수 (등록) &ndash;&gt;
+	<insert id="everyRConsultInsert" parameterType="HashMap">
+		INSERT INTO CONSULT_INFO (
+			  USER_IDX
+			, SUBJECT
+			, NAME
+			, PHONE
+			, EMAIL
+			, COMPANY_NAME
+			, CONSULT_TYPE
+			, OPER_TYPE
+			, CONTENTS
+			, CONTENTS_2
+			, CONTENTS_3
+			, PRIVACY_AGREE
+			, NOTICE_AGREE_1
+			, NOTICE_AGREE_2
+			, REG_SITE
+		) VALUES (
+			  #{userIdx}
+			, #{subject}
+			, #{name}
+			, #{phone}
+			, #{email}
+			, #{companyName}
+			, #{consultType}
+			, #{operType}
+			, #{contents}
+			, #{contents2}
+			, #{contents3}
+			, #{privacyAgree}
+			, #{noticeAgree1}
+			, #{noticeAgree2}
+			, 'BM'
+		)
+	</insert>
+
+	&lt;!&ndash; 공용 안마의자 문의 상담접수 (등록) &ndash;&gt;
+	<insert id="shareConsultInsert" parameterType="HashMap">
+		INSERT INTO CONSULT_INFO (
+			  USER_IDX
+			, NAME
+			, PHONE
+			, EMAIL
+			, COMPANY_NAME
+			, ZIP_CODE
+			, COMPANY_ADDR
+			, CONSULT_TYPE
+			, CONTENTS
+			, PRIVACY_AGREE
+			, REG_SITE
+		) VALUES (
+			  #{userIdx}
+			, #{name}
+			, #{phone}
+			, #{email}
+			, #{companyName}
+			, #{zipCode}
+			, #{companyAddr}
+			, #{consultType}
+			, #{contents}
+			, #{privacyAgree}
+			, 'BM'
+		)
+	</insert>
+
+	&lt;!&ndash; 상담접수 consultIdx 조회 &ndash;&gt;
+	<select id="selectConsultIdx" resultType="String">
+		SELECT MAX(consult_idx) FROM CONSULT_INFO
+	</select>
+
+	&lt;!&ndash; 상담접수 (이미지 맵핑 데이터 등록) &ndash;&gt;
+	<insert id="consultMappingInsert" parameterType="HashMap">
+		INSERT INTO CONSULT_INFO_MAPPING (
+			  CONSULT_IDX
+			<if test="upFileName!=null and upFileName!=''">
+			, IMG_DIV
+			, UP_FILE_NAME
+			, ORI_FILE_NAME
+			, FILE_SIZE
+			</if>
+		) VALUES (
+			  #{consultIdx}
+			<if test="upFileName!=null and upFileName!=''">
+			, #{imgDiv}
+			, #{upFileName}
+			, #{oriFileName}
+			, #{fileSize}
+			</if>
+		)
+	</insert>
+
+	&lt;!&ndash; 간편 서비스 인증 &ndash;&gt;
+	<select id="selectServiceAuth" parameterType="hashmap" resultType="int">
+		SELECT
+			   /****************[customer.selectServiceAuth]****************/
+			   COUNT(*)
+		FROM bfsvc.dbo.TB_MRECEIVE_INFO info WITH (NOLOCK)
+  		<where>
+		  	<trim prefix="(" prefixOverrides="OR" suffix=")">
+		  	 	(user_name = #{custNumber} OR in_user_name = #{custNumber})
+		  	</trim>
+		  		AND
+		  	<trim prefix="(" prefixOverrides="OR" suffix=")">
+		  	 	(IN_TEL = #{telNumber} OR IN_HANDPHONE = #{telNumber})
+		  	</trim>
+		  		AND
+		  	<trim prefix="(" prefixOverrides="OR" suffix=")">
+				info.RECEIVE_SEQ = #{receiveSeq}
+		  	</trim>
+
+		</where>
+
+	</select>
+
+	&lt;!&ndash; 간편 서비스 인증 &ndash;&gt;
+	<select id="selectServiceAuthUNIERP" parameterType="hashmap" resultType="int">
+		/****************[customer.selectServiceAuthUNIERP]****************/
+		SELECT count(*)
+		  FROM RENTAL.DBO.R_SERVICE_INFO WITH (NOLOCK)
+		<where>
+			<trim prefix="(" prefixOverrides="OR" suffix=")">
+			   (AGREE_NM = #{custNumber} OR CUST_NM = #{custNumber})
+			</trim>
+			    AND
+			<trim prefix="(" prefixOverrides="OR" suffix=")">
+			    (HAND_TEL_NO = #{telNumber} OR TEL_NO = #{telNumber})
+			</trim>
+			    AND
+		  	<trim prefix="(" prefixOverrides="OR" suffix=")">
+			    SERVICE_NO =  #{receiveSeq}
+		    </trim>
+		</where>
+
+	</select>
+
+	&lt;!&ndash; SERVICE DB 접수상태 내역 조회, [FN_DECRYPT_AES256]복호키는 운영에만 존재함 &ndash;&gt;
+	<select id="selectServiceInfo" parameterType="HashMap" resultType="HashMap">
+	 SELECT
+				/**************** [customer.selectServiceInfo] ****************/
+				 replace(info2.HP,'-','')	AS HP
+				, info.USER_NAME AS CUST_NAME
+				, info.RECEIVE_SEQ
+				, convert(varchar(10), info.RECEIVE_DATE, 120) AS RECEIVE_DATE
+				, info.REPAIR_HISTORY AS REPAIR_HISTORY
+				, info.IN_USER_NUMBER
+				, info.PROGRESS_NO
+				, info.TEL_NO
+				, info.HPHONE_NO
+				, info.CALL_TYPE
+				, info.PURCHASING_OFFICE
+				, info.ADDR AS INSADDR
+				, info.AREA
+				, convert(varchar, info.IN_PRODUCT_DATE, 102) AS IN_PRODUCT_DATE
+				, info.OLD_PRODUCT_NAME AS PRODUCT_NAME
+				, info.OPTIONDATA
+				, info.COMPONENT
+				, info.SERVICE_MONTH
+				, info.ACCESS_ID
+				, info.SYMPTOM
+				, info.ENGINEER_CHARGE AS GISA_NAME
+				, convert(varchar, info.VISIT_DATE, 102) AS DUE_DATE
+		FROM bfsvc.dbo.TB_MRECEIVE_INFO info WITH (NOLOCK)
+			left join ( select RECEIVE_SEQ, HP = bfsvc.dbo.[FN_DECRYPT_AES256](HPHONE_NO, 'bfservicekey!@12')
+						  from bfsvc.dbo.TB_MRECEIVE_INFO
+					  ) info2 on info.RECEIVE_SEQ = info2.RECEIVE_SEQ
+		WHERE
+			info.RECEIVE_SEQ = #{receiveSeq}
+	</select>
+
+	&lt;!&ndash; erp 구매/렌탈 제품리스트 &ndash;&gt;
+	<select id="selectMyRentalList" parameterType="HashMap" resultType="Hashmap">
+		SELECT
+			/**************** [customer_help.selectMyRentalList] ****************/
+			A.CUSTCODE
+			, E.MODELCODE modelCode
+			, C.MODELNAME modelName
+			, D.RENT_TERM rentalTerm
+			, BODYF.DBO.MY_DATE(D.FREE_DATE) freeDate
+			, BODYF.DBO.MY_DATE(D.FREE_DATE2) freeDate2
+			, E.LENTALPRICE oriRentalPrice
+			, C.PRE_AMT preAmt
+			, C.LENTALPRICE1 rentalPrice
+			, CASE D.GIRO WHEN '0' THEN 'CMS' WHEN '1' THEN '지로' WHEN '3' THEN '현금완불' WHEN '5' THEN '카드' ELSE D.GIRO END giroNm
+			, D.PAYDAY payDay
+			, G.BANKNAME bankName
+			, BODYF.DBO.MY_DECRYPTION(G.BANKNO,A.CUSTCODE,'BODYFDLEK') bankNo
+			, (SELECT COUNT(*) FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE CUSTCODE = A.CUSTCODE AND PAYKIND = 1) nabbooMonth
+			, (SELECT COUNT(*) FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE CUSTCODE = A.CUSTCODE) rentalMonth
+			<![CDATA[
+			, ISNULL((SELECT sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) CNT
+				FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE PayKind = '0' and (PayPrice - partprice) > 0 and CUSTCODE = A.CUSTCODE
+				GROUP BY CUSTCODE HAVING sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) >= 1
+				AND sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) <= 100),0) minapMonth
+			]]>
+			, A.CUSTNAME custName
+			, A.MOBILE mobile
+			, A.TEL tel
+			, B.INSTCUSTNAME instCustName
+			, B.INSTMOBILE instMobile
+			, B.INSTTEL instTel
+		FROM BODYF.DBO.TBLCUSTMST A WITH (NOLOCK)
+		LEFT JOIN BODYF.DBO.TBLITEMADDR B WITH (NOLOCK) ON (A.CUSTCODE = B.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLITEMMST C WITH (NOLOCK) ON (A.CUSTCODE = C.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLCONTRACT D WITH (NOLOCK) ON (A.CUSTCODE = D.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLITEM E WITH (NOLOCK) ON (C.MODELCODE = E.MODELCODE)
+		LEFT JOIN (SELECT DISTINCT (CODE) FROM BODYF.DBO.TBLCOMMON WITH (NOLOCK)) F ON (E.GRPCODE = F.CODE)
+		LEFT JOIN BODYF.DBO.TBLCMS G WITH (NOLOCK) ON (A.CUSTCODE = G.CUSTCODE)
+		WHERE C.InstReserv = 2
+			AND A.CUSTNAME = #{name}
+			AND ((A.MOBILE = #{phone}) OR (A.TEL = #{phone}))
+			<if test="modelName != null and modelName != ''">
+				AND C.MODELNAME in
+				<foreach collection="modelName" item="obj" open="(" close=")" separator=",">
+					#{obj}
+				</foreach>
+			</if>
+		UNION
+		SELECT
+			A.CUSTCODE
+			, E.MODELCODE modelCode
+			, C.MODELNAME modelName
+			, D.RENT_TERM rentalTerm
+			, BODYF.DBO.MY_DATE(D.FREE_DATE) freeDate
+			, BODYF.DBO.MY_DATE(D.FREE_DATE2) freeDate2
+			, E.LENTALPRICE oriRentalPrice
+			, C.PRE_AMT preAmt
+			, C.LENTALPRICE1 rentalPrice
+			, CASE D.GIRO WHEN '0' THEN 'CMS' WHEN '1' THEN '지로' WHEN '3' THEN '현금완불' WHEN '5' THEN '카드' ELSE D.GIRO END giroNm
+			, D.PAYDAY payDay
+			, G.BANKNAME bankName
+			, BODYF.DBO.MY_DECRYPTION(G.BANKNO,A.CUSTCODE,'BODYFDLEK') bankNo
+			, (SELECT COUNT(*) FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE CUSTCODE = A.CUSTCODE AND PAYKIND = 1) nabbooMonth
+			, (SELECT COUNT(*) FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE CUSTCODE = A.CUSTCODE) rentalMonth
+			<![CDATA[
+			, ISNULL((SELECT sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) CNT
+				FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE PayKind = '0' and (PayPrice - partprice) > 0 and CUSTCODE = A.CUSTCODE
+				GROUP BY CUSTCODE HAVING sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) >= 1
+				AND sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) <= 100),0) minapMonth
+			]]>
+			, A.CUSTNAME
+			, A.MOBILE
+			, A.TEL
+			, B.INSTCUSTNAME
+			, B.INSTMOBILE
+			, B.INSTTEL
+		FROM BODYF.DBO.TBLCUSTMST A WITH (NOLOCK)
+		LEFT JOIN BODYF.DBO.TBLITEMADDR B WITH (NOLOCK) ON (A.CUSTCODE = B.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLITEMMST C WITH (NOLOCK) ON (A.CUSTCODE = C.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLCONTRACT D WITH (NOLOCK) ON (A.CUSTCODE = D.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLITEM E WITH (NOLOCK) ON (C.MODELCODE = E.MODELCODE)
+		LEFT JOIN (SELECT DISTINCT (CODE) FROM BODYF.DBO.TBLCOMMON WITH (NOLOCK)) F ON (E.GRPCODE = F.CODE)
+		LEFT JOIN BODYF.DBO.TBLCMS G WITH (NOLOCK) ON (A.CUSTCODE = G.CUSTCODE)
+		WHERE C.InstReserv = 2
+			AND B.INSTCUSTNAME = #{name}
+			AND ((B.INSTMOBILE = #{phone}) OR (B.INSTTEL = #{phone}))
+			<if test="modelName != null and modelName != ''">
+				AND C.MODELNAME in
+				<foreach collection="modelName" item="obj" open="(" close=")" separator=",">
+					#{obj}
+				</foreach>
+			</if>
+	</select>
+
+	<select id="getGoodsImgPath" resultType="String">
+		SELECT
+			img_path as imgPath
+		  FROM img_mapping
+		 WHERE model_code = #{modelCode}
+	</select>
+
+	&lt;!&ndash; erp 구매/렌탈 제품리스트(사용자만 조회) &ndash;&gt;
+	<select id="selectMyRentalList_Inst" parameterType="HashMap" resultType="Hashmap">
+		SELECT
+			/**************** [selectMyRentalList] ****************/
+			A.CUSTCODE
+			, E.MODELCODE modelCode
+			, C.MODELNAME modelName
+			, H.MODELNM modelNm
+			, D.RENT_TERM serviceMonth
+			, D.USED_TERM usedTerm
+			, BODYF.DBO.MY_DATE(D.PAY_DATE) payDate
+			, BODYF.DBO.MY_DATE(D.PAY_DATE2) payDate2
+			, E.LENTALPRICE oriRentalPrice
+			, C.PRE_AMT preAmt
+			, C.LENTALPRICE1 rentalPrice
+			, CASE D.GIRO WHEN '0' THEN 'CMS' WHEN '1' THEN '지로' WHEN '3' THEN '현금완불' WHEN '5' THEN '카드' ELSE D.GIRO END giroNm
+			, D.PAYDAY payDay
+			, G.BANKNAME bankName
+			, BODYF.DBO.MY_DECRYPTION(G.BANKNO,A.CUSTCODE,'BODYFDLEK') bankNo
+			, (SELECT COUNT(*) FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE CUSTCODE = A.CUSTCODE AND PAYKIND = 1) nabbooMonth
+			, (SELECT COUNT(*) FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE CUSTCODE = A.CUSTCODE) rentalMonth
+			<![CDATA[
+			, ISNULL((SELECT sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) CNT
+				FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE PayKind = '0' and (PayPrice - partprice) > 0 and CUSTCODE = A.CUSTCODE
+				GROUP BY CUSTCODE HAVING sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) >= 1
+				AND sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) <= 100),0) minapMonth
+			]]>
+			, A.CUSTNAME custName
+			, A.MOBILE mobile
+			, A.TEL tel
+			, B.INSTCUSTNAME instCustName
+			, B.INSTMOBILE instMobile
+			, B.INSTTEL instTel
+			, B.INSTADDR1 instAddr1
+			, B.INSTADDR2 instAddr2
+			, B.INSTPOST instPost
+			, case E.custkind when '01' then 'M' when '03' then 'L' else 'W' end as grpCode
+		FROM BODYF.DBO.TBLCUSTMST A WITH (NOLOCK)
+		LEFT JOIN BODYF.DBO.TBLITEMADDR B WITH (NOLOCK) ON (A.CUSTCODE = B.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLITEMMST C WITH (NOLOCK) ON (A.CUSTCODE = C.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLCONTRACT D WITH (NOLOCK) ON (A.CUSTCODE = D.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLITEM E WITH (NOLOCK) ON (C.MODELCODE = E.MODELCODE)
+		LEFT JOIN (SELECT DISTINCT (CODE) FROM BODYF.DBO.TBLCOMMON WITH (NOLOCK)) F ON (E.GRPCODE = F.CODE)
+		LEFT JOIN BODYF.DBO.TBLCMS G WITH (NOLOCK) ON (A.CUSTCODE = G.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLITEM_MAPPING H WITH (NOLOCK) ON (C.MODELCODE = H.MODELCODE)
+		WHERE C.InstReserv = 2
+			AND A.CUSTNAME = #{name}
+			AND ((A.MOBILE = #{phone}) OR (A.TEL = #{phone}))
+			AND (E.custkind = '01'or E.custkind = '03' or E.custkind = '06')
+			&lt;!&ndash; AND (E.custkind = '01'or (E.custkind = '03' and C.MODELNAME like '%전동%') or E.custkind = '06') &ndash;&gt;
+		UNION
+		SELECT
+			A.CUSTCODE
+			, E.MODELCODE modelCode
+			, C.MODELNAME modelName
+			, H.MODELNM modelNm
+			, D.RENT_TERM serviceMonth
+			, D.USED_TERM usedTerm
+			, BODYF.DBO.MY_DATE(D.PAY_DATE) payDate
+			, BODYF.DBO.MY_DATE(D.PAY_DATE2) payDate2
+			, E.LENTALPRICE oriRentalPrice
+			, C.PRE_AMT preAmt
+			, C.LENTALPRICE1 rentalPrice
+			, CASE D.GIRO WHEN '0' THEN 'CMS' WHEN '1' THEN '지로' WHEN '3' THEN '현금완불' WHEN '5' THEN '카드' ELSE D.GIRO END giroNm
+			, D.PAYDAY payDay
+			, G.BANKNAME bankName
+			, BODYF.DBO.MY_DECRYPTION(G.BANKNO,A.CUSTCODE,'BODYFDLEK') bankNo
+			, (SELECT COUNT(*) FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE CUSTCODE = A.CUSTCODE AND PAYKIND = 1) nabbooMonth
+			, (SELECT COUNT(*) FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE CUSTCODE = A.CUSTCODE) rentalMonth
+			<![CDATA[
+			, ISNULL((SELECT sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) CNT
+				FROM BODYF.DBO.TBLGIRO WITH (NOLOCK) WHERE PayKind = '0' and (PayPrice - partprice) > 0 and CUSTCODE = A.CUSTCODE
+				GROUP BY CUSTCODE HAVING sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) >= 1
+				AND sum(case when payterm < convert(varchar(8),getdate()-5,112) then 1 else 0 end) <= 100),0) minapMonth
+			]]>
+			, A.CUSTNAME custName
+			, A.MOBILE mobile
+			, A.TEL tel
+			, B.INSTCUSTNAME instCustName
+			, B.INSTMOBILE instMobile
+			, B.INSTTEL instTel
+			, B.INSTADDR1 instAddr1
+			, B.INSTADDR2 instAddr2
+			, B.INSTPOST instPost
+			, case E.custkind when '01' then 'M' when '03' then 'L' else 'W' end as grpCode
+		FROM BODYF.DBO.TBLCUSTMST A WITH (NOLOCK)
+		LEFT JOIN BODYF.DBO.TBLITEMADDR B WITH (NOLOCK) ON (A.CUSTCODE = B.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLITEMMST C WITH (NOLOCK) ON (A.CUSTCODE = C.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLCONTRACT D WITH (NOLOCK) ON (A.CUSTCODE = D.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLITEM E WITH (NOLOCK) ON (C.MODELCODE = E.MODELCODE)
+		LEFT JOIN (SELECT DISTINCT (CODE) FROM BODYF.DBO.TBLCOMMON WITH (NOLOCK)) F ON (E.GRPCODE = F.CODE)
+		LEFT JOIN BODYF.DBO.TBLCMS G WITH (NOLOCK) ON (A.CUSTCODE = G.CUSTCODE)
+		LEFT JOIN BODYF.DBO.TBLITEM_MAPPING H WITH (NOLOCK) ON (C.MODELCODE = H.MODELCODE)
+		WHERE C.InstReserv = 2
+			AND B.INSTCUSTNAME = #{name}
+			AND ((B.INSTMOBILE = #{phone}) OR (B.INSTTEL = #{phone}))
+			AND (E.custkind = '01' or E.custkind = '03' or E.custkind = '06')
+			&lt;!&ndash; AND (E.custkind = '01'or (E.custkind = '03' and C.MODELNAME like '%전동%') or E.custkind = '06') &ndash;&gt;
+	</select>
+
+
+	&lt;!&ndash; 간편배송 인증 &ndash;&gt;
+	<select id="selectDeliveryAuth" parameterType="hashmap" resultType="int">
+		SELECT
+			   /****************[selectDeliveryAuth]****************/
+			   COUNT(*)
+		  FROM BFDELIV.DBO.TB_SHIPPING_INFO WITH (NOLOCK)
+		  <where>
+		  	<trim prefix="(" prefixOverrides="OR" suffix=")">
+		  		(HPHONE_NO = #{telNumber} OR TEL_NO = #{telNumber})
+		  	</trim>
+		  		AND
+		  	<trim prefix="(" prefixOverrides="OR" suffix=")">
+		  	 	(BODY_NO = #{custNumber} OR CUST_NAME = #{custNumber})
+		  	</trim>
+		  </where>
+	</select>
+
+	&lt;!&ndash; 간편배송 상세 &ndash;&gt;
+	<select id="selectDeliveryInfo" parameterType="hashmap" resultType="hashmap">
+		SELECT TOP 1
+			   /****************[selectDeliveryInfo]****************/
+			    A.SHIPPING_SEQ
+			   ,A.BODY_NO
+			   ,A.SHIPPING_TYPE
+			   ,A.RECEIVE_DATE
+			   ,A.CUST_NAME
+			   ,A.INSADDR
+			   ,A.TEL_NO
+			   ,A.HPHONE_NO
+			   ,A.PRODUCT_TYPE
+			   ,A.PRODUCT_CODE
+			   ,A.PRODUCT_NAME
+			   ,A.COLORTYPE
+			   ,A.QTY
+			   ,A.PURCHASING_OFFICE
+			   ,A.INS_COMPLETE
+			   ,A.SERVICE_MONTH
+			   ,A.DIV_STATUS
+			   ,A.DELIVERYMAN1
+			   ,A.DELIVERYMAN2
+			   ,A.PROMISE
+			   ,A.PROMISE_TIME
+			   ,A.PRODUCT_TYPE
+			   ,B.ADMIN_NM				AS GISA_NAME
+			   ,B.TEL_NO				AS GISA_TELNO
+			   ,CONVERT(VARCHAR(10), A.DUE_DATE, 120) AS DUE_DATE
+			   ,CONVERT(VARCHAR(10), A.DIV_DATE, 120) AS DIV_DATE
+		  FROM BFDELIV.DBO.TB_SHIPPING_INFO A WITH (NOLOCK)
+		  LEFT JOIN BFDELIV.DBO.TB_ADMIN_INFO B ON A.DELIVERYMAN1 = B.ADMIN_ID
+		  <where>
+		  	<trim prefix="(" prefixOverrides="OR" suffix=")">
+		  		(A.HPHONE_NO = #{telNum} OR A.TEL_NO = #{telNum})
+		  	</trim>
+		  		AND
+		  	<trim prefix="(" prefixOverrides="OR" suffix=")">
+		  		(A.BODY_NO = #{custNum} OR A.CUST_NAME = #{custNum})
+		  	</trim>
+	  			AND delyn = 'N'
+		  </where>
+		 &lt;!&ndash; ORDER BY SHIPPING_SEQ DESC &ndash;&gt;
+		 ORDER BY RECEIVE_DATE DESC, DUE_DATE DESC
+	</select>
+
+	&lt;!&ndash; 배송 주소 이력 INSERT &ndash;&gt;
+	<insert id="insertHistoryData" parameterType="hashmap">
+		INSERT INTO TB_ADDRESS_HISTORY
+		/****************[insertHistoryData]****************/
+			(CUST_NUMBER
+			 ,ADDRESS
+			 ,SHIPPING_SEQ
+			 ,GIFT_ADDR_CHANGED
+			 ,REG_DATE
+			)VALUES(
+			 #{bodyNo}
+			,#{instAddr}
+			,#{shipSeq}
+			,#{giftAddrChanged}
+			,SYSDATE()
+			)
+	</insert>
+
+	&lt;!&ndash; 지역 코드 조회 &ndash;&gt;
+	<select id="selectAreaCode" parameterType="hashmap" resultType="String">
+		/****************[selectAreaCode]****************/
+		SELECT
+			   distinct area
+		  FROM MANAGE_TEAM_AREA
+		 WHERE area_name like CONCAT('%',#{addrName},'%')
+	</select>
+
+	&lt;!&ndash; 배송일 지정 및 주소변경 &ndash;&gt;
+	<update id="updateCustInfo" parameterType="hashmap">
+		UPDATE BFDELIV.DBO.TB_SHIPPING_INFO
+		/****************[updateCustInfo]****************/
+		   SET
+		   	   DUE_DATE         = #{expectDt}
+		   	<if test="newAddr!=null and newAddr!=''">
+		      ,INSADDR          = #{newAddr}
+	      	</if>
+		      ,UP_ACCESS_ID     = #{bodyNo}
+		      ,UP_DATE          = GETDATE()
+		      ,CUST_UPDATE      = 'AD'
+		      ,COMPANY_CHECK	= concat((select COMPANY_CHECK from BFDELIV.DBO.TB_SHIPPING_INFO WITH (NOLOCK) where SHIPPING_SEQ = #{shipSeq}), '//' , #{companyCheck})		/* 이력에 추가 */
+		      ,AREA				= #{area}				/* 지역 코드 가져오는 API있는지 확인 */
+		 WHERE BODY_NO 	    	= #{bodyNo}
+		   AND SHIPPING_SEQ 	= #{shipSeq}
+	</update>
+
+	&lt;!&ndash; 간편배송 인증 UNIERP&ndash;&gt;
+	<select id="selectDeliveryAuthUNIERP" parameterType="hashmap" resultType="int">
+		SELECT
+			   /****************[selectDeliveryAuthUNIERP]****************/
+			   COUNT(*) as cnt
+		FROM RENTAL.DBO.R_SHIPPING_INFO WITH (NOLOCK)
+			<where>
+		  		<trim prefix="(" prefixOverrides="OR" suffix=")">
+		  			(HAND_TEL_NO = #{telNumber} OR TEL_NO = #{telNumber})
+		  		</trim>
+		  	 		AND
+		  		<trim prefix="(" prefixOverrides="OR" suffix=")">
+		  	 		(ORDER_NO = #{custNumber} OR CUST_NM = #{custNumber} OR EXT1_CD = #{custNumber})
+		  		</trim>
+			</where>
+	</select>
+
+	&lt;!&ndash; 간편배송 상세 UNIERP &ndash;&gt;
+	<select id="selectDeliveryInfoUNIERP" parameterType="hashmap" resultType="hashmap">
+		SELECT TOP 1
+			   /****************[selectDeliveryInfoUNIERP]****************/
+			    A.SHIPPING_NO											AS SHIPPING_SEQ
+			   ,CASE
+					WHEN A.EXT1_CD IS NOT NULL AND A.EXT1_CD != ''THEN A.EXT1_CD
+					ELSE A.ORDER_NO
+				END 													AS BODY_NO
+			   ,A.SHIPPING_TYPE
+			   ,A.RECEIVE_DT											AS RECEIVE_DATE
+			   ,A.CUST_NM												AS CUST_NAME
+			   ,A.ADDR1 + ' ' + A.ADDR2 + ' ' + A.ADDR3 + ' ' + A.ADDR4 AS INSADDR
+			   ,A.ADDR1 + ' ' + A.ADDR2 + ' ' + A.ADDR3 AS ADDR1
+			   ,A.ADDR4 AS ADDR2
+			   ,a.ZIP_CD as ZIP_CD
+			   ,A.TEL_NO
+			   ,A.HAND_TEL_NO											AS HPHONE_NO
+			   ,CASE
+					WHEN A.PROD_GROUP_CD = 'A10000' THEN 'M'
+					WHEN A.PROD_GROUP_CD = 'L10000' THEN 'L'
+					WHEN A.PROD_GROUP_CD = 'W10000' THEN 'W'
+					ELSE ''
+				END														AS PRODUCT_TYPE
+			   ,A.GOODS_CD												AS PRODUCT_CODE
+			   ,A.GOODS_NM												AS PRODUCT_NAME
+			   ,''														AS COLORTYPE
+
+			   ,A.CALLER_ID												AS PURCHASING_OFFICE &lt;!&ndash; 코드값 변경됨 &ndash;&gt;
+			   ,A.STATUS_CD												AS INS_COMPLETE
+			   ,A.SERVICE_MONTH
+			   ,A.DIV_STATUS
+			   ,A.DRIVER_ID1											AS DELIVERYMAN1
+			   ,A.DRIVER_ID2											AS DELIVERYMAN2
+			   ,A.PROMISE_YN											AS PROMISE
+			   ,A.PROMISE_TIME
+
+			   ,B.DRIVER_NM				AS GISA_NAME
+			   ,B.HAND_TEL_NO				AS GISA_TELNO
+			   ,CONVERT(VARCHAR(10), A.APPLY_DT, 120) AS DUE_DATE
+			   ,CONVERT(VARCHAR(10), A.DIV_DT, 120) AS DIV_DATE
+		  FROM RENTAL.DBO.R_SHIPPING_INFO A WITH (NOLOCK)
+		  LEFT JOIN RENTAL.DBO.R_DRIVER_MASTER B ON A.DRIVER_ID1 = B.DRIVER_ID
+		  <where>
+		  	<trim prefix="(" prefixOverrides="OR" suffix=")">
+		  		(A.HAND_TEL_NO= #{telNum} OR A.TEL_NO = #{telNum})
+		  	</trim>
+		  		AND
+		  	<trim prefix="(" prefixOverrides="OR" suffix=")">
+		  		(A.ORDER_NO = #{custNum} OR A.CUST_NM = #{custNum} OR A.EXT1_CD = #{custNum})
+		  	</trim>
+	  			AND A.DEL_FLAG = 'N'
+		  </where>
+		 &lt;!&ndash; ORDER BY SHIPPING_SEQ DESC &ndash;&gt;
+		  ORDER BY RECEIVE_DATE DESC, DUE_DATE DESC
+	</select>
+
+	&lt;!&ndash; 지역 코드 조회 UNIERP &ndash;&gt;
+	<select id="selectAreaCodeUNIERP" parameterType="hashmap" resultType="String">
+		/****************[selectAreaCodeUNIERP]****************/
+		SELECT
+		 	   area
+		  FROM MANAGE_TEAM_AREA
+		 WHERE minor_nm = '${newAddr1}'
+		 order by reg_dt desc
+		 limit 1
+	</select>
+
+	&lt;!&ndash; 배송 주소 이력 INSERT &ndash;&gt;
+	<insert id="insertHistoryDataUNIERP" parameterType="hashmap">
+	    /****************[insertHistoryDataUNIERP]****************/
+
+		DECLARE @AA DATETIME
+
+			SET @AA = #{expectDt}
+
+			IF @AA = ''
+			BEGIN
+				SET @AA = NULL
+			END
+
+	        INSERT INTO RENTAL.DBO.R_SHIPPING_CHANGE_HISTORY (
+			        SHIPPING_NO
+			        , SEQ
+			        , APPLY_DT
+			        , CHANGE_APPLY_DT
+			        , APPLY_CHANGE_DESC
+			        , INSRT_USER_ID
+			        , INSRT_DT
+			        , UPDT_USER_ID
+			        , UPDT_DT
+			        <if test="date_reason != null and date_reason != '' ">
+					, EXT1_CD
+					</if>
+
+	        )
+			VALUES (
+					#{shipSeq} ,
+					(SELECT ISNULL(MAX(SEQ),0)+1 FROM RENTAL.DBO.R_SHIPPING_CHANGE_HISTORY (NOLOCK) WHERE SHIPPING_NO = #{shipSeq} ) ,
+					( SELECT APPLY_DT FROM RENTAL.DBO.R_SHIPPING_INFO (NOLOCK) WHERE SHIPPING_NO = #{shipSeq}) ,
+					@AA
+					,'고객 변경건'
+					,'homepage'
+					,GETDATE()
+					,'homepage'
+					,GETDATE()
+					<if test="date_reason != null and date_reason != '' ">
+					,#{date_reason}
+					</if>
+
+			)
+	</insert>
+
+	&lt;!&ndash; 배송일 지정 및 주소변경 UNIERP &ndash;&gt;
+	<update id="updateCustInfoUNIERP" parameterType="hashmap">
+		UPDATE RENTAL.DBO.R_SHIPPING_INFO
+		/****************[updateCustInfoUNIERP]****************/
+		   SET
+		       APPLY_DT		 = #{expectDt}
+			<if test="zipCd!=null and zipCd!=''">
+			  ,ZIP_CD        = #{zipCd}
+			</if>
+			<if test="newAddr1!=null and newAddr1!=''">
+			  ,ADDR1         = #{newAddr1}
+			</if>
+			<if test="newAddr2!=null and newAddr2!=''">
+			  ,ADDR2         = #{newAddr2}
+			</if>
+			<if test="newAddr3!= null and newAddr3!=''">
+			  ,ADDR3         = #{newAddr3}
+			</if>
+			<if test="newAddr4!= null and newAddr4!=''">
+			  ,ADDR4         = #{newAddr4}
+			</if>
+			<if test="area!=null and area!=''">
+		      ,AREA_CD       = #{area}
+			</if>
+		      ,UPDT_USER_ID	 = 'shipadmin'
+		      ,UPDT_DT    	 = GETDATE()
+		      ,CHANGE_FLAG	 = 'Y'  			&lt;!&ndash;  고객 업데이트 &ndash;&gt;
+		      ,HEDOFC_REMARK = concat((select HEDOFC_REMARK from RENTAL.dbo.R_SHIPPING_INFO WITH (NOLOCK) where SHIPPING_NO = #{shipSeq}), '//' , #{companyCheck})		&lt;!&ndash; 이력에 추가  &ndash;&gt;
+			  ,REMARK        = concat((select REMARK from RENTAL.dbo.R_SHIPPING_INFO WITH (NOLOCK) where SHIPPING_NO = #{shipSeq}), ' ' ,'설치정보변경 :  (',convert(varchar , getdate() , 23),',고객변경)')		&lt;!&ndash; 이력에 추가  &ndash;&gt;
+		 WHERE
+		   SHIPPING_NO       = #{shipSeq}
+	</update>
+
+	&lt;!&ndash; 배송 제외일 조회 &ndash;&gt;
+	<select id="selectExceptDay" resultType="hashmap">
+		SELECT DET_CD_NM
+		 FROM BFDELIV.DBO.TB_CODE
+		WHERE COMM_CD = '905'
+		  AND GROUP_CD = 'SP'
+		  AND COMM_CD != DET_CD
+		  AND DET_CD_NM LIKE '%'+#{yearAndMonth}+'%'
+	</select>
+
+	&lt;!&ndash; 사은품 관련 정보 조회 &ndash;&gt;
+	<select id="selectGiftInfo" parameterType="hashmap" resultType="hashmap">
+		SELECT TOP 1
+	   		   A.CUSTCODE
+	  	      ,B.ADDR1 GIFTADDR1
+	  	      ,B.ADDR2 GIFTADDR2
+          FROM BODYF.dbo.TBLCUSTMST A WITH (NOLOCK)
+  	 	  LEFT JOIN BODYF.dbo.TBLPARCEL B WITH (NOLOCK) ON A.CUSTCODE = B.CUSTCODE
+ 	     WHERE A.CUSTNAME = #{custName}
+   	       AND A.TEL = #{telNo} OR A.MOBILE = #{telNo}
+   	     ORDER BY A.IN_DATE DESC
+	</select>
+
+	&lt;!&ndash; 사은품 주소 변경 &ndash;&gt;
+	<update id="updateGiftAddr" parameterType="hashmap">
+		UPDATE BODYF.dbo.TBLPARCEL
+		   SET POST  = #{postCode}
+		      ,ADDR1 = #{giftAddr1}
+		      ,ADDR2 = #{giftAddr2}
+		 WHERE CUSTCODE = #{custCode}
+	</update>
+
+	&lt;!&ndash; 사은품 관련 정보 조회  UNIERP&ndash;&gt;
+	<select id="selectGiftInfoUNIERP" parameterType="hashmap" resultType="hashmap">
+		SELECT TOP 1
+			   A.ORDER_NO AS CUSTCODE
+			  ,B.ADDR1 + B.ADDR2 + B.ADDR3 AS GIFTADDR1
+			  ,B.ADDR4	 AS GIFTADDR2
+		  FROM RENTAL.DBO.R_ORDER_CONTRACT A WITH (NOLOCK)
+		  LEFT JOIN RENTAL.dbo.R_ORDER_GIFT B WITH (NOLOCK) ON A.ORDER_NO = B.ORDER_NO
+		 WHERE B.CUST_NM = #{custName}
+		 <if test="telNo !=null and telNo !=''">
+			  AND (B.TEL_NO = UNIERP5.dbo.FN_ENC(#{telNo}) OR B.HAND_TEL_NO = UNIERP5.dbo.FN_ENC(#{telNo}))
+		</if>
+		<if test="hphoneNo !=null and hphoneNo !=''">
+			  AND (B.TEL_NO = UNIERP5.dbo.FN_ENC(#{hphoneNo}) OR B.HAND_TEL_NO = UNIERP5.dbo.FN_ENC(#{hphoneNo}))
+		</if>
+   	     ORDER BY A.INSRT_DT DESC
+	</select>
+
+	&lt;!&ndash; 사은품 주소 변경 UNIERP &ndash;&gt;
+	<update id="updateGiftAddrUNIERP" parameterType="hashmap">
+		UPDATE RENTAL.DBO.R_ORDER_GIFT
+		   SET
+		       UPDT_DT = GETDATE()
+		    <if test="zipCd !=null and zipCd !=''">
+			  ,ZIP_CD  = #{zipCd}
+			</if>
+			<if test="newAddr1 !=null and newAddr1 !=''">
+			  ,ADDR1   = #{newAddr1}
+			</if>
+			<if test="newAddr2 !=null and newAddr2 !=''">
+			  ,ADDR2   = #{newAddr2}
+			</if>
+			<if test="newAddr3 !=null and newAddr3 !=''">
+			  ,ADDR3   = #{newAddr3}
+			</if>
+			<if test="newAddr4 !=null and newAddr4 !=''">
+			  ,ADDR4   = #{newAddr4}
+		      </if>
+		 WHERE ORDER_NO    = #{custCode}
+	</update>
+
+	&lt;!&ndash; 법인/관공서 구매 정보 등록 &ndash;&gt;
+	&lt;!&ndash; <insert id="insertBbsGalleryInfo" parameterType="com.bf.web.customer.vo.SinmungoVO" useGeneratedKeys="true" keyProperty="bbsIdx"> &ndash;&gt;
+	<insert id="insertBbsGalleryInfo" parameterType="HashMap" useGeneratedKeys="true" keyProperty="bbsIdx">
+		insert into bbs_formmail
+		(
+			bbs_code
+			, subject
+			, writer
+			, email
+			<if test="tel != null and tel != '' ">
+				, tel
+			</if>
+			, cell
+			, reception_type
+			, employee_name
+			, employee_service_type
+			, user_ip
+			, contents
+			, device
+			, read_state
+			, reg_date
+
+		) values (
+			#{bbsCode}
+			, #{subject}
+			, #{writer}
+			, #{email}
+			<if test="tel != null and tel != '' ">
+				, #{tel}
+			</if>
+			, #{cell}
+			, #{receptionType}
+			, #{employeeName}
+			, #{employeeServiceType}
+			, #{userIp}
+			, #{contents}
+			, #{regSite}
+			, 1
+			, now()
+		)
+	</insert>
+	&lt;!&ndash; B2B bbsIdx 조회 &ndash;&gt;
+	<select id="selectBbsIdx" resultType="String">
+		SELECT MAX(bbs_idx) FROM BBS_FORMMAIL WHERE bbs_code = 43
+	</select>
+
+	&lt;!&ndash; 업로드 파일 정보 등록 &ndash;&gt;
+	<insert id="insertFormMailUpFile" parameterType="HashMap">
+		insert into bbs_formmail_upfile
+		(
+			bbs_code
+			, bbs_idx
+			, up_file_name
+			, ori_file_name
+			, file_size
+			, file_type
+			, reg_date
+
+		) values (
+			#{bbsCode}
+			, #{bbsIdx}
+			, #{upFileName}
+			, #{oriFileName}
+			, #{fileSize}
+			, #{fileType}
+			, now()
+		)
+	</insert>
+	&lt;!&ndash; B2B 이미지 업로드 리스트 조회 &ndash;&gt;
+	<select id="selectB2bFileList" parameterType="HashMap" resultType="HashMap">
+		SELECT
+			     BBS_IDX as bbsIdx
+			   , UP_FILE_NAME as upFileName
+			   , ORI_FILE_NAME as oriFileName
+			   , FILE_SIZE as fileSize
+		FROM  BBS_FORMMAIL_UPFILE
+		WHERE BBS_IDX = #{bbsIdx}
+		  AND BBS_CODE = #{bbsCode}
+	</select>
+
+	&lt;!&ndash; 이미지 등록 &ndash;&gt;
+	<insert id="insertUpfile" parameterType="HashMap" useGeneratedKeys="true" keyProperty="bbsIdx">
+		INSERT INTO CONSULT_INFO_MAPPING (
+			  CONSULT_IDX
+			<if test="upFileName!=null and upFileName!=''">
+			, IMG_DIV
+			, UP_FILE_NAME
+			, ORI_FILE_NAME
+			, FILE_SIZE
+			</if>
+		) VALUES (
+			  #{consultIdx}
+			<if test="upFileName!=null and upFileName!=''">
+			, #{imgDiv}
+			, #{upFileName}
+			, #{oriFileName}
+			, #{fileSize}
+			</if>
+		)
+	</insert>
+
+	&lt;!&ndash; 이미지 업로드 리스트 조회 &ndash;&gt;
+	<select id="selectFileList" parameterType="HashMap" resultType="HashMap">
+		SELECT
+			     SEQ as seq
+			   , CONSULT_IDX as consultIdx
+			   , IMG_DIV as imgDiv
+			   , UP_FILE_NAME as upFileName
+			   , ORI_FILE_NAME as oriFileName
+			   , FILE_SIZE as fileSize
+		FROM CONSULT_INFO_MAPPING
+		WHERE CONSULT_IDX = #{consultIdx}
+	</select>
+
+	<insert id="insertVisitPage" parameterType="hashMap">
+		insert into
+		    visit_page_info (
+		        ip,
+		        page,
+		        site,
+		        reg_date
+		    )
+		values
+		    (
+		    	#{ip}
+		        ,#{page}
+		        ,#{site}
+		        ,SYSDATE()
+		    );
+	</insert>
+
+	&lt;!&ndash; UNIERP 이전설치 본인인증 후 구매/렌탈 리스트 조회 &ndash;&gt;
+	<select id="selectMyRentalListUNIERP_info" parameterType="HashMap" resultType="Hashmap">
+		SELECT
+			/**************** [selectMyRentalListUNIERP_info] ****************/
+			DISTINCT
+			INFO.orderNo			AS orderNo
+			, INFO.contNo			AS contNo
+			, INFO.custNo			AS custNo
+			, INFO.custName			AS custName
+			, INFO.custMobile		AS custMobile
+			, INFO.modelCode		AS modelCode
+			, INFO.erpModelName		AS erpModelName
+			, INFO.saleKind			AS saleKind
+			, INFO.saleKindName		AS saleKindName
+			, INFO.rentalTerm		AS rentalTerm
+			, INFO.rentalTerm		AS serviceMonth
+			, INFO.asMonth			AS asMonth
+			, INFO.usedTerm			AS usedTerm
+			, INFO.receipt			AS receipt
+			, INFO.monthlyPayDay	AS monthlyPayDay
+			, INFO.bankCd			AS bankCd
+			, INFO.acctNo			AS acctNo
+			, INFO.acctNo			AS bankNo
+			, INFO.bankNm			AS bankNm
+			, INFO.payMeth			AS payMeth
+			, INFO.panGubun			AS panGubun
+			, INFO.instPost			AS instPost
+			, INFO.instAddr1		AS instAddr1
+	        , INFO.instAddr2		AS instAddr2
+	        , INFO.instTel			AS instTel
+	        , INFO.instMobile		AS instMobile
+	        , INFO.instCustName		AS instCustName
+			, INFO.outcom			AS outcom
+			, INFO.instreserv		AS instreserv
+	        , INFO.custKind
+	        , INFO.custKind			AS grpCode
+			, CONVERT(VARCHAR(10), INFO.installDate, 121) 		AS installDate
+			, CONVERT(VARCHAR(10), INFO.freeAsStartDate, 121) 	AS freeAsStartDate
+			, CONVERT(VARCHAR(10), INFO.freeAsEndDate, 121)		AS freeAsEndDate
+			, CONVERT(VARCHAR(10), INFO.rentalStartDate, 121)	AS rentalStartDate
+			, CONVERT(VARCHAR(10), INFO.rentalEndDate, 121)		AS rentalEndDate
+			, CONVERT(INT, INFO.rentalPrice1)					AS rentalPrice1
+			, CONVERT(INT, INFO.rentalPrice2)					AS rentalPrice2
+			, CONVERT(INT, INFO.totRentalPrice)					AS totRentalPrice
+			, CONVERT(INT, INFO.prepayments)					AS prepayments
+	FROM   (
+		SELECT
+				OC.ORDER_NO	orderNo
+				, OC.CONT_NO			contNo
+				, OC.CUST_NO			custNo
+				, CS.CUST_NM			custName
+				, UNIERP5.dbo.FN_DEC(CS.HAND_TEL_NO)		custMobile
+				, OA.CONT_DT			installDate
+				, OC.GOODS_CD			modelCode
+				, OC.GOODS_NM			erpModelName
+				, OC.SALES_KIND			saleKind
+				, M1.MINOR_NM			saleKindName
+				, OC.RND1_RENTAL_AMT	rentalPrice1
+				, OC.RND2_RENTAL_AMT	rentalPrice2
+				, OC.RND1_PAY_AMT		totRentalPrice
+				, OC.PREPAY_AMT			prepayments
+				, OP.PAY_METH			receipt
+				, OP.MONTHLY_PAY_DAY	monthlyPayDay
+				, OP.BANK_CD			bankCd
+				, CASE WHEN OP.PAY_METH = '1' THEN CC.CARD_CO_NM
+							ELSE BK.BANK_NM
+					  	END AS bankNm
+				, CASE WHEN OP.PAY_METH = '1' THEN '신용카드'
+				  	  	    WHEN OP.PAY_METH = '2' THEN 'CMS'
+				  	  	    WHEN OP.PAY_METH = '3' THEN '가상계좌'
+				  	  	    WHEN OP.PAY_METH = '4' THEN '지로'
+				  	  	    WHEN OP.PAY_METH = '5' THEN '가수금'
+				  	  	    WHEN OP.PAY_METH = '6' THEN '법인계좌'
+				  	  	    WHEN OP.PAY_METH = '7' THEN '선입금'
+				  	  	    WHEN OP.PAY_METH = '8' THEN '연체입금'
+				  	  	    WHEN OP.PAY_METH = '9' THEN '일반(현금)'
+				  	  	    ELSE OP.PAY_METH
+			  	  	    END AS payMeth
+				, REPLICATE('*', LEN(RENTAL.dbo.FN_DEC(OP.ACCT_NO))-4) + RIGHT(RENTAL.dbo.FN_DEC(OP.ACCT_NO), 4) acctNo
+				, M2.MINOR_NM			GIRONAME
+				, OC.RENTAL_PERIOD		rentalTerm
+				, OC.RENTAL_PERIOD		serviceMonth
+				, OC.AS_PERIOD			asMonth
+				, CASE WHEN (DATEDIFF(MM, OC.RENTAL_FR_DT, CONVERT(VARCHAR, GETDATE(), 121)) + 1) >= OC.RENTAL_PERIOD THEN OC.RENTAL_PERIOD ELSE (DATEDIFF(MM, OC.RENTAL_FR_DT, CONVERT(VARCHAR, GETDATE(), 121)) + 1) END usedTerm
+				, OC.CONT_STS			panGubun
+				, M3.MINOR_NM			PAN_GUBUN_NAME
+				, OC.RENTAL_FR_DT		freeAsStartDate
+				, CASE WHEN ISNUMERIC(OC.AS_PERIOD) = 1 THEN DATEADD(M, OC.AS_PERIOD, OA.CONT_DT - 1) ELSE OC.RENTAL_TO_DT END freeAsEndDate
+				, OC.RENTAL_FR_DT		rentalStartDate
+				, OC.RENTAL_TO_DT		rentalEndDate
+				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	&#45;&#45; chair
+					    WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	&#45;&#45; lacloud
+						WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	&#45;&#45; Water
+						WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	&#45;&#45; BTN GLED
+						WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	&#45;&#45; 생활가전 블롬베르크
+						ELSE OC.ITEM_GROUP_BIG
+					END custKind
+				, OI.INSTL_ZIP_CD		instPost
+				, CONCAT(OI.INSTL_ADDR1, ' ', OI.INSTL_ADDR2, ' ', OI.INSTL_ADDR3) instAddr1
+				, OI.INSTL_ADDR4		instAddr2
+				, UNIERP5.DBO.FN_DEC(OI.INSTL_TEL_NO)		instTel
+				, UNIERP5.DBO.FN_DEC(OI.INSTL_HAND_TEL_NO)	instMobile
+				, OI.INSTL_CUST_NM		instCustName
+				, CASE WHEN OA.CONT_DT IS NOT NULL THEN '2' ELSE '0' END instreserv
+				, OP.WD_CD              outcom
+				,
+	(select TOP 1 COLLECT_AMT FROM RENTAL.DBO.R_CONTRACT_RENTAL_SCHD WITH (NOLOCK) WHERE ORDER_NO = OC.ORDER_NO
+	and PAY_FLAG = 'Y' ORDER BY RND_NO DESC) lastOutPayPrice
+	 		FROM RENTAL.DBO.R_ORDER_CONTRACT				OC  (NOLOCK)
+					LEFT JOIN RENTAL.DBO.R_ORDER_INSTALL		OI  (NOLOCK) ON (OI.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_ORDER_CONTRACT_ADD	OA  (NOLOCK) ON (OA.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M1  (NOLOCK) ON (M1.MAJOR_CD = 'R1001' AND M1.MINOR_CD = OC.SALES_KIND)
+					LEFT JOIN RENTAL.DBO.R_ORDER_PAYMENT		OP  (NOLOCK) ON (OP.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_BANK 				BK  (NOLOCK) ON (OP.BANK_CD = BK.BANK_CD)
+					LEFT JOIN UNIERP5.DBO.B_CARD_CO 			CC  (NOLOCK) ON (OP.BANK_CD = CC.CARD_CO_CD)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M2  (NOLOCK) ON (M2.MAJOR_CD = 'R3011' AND M2.MINOR_CD = OP.PAY_METH)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M3  (NOLOCK) ON (M3.MAJOR_CD = 'R3100' AND M3.MINOR_CD = OC.CONT_STS)
+					LEFT JOIN RENTAL.DBO.R_CUSTOMER				CS  (NOLOCK) ON (CS.CUST_NO = OC.CUST_NO)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M4  (NOLOCK) ON (M4.MAJOR_CD = 'R2001' AND M4.MINOR_CD = CS.CUST_KIND)
+					LEFT JOIN RENTAL.DBO.R_ORDER_ITEM           RI  (NOLOCK) ON (OC.ORDER_NO = RI.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_ORDER_RENTAL_INFO    ORI (NOLOCK) ON (ORI.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.V_ORDER_KEY 			VOK WITH(NOEXPAND) ON (VOK.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN (SELECT DISTINCT ORDER_NO  FROM RENTAL.DBO.R_WD_CMS_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CMSR  ON VOK.ORDER_NO = CMSR.ORDER_NO
+					LEFT JOIN (SELECT DISTINCT ORDER_NO FROM RENTAL.DBO.R_WD_CARD_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CARDR  ON VOK.ORDER_NO = CARDR.ORDER_NO
+				WHERE
+					OA.APROV_DT IS NOT NULL	&#45;&#45; 승인일
+			        AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	&#45;&#45; 계약상태 (해지, 환불, ...)
+					AND ISNULL(OC.ORDER_STS, '') NOT IN ('37', '45', 'Z5')
+					AND OC.SALES_GRP NOT IN ('1050', '2005', '1054', '1051') &#45;&#45; 롯데하이마트, 쿠팡, 전자랜드, 방방 고객 아닌것
+					AND CS.CUST_NM LIKE CONCAT('%', #{name}, '%')
+					AND (CS.TEL_NO = RENTAL.DBO.FN_ENC(#{phone}) OR CS.HAND_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}))
+					AND ((OC.ITEM_GROUP_BIG LIKE 'A%' OR OC.ITEM_GROUP_BIG LIKE 'L%' OR OC.ITEM_GROUP_BIG LIKE 'W%' OR OC.ITEM_GROUP_BIG = 'U10000') OR (OC.ITEM_GROUP_BIG LIKE 'B%' AND OC.GOODS_NM LIKE '%GLED%'))
+	UNION ALL
+		SELECT
+				OC.ORDER_NO	orderNo
+				, OC.CONT_NO			contNo
+				, OC.CUST_NO			custNo
+				, OI.INSTL_CUST_NM			custName
+				, UNIERP5.dbo.FN_DEC(OI.INSTL_HAND_TEL_NO)		custMobile
+				, OA.CONT_DT			installDate
+				, OC.GOODS_CD			modelCode
+				, OC.GOODS_NM			erpModelName
+				, OC.SALES_KIND			saleKind
+				, M1.MINOR_NM			saleKindName
+				, OC.RND1_RENTAL_AMT	rentalPrice1
+				, OC.RND2_RENTAL_AMT	rentalPrice2
+				, OC.RND1_PAY_AMT		totRentalPrice
+				, OC.PREPAY_AMT			prepayments
+				, OP.PAY_METH			receipt
+				, OP.MONTHLY_PAY_DAY	monthlyPayDay
+				, OP.BANK_CD			bankCd
+				, CASE WHEN OP.PAY_METH = '1' THEN CC.CARD_CO_NM
+							ELSE BK.BANK_NM
+					  	END AS bankNm
+				, CASE WHEN OP.PAY_METH = '1' THEN '신용카드'
+				  	  	    WHEN OP.PAY_METH = '2' THEN 'CMS'
+				  	  	    WHEN OP.PAY_METH = '3' THEN '가상계좌'
+				  	  	    WHEN OP.PAY_METH = '4' THEN '지로'
+				  	  	    WHEN OP.PAY_METH = '5' THEN '가수금'
+				  	  	    WHEN OP.PAY_METH = '6' THEN '법인계좌'
+				  	  	    WHEN OP.PAY_METH = '7' THEN '선입금'
+				  	  	    WHEN OP.PAY_METH = '8' THEN '연체입금'
+				  	  	    WHEN OP.PAY_METH = '9' THEN '일반(현금)'
+				  	  	    ELSE OP.PAY_METH
+			  	  	    END AS payMeth
+				, REPLICATE('*', LEN(RENTAL.dbo.FN_DEC(OP.ACCT_NO))-4) + RIGHT(RENTAL.dbo.FN_DEC(OP.ACCT_NO), 4) acctNo
+				, M2.MINOR_NM			GIRONAME
+				, OC.RENTAL_PERIOD		rentalTerm
+				, OC.RENTAL_PERIOD		serviceMonth
+				, OC.AS_PERIOD			asMonth
+				, CASE WHEN (DATEDIFF(MM, OC.RENTAL_FR_DT, CONVERT(VARCHAR, GETDATE(), 121)) + 1) >= OC.RENTAL_PERIOD THEN OC.RENTAL_PERIOD ELSE (DATEDIFF(MM, OC.RENTAL_FR_DT, CONVERT(VARCHAR, GETDATE(), 121)) + 1) END usedTerm
+				, OC.CONT_STS			panGubun
+				, M3.MINOR_NM			PAN_GUBUN_NAME
+				, OC.RENTAL_FR_DT		freeAsStartDate
+				, CASE WHEN ISNUMERIC(OC.AS_PERIOD) = 1 THEN DATEADD(M, OC.AS_PERIOD, OA.CONT_DT - 1) ELSE OC.RENTAL_TO_DT END freeAsEndDate
+				, OC.RENTAL_FR_DT		rentalStartDate
+				, OC.RENTAL_TO_DT		rentalEndDate
+				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	&#45;&#45; chair
+					    WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	&#45;&#45; lacloud
+						WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	&#45;&#45; Water
+						WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	&#45;&#45; BTN GLED
+						WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	&#45;&#45; 생활가전 블롬베르크
+						ELSE OC.ITEM_GROUP_BIG
+					END custKind
+				, OI.INSTL_ZIP_CD		instPost
+				, CONCAT(OI.INSTL_ADDR1, ' ', OI.INSTL_ADDR2, ' ', OI.INSTL_ADDR3) instAddr1
+				, OI.INSTL_ADDR4		instAddr2
+				, UNIERP5.DBO.FN_DEC(OI.INSTL_TEL_NO)		instTel
+				, UNIERP5.DBO.FN_DEC(OI.INSTL_HAND_TEL_NO)	instMobile
+				, OI.INSTL_CUST_NM		instCustName
+				, CASE WHEN OA.CONT_DT IS NOT NULL THEN '2' ELSE '0' END instreserv
+				, OP.WD_CD              outcom
+				,
+	(select TOP 1 COLLECT_AMT FROM RENTAL.DBO.R_CONTRACT_RENTAL_SCHD WITH (NOLOCK) WHERE ORDER_NO = OC.ORDER_NO
+	and PAY_FLAG = 'Y' ORDER BY RND_NO DESC) lastOutPayPrice
+	 		FROM RENTAL.DBO.R_ORDER_CONTRACT				OC  (NOLOCK)
+					LEFT JOIN RENTAL.DBO.R_ORDER_INSTALL		OI  (NOLOCK) ON (OI.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_ORDER_CONTRACT_ADD	OA  (NOLOCK) ON (OA.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M1  (NOLOCK) ON (M1.MAJOR_CD = 'R1001' AND M1.MINOR_CD = OC.SALES_KIND)
+					LEFT JOIN RENTAL.DBO.R_ORDER_PAYMENT		OP  (NOLOCK) ON (OP.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_BANK 				BK  (NOLOCK) ON (OP.BANK_CD = BK.BANK_CD)
+					LEFT JOIN UNIERP5.DBO.B_CARD_CO 			CC  (NOLOCK) ON (OP.BANK_CD = CC.CARD_CO_CD)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M2  (NOLOCK) ON (M2.MAJOR_CD = 'R3011' AND M2.MINOR_CD = OP.PAY_METH)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M3  (NOLOCK) ON (M3.MAJOR_CD = 'R3100' AND M3.MINOR_CD = OC.CONT_STS)
+					LEFT JOIN RENTAL.DBO.R_CUSTOMER				CS  (NOLOCK) ON (CS.CUST_NO = OC.CUST_NO)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M4  (NOLOCK) ON (M4.MAJOR_CD = 'R2001' AND M4.MINOR_CD = CS.CUST_KIND)
+					LEFT JOIN RENTAL.DBO.R_ORDER_ITEM           RI  (NOLOCK) ON (OC.ORDER_NO = RI.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_ORDER_RENTAL_INFO    ORI (NOLOCK) ON (ORI.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.V_ORDER_KEY 			VOK WITH(NOEXPAND) ON (VOK.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN (SELECT DISTINCT ORDER_NO  FROM RENTAL.DBO.R_WD_CMS_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CMSR  ON VOK.ORDER_NO = CMSR.ORDER_NO
+					LEFT JOIN (SELECT DISTINCT ORDER_NO FROM RENTAL.DBO.R_WD_CARD_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CARDR  ON VOK.ORDER_NO = CARDR.ORDER_NO
+				WHERE
+					OA.APROV_DT IS NOT NULL	&#45;&#45; 승인일
+			        AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	&#45;&#45; 계약상태 (해지, 환불, ...)
+					AND ISNULL(OC.ORDER_STS, '') NOT IN ('37', '45', 'Z5')
+					AND OC.SALES_GRP NOT IN ('1050', '2005', '1054', '1051') &#45;&#45; 롯데하이마트, 쿠팡, 전자랜드, 방방 고객 아닌것
+					AND OI.INSTL_CUST_NM LIKE CONCAT('%', #{name}, '%')
+					AND (OI.INSTL_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}) OR OI.INSTL_HAND_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}))
+					AND ((OC.ITEM_GROUP_BIG LIKE 'A%' OR OC.ITEM_GROUP_BIG LIKE 'L%' OR OC.ITEM_GROUP_BIG LIKE 'W%' OR OC.ITEM_GROUP_BIG = 'U10000') OR (OC.ITEM_GROUP_BIG LIKE 'B%' AND OC.GOODS_NM LIKE '%GLED%'))
+		UNION ALL
+			/* 하이마트, 쿠팡, 전자랜드, 방방 */
+			SELECT
+				OC.ORDER_NO	orderNo
+				, OC.CONT_NO			contNo
+				, OC.CUST_NO			custNo
+				, OI.INSTL_CUST_NM			custName
+				, UNIERP5.dbo.FN_DEC(OI.INSTL_HAND_TEL_NO)		custMobile
+				, OA.CONT_DT			installDate
+				, OC.GOODS_CD			modelCode
+				, OC.GOODS_NM			erpModelName
+				, OC.SALES_KIND			saleKind
+				, M1.MINOR_NM			saleKindName
+				, OC.RND1_RENTAL_AMT	rentalPrice1
+				, OC.RND2_RENTAL_AMT	rentalPrice2
+				, OC.RND1_PAY_AMT		totRentalPrice
+				, OC.PREPAY_AMT			prepayments
+				, OP.PAY_METH			receipt
+				, OP.MONTHLY_PAY_DAY	monthlyPayDay
+				, OP.BANK_CD			bankCd
+				, CASE WHEN OP.PAY_METH = '1' THEN CC.CARD_CO_NM
+							ELSE BK.BANK_NM
+						END AS bankNm
+				, CASE WHEN OP.PAY_METH = '1' THEN '신용카드'
+					  	  	WHEN OP.PAY_METH = '2' THEN 'CMS'
+					  	  	WHEN OP.PAY_METH = '3' THEN '가상계좌'
+					  	  	WHEN OP.PAY_METH = '4' THEN '지로'
+					  	  	WHEN OP.PAY_METH = '5' THEN '가수금'
+					  	  	WHEN OP.PAY_METH = '6' THEN '법인계좌'
+					  	  	WHEN OP.PAY_METH = '7' THEN '선입금'
+					  	  	WHEN OP.PAY_METH = '8' THEN '연체입금'
+					  	  	WHEN OP.PAY_METH = '9' THEN '일반(현금)'
+					  	  	ELSE OP.PAY_METH
+				  	  	END AS payMeth
+				, REPLICATE('*', LEN(RENTAL.dbo.FN_DEC(OP.ACCT_NO))-4) + RIGHT(RENTAL.dbo.FN_DEC(OP.ACCT_NO), 4) acctNo
+				, M2.MINOR_NM			GIRONAME
+				, OC.RENTAL_PERIOD		rentalTerm
+				, OC.RENTAL_PERIOD		serviceMonth
+				, OC.AS_PERIOD			asMonth
+				, CASE WHEN (DATEDIFF(MM, OC.RENTAL_FR_DT, CONVERT(VARCHAR, GETDATE(), 121)) + 1) >= OC.RENTAL_PERIOD THEN OC.RENTAL_PERIOD ELSE (DATEDIFF(MM, OC.RENTAL_FR_DT, CONVERT(VARCHAR, GETDATE(), 121)) + 1) END usedTerm
+				, OC.CONT_STS			panGubun
+				, M3.MINOR_NM			PAN_GUBUN_NAME
+				, OC.RENTAL_FR_DT		freeAsStartDate
+				, CASE WHEN ISNUMERIC(OC.AS_PERIOD) = 1 THEN DATEADD(M, OC.AS_PERIOD, OA.CONT_DT - 1) ELSE OC.RENTAL_TO_DT END freeAsEndDate
+				, OC.RENTAL_FR_DT		rentalStartDate
+				, OC.RENTAL_TO_DT		rentalEndDate
+				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	&#45;&#45; chair
+						WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	&#45;&#45; lacloud
+						WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	&#45;&#45; Water
+						WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	&#45;&#45; BTN GLED
+						WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	&#45;&#45; 생활가전 블롬베르크
+						ELSE OC.ITEM_GROUP_BIG
+					END custKind
+				, OI.INSTL_ZIP_CD		instPost
+				, CONCAT(OI.INSTL_ADDR1, ' ', OI.INSTL_ADDR2, ' ', OI.INSTL_ADDR3) instAddr1
+				, OI.INSTL_ADDR4		instAddr2
+				, UNIERP5.DBO.FN_DEC(OI.INSTL_TEL_NO)		instTel
+				, UNIERP5.DBO.FN_DEC(OI.INSTL_HAND_TEL_NO)	instMobile
+				, OI.INSTL_CUST_NM		instCustName
+				, CASE WHEN OA.CONT_DT IS NOT NULL THEN '2' ELSE '0' END instreserv
+				, OP.WD_CD              outcom
+				, (select TOP 1 COLLECT_AMT FROM RENTAL.DBO.R_CONTRACT_RENTAL_SCHD WITH (NOLOCK) WHERE ORDER_NO = OC.ORDER_NO and PAY_FLAG = 'Y' ORDER BY RND_NO DESC) lastOutPayPrice
+		 	FROM RENTAL.DBO.R_ORDER_CONTRACT				OC  (NOLOCK)
+					LEFT JOIN RENTAL.DBO.R_ORDER_INSTALL		OI  (NOLOCK) ON (OI.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_ORDER_CONTRACT_ADD	OA  (NOLOCK) ON (OA.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M1  (NOLOCK) ON (M1.MAJOR_CD = 'R1001' AND M1.MINOR_CD = OC.SALES_KIND)
+					LEFT JOIN RENTAL.DBO.R_ORDER_PAYMENT		OP  (NOLOCK) ON (OP.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_BANK 				BK  (NOLOCK) ON (OP.BANK_CD = BK.BANK_CD)
+					LEFT JOIN UNIERP5.DBO.B_CARD_CO 			CC  (NOLOCK) ON (OP.BANK_CD = CC.CARD_CO_CD)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M2  (NOLOCK) ON (M2.MAJOR_CD = 'R3011' AND M2.MINOR_CD = OP.PAY_METH)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M3  (NOLOCK) ON (M3.MAJOR_CD = 'R3100' AND M3.MINOR_CD = OC.CONT_STS)
+					LEFT JOIN RENTAL.DBO.R_CUSTOMER				CS  (NOLOCK) ON (CS.CUST_NO = OC.CUST_NO)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M4  (NOLOCK) ON (M4.MAJOR_CD = 'R2001' AND M4.MINOR_CD = CS.CUST_KIND)
+					LEFT JOIN RENTAL.DBO.R_ORDER_ITEM           RI  (NOLOCK) ON (OC.ORDER_NO = RI.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_ORDER_RENTAL_INFO    ORI (NOLOCK) ON (ORI.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.V_ORDER_KEY 			VOK WITH(NOEXPAND) ON (VOK.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN (SELECT DISTINCT ORDER_NO  FROM RENTAL.DBO.R_WD_CMS_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CMSR  ON VOK.ORDER_NO = CMSR.ORDER_NO
+					LEFT JOIN (SELECT DISTINCT ORDER_NO FROM RENTAL.DBO.R_WD_CARD_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CARDR  ON VOK.ORDER_NO = CARDR.ORDER_NO
+			WHERE
+				OA.CONT_DT IS NOT NULL	&#45;&#45; 승인일
+				AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	&#45;&#45; 계약상태 (해지, 환불, ...)
+				AND ISNULL(OC.ORDER_STS, '') NOT IN ('37', '45', 'Z5')
+				AND OC.SALES_GRP IN ('1050', '2005', '1054', '1051') &#45;&#45; 롯데하이마트, 쿠팡, 전자랜드, 방방 고객
+				AND OI.INSTL_CUST_NM LIKE CONCAT('%', #{name}, '%')
+				AND (OI.INSTL_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}) OR OI.INSTL_HAND_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}))
+				AND ((OC.ITEM_GROUP_BIG LIKE 'A%' OR OC.ITEM_GROUP_BIG LIKE 'L%' OR OC.ITEM_GROUP_BIG LIKE 'W%' OR OC.ITEM_GROUP_BIG = 'U10000') OR (OC.ITEM_GROUP_BIG LIKE 'B%' AND OC.GOODS_NM LIKE '%GLED%'))
+		) INFO
+	</select>
+	<select id="selectMyRentalListUNIERP_info_bak" parameterType="HashMap" resultType="Hashmap">
+		SELECT
+			/**************** [selectMyRentalListUNIERP_info] ****************/
+			INFO.orderNo			AS orderNo
+			, INFO.contNo			AS contNo
+		    , INFO.custNo			AS custNo
+		    , INFO.custName			AS custName
+		    , INFO.custMobile		AS custMobile
+		    , INFO.modelCode		AS modelCode
+		    , INFO.erpModelName		AS erpModelName
+		    , INFO.saleKind			AS saleKind
+		    , INFO.saleKindName		AS saleKindName
+		    , INFO.rentalTerm		AS rentalTerm
+		    , INFO.rentalTerm		AS serviceMonth
+		    , INFO.asMonth			AS asMonth
+		    , INFO.usedTerm			AS usedTerm
+		    , INFO.receipt			AS receipt
+		    , INFO.monthlyPayDay	AS monthlyPayDay
+		    , INFO.bankCd			AS bankCd
+		    , INFO.acctNo			AS acctNo
+		    , INFO.acctNo			AS bankNo
+		    , INFO.bankNm			AS bankNm
+		    , INFO.payMeth			AS payMeth
+		    , INFO.panGubun			AS panGubun
+		    , INFO.instPost			AS instPost
+		    , INFO.instAddr1		AS instAddr1
+            , INFO.instAddr2		AS instAddr2
+            , INFO.instTel			AS instTel
+            , INFO.instMobile		AS instMobile
+            , INFO.instCustName		AS instCustName
+		    , INFO.outcom			AS outcom
+		    , INFO.instreserv		AS instreserv
+            , INFO.custKind
+            , INFO.custKind			AS grpCode
+			, CONVERT(VARCHAR(10), INFO.installDate, 121) 		AS installDate
+			, CONVERT(VARCHAR(10), INFO.freeAsStartDate, 121) 	AS freeAsStartDate
+		    , CONVERT(VARCHAR(10), INFO.freeAsEndDate, 121)		AS freeAsEndDate
+		    , CONVERT(VARCHAR(10), INFO.rentalStartDate, 121)	AS rentalStartDate
+		    , CONVERT(VARCHAR(10), INFO.rentalEndDate, 121)		AS rentalEndDate
+			, CONVERT(INT, INFO.rentalPrice1)					AS rentalPrice1
+		    , CONVERT(INT, INFO.rentalPrice2)					AS rentalPrice2
+		    , CONVERT(INT, INFO.totRentalPrice)					AS totRentalPrice
+		    , CONVERT(INT, INFO.prepayments)					AS prepayments
+	FROM   (
+		SELECT
+				DISTINCT OC.ORDER_NO	orderNo
+				, OC.CONT_NO			contNo
+				, OC.CUST_NO			custNo
+				, CS.CUST_NM			custName
+				, UNIERP5.dbo.FN_DECRYPT_AES256(CS.HAND_TEL_NO, 'bfservicekey!@12')		custMobile
+				, OA.CONT_DT			installDate
+				, OC.GOODS_CD			modelCode
+				, OC.GOODS_NM			erpModelName
+				, OC.SALES_KIND			saleKind
+				, M1.MINOR_NM			saleKindName
+				, OC.RND1_RENTAL_AMT	rentalPrice1
+				, OC.RND2_RENTAL_AMT	rentalPrice2
+				, OC.RND1_PAY_AMT		totRentalPrice
+				, OC.PREPAY_AMT			prepayments
+				, OP.PAY_METH			receipt
+				, OP.MONTHLY_PAY_DAY	monthlyPayDay
+				, OP.BANK_CD			bankCd
+				, CASE WHEN OP.PAY_METH = '1' THEN CC.CARD_CO_NM
+						   ELSE BK.BANK_NM
+				  	  END AS bankNm
+				, CASE WHEN OP.PAY_METH = '1' THEN '신용카드'
+			  	  	       WHEN OP.PAY_METH = '2' THEN 'CMS'
+			  	  	       WHEN OP.PAY_METH = '3' THEN '가상계좌'
+			  	  	       WHEN OP.PAY_METH = '4' THEN '지로'
+			  	  	       WHEN OP.PAY_METH = '5' THEN '가수금'
+			  	  	       WHEN OP.PAY_METH = '6' THEN '법인계좌'
+			  	  	       WHEN OP.PAY_METH = '7' THEN '선입금'
+			  	  	       WHEN OP.PAY_METH = '8' THEN '연체입금'
+			  	  	       WHEN OP.PAY_METH = '9' THEN '일반(현금)'
+			  	  	       ELSE OP.PAY_METH
+		  	  	       END AS payMeth
+				, REPLICATE('*', LEN(RENTAL.dbo.FN_DECRYPT_AES256(OP.ACCT_NO, 'bfservicekey!@12'))-4) + RIGHT(RENTAL.dbo.FN_DECRYPT_AES256(OP.ACCT_NO, 'bfservicekey!@12'), 4) acctNo
+				, M2.MINOR_NM			GIRONAME
+				, OC.RENTAL_PERIOD		rentalTerm
+				, OC.RENTAL_PERIOD		serviceMonth
+				, OC.AS_PERIOD			asMonth
+				, CASE WHEN (DATEDIFF(MM, OC.RENTAL_FR_DT, CONVERT(VARCHAR, GETDATE(), 121)) + 1) >= OC.RENTAL_PERIOD THEN OC.RENTAL_PERIOD ELSE (DATEDIFF(MM, OC.RENTAL_FR_DT, CONVERT(VARCHAR, GETDATE(), 121)) + 1) END usedTerm
+				, OC.CONT_STS			panGubun
+				, M3.MINOR_NM			PAN_GUBUN_NAME
+				, OC.RENTAL_FR_DT		freeAsStartDate
+				, CASE WHEN ISNUMERIC(OC.AS_PERIOD) = 1 THEN DATEADD(M, OC.AS_PERIOD, OA.CONT_DT - 1) ELSE OC.RENTAL_TO_DT END freeAsEndDate
+				, OC.RENTAL_FR_DT		rentalStartDate
+				, OC.RENTAL_TO_DT		rentalEndDate
+				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	&#45;&#45; chair
+				       WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	&#45;&#45; lacloud
+					   WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	&#45;&#45; Water
+					   WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	&#45;&#45; BTN GLED
+					   WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	&#45;&#45; 생활가전 블롬베르크
+					   ELSE OC.ITEM_GROUP_BIG
+				  END custKind
+				, OI.INSTL_ZIP_CD		instPost
+				, CONCAT(OI.INSTL_ADDR1, ' ', OI.INSTL_ADDR2, ' ', OI.INSTL_ADDR3) instAddr1
+				, OI.INSTL_ADDR4		instAddr2
+				, UNIERP5.DBO.FN_DEC(OI.INSTL_TEL_NO)		instTel
+				, UNIERP5.DBO.FN_DEC(OI.INSTL_HAND_TEL_NO)	instMobile
+				, OI.INSTL_CUST_NM		instCustName
+				, CASE WHEN OA.CONT_DT IS NOT NULL THEN '2' ELSE '0' END instreserv
+				, OP.WD_CD              outcom
+				,
+ (select TOP 1 COLLECT_AMT FROM RENTAL.DBO.R_CONTRACT_RENTAL_SCHD WITH (NOLOCK) WHERE ORDER_NO = OC.ORDER_NO
+ and PAY_FLAG = 'Y' ORDER BY RND_NO DESC) lastOutPayPrice
+ 			FROM RENTAL.DBO.R_ORDER_CONTRACT				OC  (NOLOCK)
+					LEFT JOIN RENTAL.DBO.R_ORDER_INSTALL		OI  (NOLOCK) ON (OI.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_ORDER_CONTRACT_ADD	OA  (NOLOCK) ON (OA.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M1  (NOLOCK) ON (M1.MAJOR_CD = 'R1001' AND M1.MINOR_CD = OC.SALES_KIND)
+					LEFT JOIN RENTAL.DBO.R_ORDER_PAYMENT		OP  (NOLOCK) ON (OP.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_BANK 				BK  (NOLOCK) ON (OP.BANK_CD = BK.BANK_CD)
+					LEFT JOIN UNIERP5.DBO.B_CARD_CO 			CC  (NOLOCK) ON (OP.BANK_CD = CC.CARD_CO_CD)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M2  (NOLOCK) ON (M2.MAJOR_CD = 'R3011' AND M2.MINOR_CD = OP.PAY_METH)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M3  (NOLOCK) ON (M3.MAJOR_CD = 'R3100' AND M3.MINOR_CD = OC.CONT_STS)
+					LEFT JOIN RENTAL.DBO.R_CUSTOMER				CS  (NOLOCK) ON (CS.CUST_NO = OC.CUST_NO)
+					LEFT JOIN UNIERP5.DBO.B_MINOR				M4  (NOLOCK) ON (M4.MAJOR_CD = 'R2001' AND M4.MINOR_CD = CS.CUST_KIND)
+					LEFT JOIN RENTAL.DBO.R_ORDER_ITEM           RI  (NOLOCK) ON (OC.ORDER_NO = RI.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.R_ORDER_RENTAL_INFO    ORI (NOLOCK) ON (ORI.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN RENTAL.DBO.V_ORDER_KEY 			VOK WITH(NOEXPAND) ON (VOK.ORDER_NO = OC.ORDER_NO)
+					LEFT JOIN (SELECT DISTINCT ORDER_NO  FROM RENTAL.DBO.R_WD_CMS_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CMSR  ON VOK.ORDER_NO = CMSR.ORDER_NO
+					LEFT JOIN (SELECT DISTINCT ORDER_NO FROM RENTAL.DBO.R_WD_CARD_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CARDR  ON VOK.ORDER_NO = CARDR.ORDER_NO
+				WHERE OA.APROV_DT IS NOT NULL	&#45;&#45; 승인일
+		        	AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	&#45;&#45; 계약상태 (해지, 환불, ...)
+					AND ISNULL(OC.ORDER_STS, '') NOT IN ('37', '45', 'Z5')
+					AND OC.SALES_GRP NOT IN ('1050', '2005', '1054', '1051') &#45;&#45; 롯데하이마트, 쿠팡, 전자랜드, 방방 고객 아닌것
+					AND CS.CUST_NM LIKE CONCAT('%', #{name}, '%')
+					AND (CS.TEL_NO = RENTAL.DBO.FN_ENC(#{phone}) OR CS.HAND_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}))
+					AND ((OC.ITEM_GROUP_BIG LIKE 'A%' OR OC.ITEM_GROUP_BIG LIKE 'L%' OR OC.ITEM_GROUP_BIG LIKE 'W%' OR OC.ITEM_GROUP_BIG = 'U10000') OR (OC.ITEM_GROUP_BIG LIKE 'B%' AND OC.GOODS_NM LIKE '%GLED%'))
+
+		) INFO
+	</select>
+
+	&lt;!&ndash; 건강수명 Plus 게시판 List 조회 &ndash;&gt;
+	<select id="selectHealthyLifeList" resultType="com.bf.web.customer.vo.HealthyLifeVO" parameterType="com.bf.web.customer.vo.HealthyLifeVO">
+			<include refid="common_mapper.pagePrefix" />
+			SELECT
+		   		/****************[selectHealthyLifeList]****************/
+		        A.BBS_NAME		AS	bbsName							/* 게시판 이름  */
+		        ,A.DEL_STATE 	AS	delState						/* 삭제 여부    */
+		        ,B.BBS_CODE		AS	bbsCode							/* 게시판 코드  */
+		        ,B.BBS_IDX		AS	bbsIdx							/* 게시판 Index */
+		        ,B.SUBJECT		AS	subject							/* 제목 		*/
+		        ,B.WRITER		AS	writer							/* 글쓴이	    */
+		        ,B.HIT			AS	hit								/* 읽은 횟수	*/
+				,B.NOTICE		AS  notice							/* 공지사항 여부*/
+				,B.SECRET		AS  secret							/* 비밀글 여부*/
+				,B.TAG			AS  tag								/* 태그 정보*/
+		        ,B.CONTENTS		AS	contents						/* 글 내용  	*/
+		        ,B.CONTENTS_SUB	AS  contentsSub						/* 글 내용 (서브) */
+		        ,B.UPFILE_CNT	AS	upfileCnt						/* 파일 개수    */
+		        ,B.COMMENT_CNT	AS	commentCnt						/* 댓글 개수    */
+		        ,B.UPT_DATE		AS	uptDate							/* 수정 일자	*/
+		        ,B.THUMBNAIL	AS	thumbnail						/* 썸네일	*/
+		        , DATE_FORMAT(B.reg_date, '%Y-%m-%d') AS regDate 	/* 등록 일자    */
+		        , DATE_FORMAT(B.reg_date, '%Y-%m-%d %H:%m:%s') AS regDateSort 	/* 등록 일자    */
+		        , (select count(*) from bbs_normal where bbs_code = 45) AS totalCnt
+  		    FROM BBS_NORMAL B
+   			INNER JOIN BBS_MASTER A ON B.BBS_CODE = A.BBS_CODE
+   			WHERE A.DEL_STATE = 0
+			AND B.BBS_CODE  = 45
+			<if test="searchWord != '' and searchWord != null">
+				AND (B.subject like CONCAT('%',#{searchWord},'%') OR B.writer like CONCAT('%',#{searchWord},'%') OR B.tag like CONCAT('%',#{searchWord},'%') OR B.contents like CONCAT('%',#{searchWord},'%'))
+			</if>
+			<if test="tagSearch!=null and tagSearch!=''">
+				and (tag like CONCAT('%',#{tagSearch},'%'))
+			</if>
+   			ORDER BY B.reg_date DESC
+   			<include refid="common_mapper.pageSuffix" />
+	</select>
+
+	<select id="healthyLifeDetail" parameterType="com.bf.web.customer.vo.HealthyLifeVO" resultType="com.bf.web.customer.vo.HealthyLifeVO">
+		SELECT
+			/*********** customer.healthyLifeDetail ****************/
+		    A.BBS_CODE AS bbsCode,										/* 게시판 코드  		 	 */
+		    A.BBS_IDX  AS bbsIdx,										/* 게시물 INDEX 		 */
+			A.EVENT_IDX  AS eventIdx,									/* 게시물 INDEX 		 */
+		    A.SUBJECT  AS subject,										/* 제목 				 */
+		    A.classification as classification,							/* 분류				 */
+		    A.LINK  AS link,											/* 링크 				 */
+		    DATE_FORMAT(A.REG_DATE,'%Y-%m-%d') AS regDate,				/* 등록일				 */
+			A.WRITER   AS writer,										/* 작성자				 */
+			A.NOTICE AS notice,											/* 공지				 */
+		   	IFNULL(A.YEAR,0) AS year,									/* 년(Year) 			 */
+		    IFNULL(A.MONTH,0) AS month,									/* 월(Month)    		 */
+		    IFNULL(A.DATE,0) AS date,									/* 일(Date) 			 */
+		    A.HIT AS hit,												/* 조회수				 */
+		    A.CONTENTS AS contents,										/* 글 내용 	   		 */
+		    A.CONTENTS_SUB AS contentsSub,								/* 글 내용 (서브)  		 */
+		    A.TAG AS tag,												/* 글 TAG 	   		 */
+		    A.SECRET AS secret,											/* 비밀글 		   		 */
+		    A.thumbnail AS thumbnail,									/* 섬네일 파일명 	     */
+		    IFNULL(A.SITE_TYPE,'') as siteType,							/* 사이트 구분	   		 */
+		    DATE_FORMAT(C.event_start_day,'%Y-%m-%d') AS eventStartDay,
+		    DATE_FORMAT(C.event_end_day,'%Y-%m-%d') AS eventEndDay,
+		    C.adress AS adress,
+		    C.max_user_cnt AS maxUserCnt,
+		    DATE_FORMAT(C.recruitment_start_day,'%Y-%m-%d') AS recruitmentStartDay,
+		    DATE_FORMAT(C.recruitment_end_day,'%Y-%m-%d') AS recruitmentEndDay,
+		    C.progress_type AS progressType,
+		    C.adress_type AS adressType,
+		    C.price AS price,
+		    C.del_state AS eventDelState,
+		    (SELECT COUNT(user_idx) FROM bbs_normal_event_hist WHERE C.event_idx = event_idx) AS userHistCnt,
+		    (SELECT COUNT(user_idx) FROM bbs_normal_event_hist WHERE C.event_idx = event_idx AND user_idx = #{userIdx} ) AS applyChk
+		FROM
+		    BBS_NORMAL A
+  		    LEFT JOIN BBS_NORMAL_EVENT C ON A.EVENT_IDX = C.EVENT_IDX
+		WHERE
+		    A.BBS_CODE = 45 and A.BBS_IDX = #{bbsIdx}
+	</select>
+
+	&lt;!&ndash; 건강수명 게시판 이벤트 신청 &ndash;&gt;
+	<insert id="insertEventApply" parameterType="com.bf.web.customer.vo.HealthyLifeVO">
+		insert into
+		    bbs_normal_event_hist (
+		        event_idx,
+		        bbs_idx,
+		        user_idx,
+		        reg_date
+		    )
+		values
+		    (
+		    	#{eventIdx}
+				,#{bbsIdx}
+				,#{userIdx}
+		        ,SYSDATE()
+		    );
+	</insert>
+
+	<update id="updateHitCountForHealthyLife" parameterType="String">
+		update
+			BBS_NORMAL
+		set hit = hit + 1
+		where bbs_idx = #{bbsIdx}
+	</update>
+
+	&lt;!&ndash; 건강수명 게시판 고객행위분석 &ndash;&gt;
+	<insert id="insertCustomerAnalysisHist" parameterType="com.bf.web.customer.vo.CustomerAnalysisHistVO">
+		insert into
+		    customer_analysis_hist (
+		        user_idx,
+		        user_ip,
+		        menu_name,
+		        menu_type,
+		        bbs_idx,
+		        url,
+		        referer_url,
+		        user_agent,
+		        reg_date
+		    )
+		values
+		    (
+		    	#{userIdx}
+				,#{userIp}
+				,#{menuName}
+				,#{menuType}
+				,#{bbsIdx}
+				,#{url}
+				,#{refererUrl}
+				,#{userAgent}
+		        ,SYSDATE()
+		    );
+	</insert>
+
+	&lt;!&ndash; 일반 유형 게시판 게시물 상세 첨부 파일 &ndash;&gt;
+	<select id="selectHealthyLifeUpFile" parameterType="java.util.HashMap" resultType="com.bf.web.customer.vo.HealthyLifeVO">
+		SELECT
+			 /*********** customer.selectHealthyLifeUpFile ****************/
+      		  UP_FILE_NAME			AS upFileName,					/* 업로드된 파일 이름 */
+      		  ORI_FILE_NAME			AS oriFileName					/* 오리지널 파일 이름 */
+  	     FROM BBS_NORMAL_UPFILE
+ 		WHERE BBS_CODE = #{bbsCd}
+          AND UPFILE_IDX  = #{idx}
+	</select>
+
+	&lt;!&ndash; 일반 유형 게시판 게시물 상세 첨부 파일 &ndash;&gt;
+	<select id="selectNormalUpFileHealthyLife" parameterType="com.bf.web.customer.vo.HealthyLifeVO" resultType="java.util.HashMap">
+		SELECT
+			 /*********** customer.selectNormalUpFileHealthyLife ****************/
+       		  UPFILE_IDX			AS upFileIdx,					/* 파일인덱스 		  */
+      		  UP_FILE_NAME			AS upFileName,					/* 업로드된 파일 이름 */
+      		  ORI_FILE_NAME			AS oriFileName,					/* 오리지널 파일 이름 */
+      	      FILE_SIZE				AS fileSize,					/* 파일 사이즈 		  */
+      	      IFNULL(link,'')		AS link							/* 링크 URL		  */
+  	     FROM BBS_NORMAL_UPFILE
+ 		 WHERE BBS_CODE = 45
+         AND BBS_IDX  = #{bbsIdx}
+         ORDER BY ORDER_NUM is null ASC, ORDER_NUM ASC
+	</select>
+
+	&lt;!&ndash; 알림톡 템플릿 조회 &ndash;&gt;
+	<select id="selectTemplate" parameterType="String" resultType="HashMap">
+		SELECT
+			  TEMPLATE_TITLE as templateTitle
+			, TEMPLATE_MSG as templateMsg
+		FROM
+			BIZ_MSG_TEMPLATE
+		WHERE
+			TEMPLATE_CODE = #{templateCode}
+	</select>
+
+	&lt;!&ndash; 분해조립 주문번호 채번 &ndash;&gt;
+	<select id="getPayOrdNo" resultType="String">
+		SELECT CONCAT(DATE_FORMAT(now(), '%Y%m%d'), '-A-', UPPER(SUBSTRING(MD5(RAND()), 3, 5))) payOrdNo;
+	</select>
+
+	&lt;!&ndash; 분해조립 주문번호 확인 &ndash;&gt;
+	<select id="checkPayOrdNo" resultType="int" parameterType="String">
+		SELECT COUNT(*) cnt FROM tb_assemble_ord_no WHERE pay_ord_no = #{value}
+	</select>
+
+	&lt;!&ndash; 분해조립 주문번호 등록 &ndash;&gt;
+	<insert id="insertPayOrdNo" parameterType="hashmap">
+		INSERT INTO tb_assemble_ord_no (pay_ord_no, order_info)
+		VALUES (#{payOrdNo}, #{orderInfo});
+	</insert>
+
+	&lt;!&ndash; 분해조립 주문정보 조회 &ndash;&gt;
+	<select id="getPayOrdInfo" parameterType="String" resultType="String">
+		SELECT order_info AS orderInfo FROM tb_assemble_ord_no WHERE pay_ord_no = #{value}
+	</select>
+
+	&lt;!&ndash; 분해조립 serviceIdx 조회 &ndash;&gt;
+	<select id="getServiceIdxFromPayOrdNo" parameterType="String" resultType="String">
+		SELECT service_idx AS serviceIdx
+		FROM online_service_assemble
+		WHERE pay_ord_no=#{value};
+	</select>
+
+
+	&lt;!&ndash; 간편 배송 조회 인증 리스트 &ndash;&gt;
+	<select id="selectOdrNumList" resultType="HashMap" parameterType="HashMap">
+		/****************[customer.selectOdrNumList]****************/
+		 SELECT DISTINCT
+			  GOODS_NM , ORDER_NO
+		 FROM RENTAL.DBO.R_SHIPPING_INFO WITH (NOLOCK)
+			 WHERE ( (HAND_TEL_NO = UNIERP5.dbo.FN_ENC(#{telNumber}) OR TEL_NO = UNIERP5.dbo.FN_ENC(#{telNumber})) )
+		  	 		AND
+		  		( (ORDER_NO = #{orderNum} OR CUST_NM = #{orderNum} OR EXT1_CD = #{orderNum}) )
+		  		AND STATUS_CD NOT IN ('ZZ','X1','X2','X3','X4','F1','F2')
+		  		AND SHIPPING_TYPE IN ('D010','P040')
+				AND ISNULL(TRANS_FLAG,'2') != 1
+
+	</select>
+
+		&lt;!&ndash; 후기작성 인증 리스트 &ndash;&gt;
+	<select id="selectOdrNumReviewList" resultType="HashMap" parameterType="HashMap">
+		/****************[customer.selectOdrNumReviewList]****************/
+		 SELECT DISTINCT
+			  GOODS_NM , A.ORDER_NO  , STATUS_CD , GOODS_CD
+		 FROM RENTAL.DBO.R_SHIPPING_INFO A WITH (NOLOCK)
+		  INNER JOIN R_ORDER_INSTALL (NOLOCK) D ON A.ORDER_NO = D.ORDER_NO
+			 WHERE
+				(RENTAL.DBO.FN_DEC(D.INSTL_HAND_TEL_NO) = #{telNumber} OR RENTAL.DBO.FN_DEC(D.INSTL_TEL_NO) = #{telNumber} )
+				AND D.INSTL_CUST_NM = #{orderNum}
+		  		AND SHIPPING_TYPE IN ('D010','P040')
+				AND ISNULL(TRANS_FLAG,'2') != 1
+				AND DEL_FLAG = 'N'
+		UNION ALL
+		 SELECT DISTINCT
+			  GOODS_NM , A.ORDER_NO  , 'ZZ' AS STATUS_CD , GOODS_CD
+	     FROM RENTAL.DBO.R_ORDER_CONTRACT A (NOLOCK) LEFT JOIN RENTAL.DBO.R_ORDER_CUST_INFO B (NOLOCK)
+			  	 ON A.ORDER_NO = B.ORDER_NO
+		   WHERE 1=1
+		   AND A.CUST_NM = #{orderNum}
+		   AND A.EXT2_CD = 'COUPANG'
+		   AND (B.HAND_TEL_NO = UNIERP5.dbo.FN_ENC(#{telNumber}) OR B.TEL_NO = UNIERP5.dbo.FN_ENC(#{telNumber}) OR B.ETC_TEL_NO = UNIERP5.dbo.FN_ENC(#{telNumber}))
+
+		 UNION ALL
+
+		   SELECT DISTINCT GOODS_NM , A.ORDER_NO  , 'ZZ' AS STATUS_CD , GOODS_CD FROM R_ORDER_ITEM A(NOLOCK)  LEFT JOIN R_ORDER_CONTRACT B (NOLOCK)
+		   ON A.ORDER_NO = B.ORDER_NO
+		   WHERE 1=1
+		   AND A.ORDER_NO IN (
+				SELECT ORDER_NO FROM R_ORDER_CUST_INFO B (NOLOCK)
+				WHERE 1=1
+				AND (RENTAL.DBO.FN_DEC(B.TEL_NO) = #{telNumber} OR RENTAL.DBO.FN_DEC(B.HAND_TEL_NO) = #{telNumber} )
+				AND B.CUST_NM = #{orderNum}
+		   )
+		   AND SEND_DT IS NOT NULL
+		   AND ITEM_STATUS = 'C'
+
+	</select>
+
+	&lt;!&ndash; 검색 &ndash;&gt;
+	<select id="search" resultType="HashMap" parameterType="HashMap">
+		/****************[customer.search]****************/
+
+		SELECT * FROM
+		   (
+		    SELECT subject , contents , writer , hit , DATE_FORMAT(bn.reg_date,'%Y-%m-%d') AS reg_date , bn.bbs_code , bbs_idx  ,bm.bbs_name		,'' AS classification
+			FROM bbs_normal bn left join bbs_master bm on bn.bbs_code = bm.bbs_code AND IFNULL(bm.del_state,'0') = 0
+	        WHERE 1=1
+	        AND (subject LIKE CONCAT('%',#{word},'%')
+	        OR contents LIKE CONCAT('%',#{word},'%'))
+	        AND IFNULL(bn.del_state,'0') = 0
+	        AND bn.bbs_code IN (1, 9)
+	        UNION ALL
+
+	        SELECT subject , contents , writer , hit , DATE_FORMAT(bn.reg_date,'%Y-%m-%d') AS reg_date , bn.bbs_code , bbs_idx  ,bm.bbs_name,'' AS classification
+			FROM bbs_gallery bn left join bbs_master bm on bn.bbs_code = bm.bbs_code AND IFNULL(bm.del_state,'0') = 0
+	        WHERE 1=1
+	        AND (subject LIKE CONCAT('%',#{word},'%')
+	        OR contents LIKE CONCAT('%',#{word},'%'))
+	        AND IFNULL(bn.del_state,'0') = 0
+	        AND bn.bbs_code IN (16)
+	        UNION ALL
+
+	        SELECT subject , contents , writer , '' , DATE_FORMAT(bn.reg_date,'%Y-%m-%d') AS reg_date , bn.bbs_code , bbs_idx ,bm.bbs_name
+	        ,
+					CASE
+						WHEN bn.classification = '동작안됨' THEN 'trouble'
+						WHEN bn.classification = '상품문의' THEN 'inquiry'
+						WHEN bn.classification = '렌탈/구매' THEN 'rental'
+						WHEN bn.classification = '결제/배송' THEN 'payment'
+						WHEN bn.classification = '서비스' THEN 'service'
+						WHEN bn.classification = '혜택' THEN 'benefits'
+						WHEN bn.classification = '취소/환불/반품' THEN 'return'
+						WHEN bn.classification = '회원' THEN 'member'
+						WHEN bn.classification = '기타' THEN 'others'
+						WHEN bn.classification = '리모컨' THEN 'remote'
+						WHEN bn.classification = '소모품' THEN 'supplies'
+						ELSE  'others'
+					END AS classification
+	        FROM bbs_faq bn left join bbs_master bm on bn.bbs_code = bm.bbs_code AND IFNULL(bm.del_state,'0') = 0
+	        WHERE 1=1
+	        AND (subject LIKE CONCAT('%',#{word},'%')
+	        OR contents LIKE CONCAT('%',#{word},'%'))
+	        AND IFNULL(bn.del_state,'0') = 0
+	        AND site_type NOT LIKE '%NC%'
+	        AND bn.bbs_code IN (2)
+	        AND bn.classification IN ('상품문의','렌탈/구매','결제/배송','서비스','혜택','취소/환불/반품','회원','기타','동작안됨','리모컨','소모품')
+	       ) A
+        ORDER BY
+        	CASE A.bbs_code
+        		WHEN  1 THEN 1
+        		WHEN  2 THEN 2
+        		WHEN  9 THEN 3
+        		WHEN  16 THEN 4
+        		ELSE A.bbs_code + 20
+        	END,
+        	A.reg_date desc
+
+	</select>
+
+		&lt;!&ndash; 검색 &ndash;&gt;
+	<select id="searchCount" resultType="HashMap" parameterType="HashMap">
+		/****************[customer.searchCount]****************/
+
+		SELECT  CNT ,
+				CASE WHEN BBS_CODE = '2' THEN 'FAQ'
+					 ELSE B.BBS_NAME
+                END AS BBS_NAME ,
+				IFNULL(BBS_CODE,'9999') AS BBS_CODE
+		FROM
+			(
+				SELECT	  SUM(A.CNT) AS CNT
+						, COALESCE(BBS_NAME , 'TOTAL') AS BBS_NAME
+				FROM (
+							SELECT  count(*) as CNT  ,
+									bbs_name
+							FROM 	bbs_normal bn
+							LEFT JOIN bbs_master bm ON bn.bbs_code = bm.bbs_code
+					        WHERE 	1=1
+					        AND 	(subject LIKE CONCAT('%',#{word},'%')
+					        OR 		contents LIKE CONCAT('%',#{word},'%'))
+					        AND 	IFNULL(bn.del_state,'0') = 0
+					        AND		bn.bbs_code IN (1, 9)
+				            GROUP BY bbs_name
+
+					        UNION ALL
+
+					        SELECT  count(*) as CNT  ,
+									bbs_name
+							FROM 	bbs_gallery bn
+							LEFT JOIN bbs_master bm ON bn.bbs_code = bm.bbs_code
+					        WHERE 	1=1
+					        AND 	(subject LIKE CONCAT('%',#{word},'%')
+					        OR 		contents LIKE CONCAT('%',#{word},'%'))
+					        AND 	IFNULL(bn.del_state,'0') = 0
+					        AND		bn.bbs_code IN (16)
+				            GROUP BY bbs_name
+
+					        UNION ALL
+					        SELECT	count(*) as cnt ,bbs_name
+					        FROM 	bbs_faq bn
+					        LEFT JOIN bbs_master bm ON bn.bbs_code = bm.bbs_code
+					        WHERE	 1=1
+					        AND 	(subject LIKE CONCAT('%',#{word},'%')
+					        OR 		contents LIKE CONCAT('%',#{word},'%'))
+					        AND 	IFNULL(bn.del_state,'0') = 0
+					        AND site_type NOT LIKE '%NC%'
+					        AND bn.classification IN ('상품문의','렌탈/구매','결제/배송','서비스','혜택','취소/환불/반품','회원','기타','동작안됨','리모컨','소모품')
+					        AND bn.bbs_code IN (2)
+				            GROUP BY bbs_name
+					) A
+		            GROUP BY bbs_name WITH ROLLUP
+            )B LEFT JOIN bbs_master bm ON B.BBS_NAME = bm.BBS_NAME   AND IFNULL(bm.del_state,'0') = 0
+
+	</select>
+	&lt;!&ndash; 검색어 수집 &ndash;&gt;
+	<insert id="searchHistory" parameterType="hashmap">
+		INSERT INTO search_history (key_word)
+		VALUES (#{word});
+	</insert>
+
+	<select id="selectSearchList" resultType="HashMap" parameterType="HashMap">
+		/****************[customer.selectSearchList]****************/
+		<include refid="common_mapper.pagePrefix" />
+		<choose>
+			<when test='bbs_code == "2"'>
+				SELECT subject , contents , writer , '' as hit, DATE_FORMAT(bn.reg_date,'%Y-%m-%d') AS reg_date , bn.bbs_code , bbs_idx ,bm.bbs_name
+				,
+					CASE
+						WHEN bn.classification = '동작안됨' THEN 'trouble'
+						WHEN bn.classification = '상품문의' THEN 'inquiry'
+						WHEN bn.classification = '렌탈/구매' THEN 'rental'
+						WHEN bn.classification = '결제/배송' THEN 'payment'
+						WHEN bn.classification = '서비스' THEN 'service'
+						WHEN bn.classification = '혜택' THEN 'benefits'
+						WHEN bn.classification = '취소/환불/반품' THEN 'return'
+						WHEN bn.classification = '회원' THEN 'member'
+						WHEN bn.classification = '기타' THEN 'others'
+						WHEN bn.classification = '리모컨' THEN 'remote'
+						WHEN bn.classification = '소모품' THEN 'supplies'
+						ELSE  'others'
+					END AS classification
+		        FROM bbs_faq bn left join bbs_master bm ON bn.bbs_code = bm.bbs_code
+		        WHERE 1=1
+		        AND (subject LIKE CONCAT('%',#{searchStr},'%')
+		        OR contents LIKE CONCAT('%',#{searchStr},'%'))
+		        AND IFNULL(bn.del_state,'0') = 0
+		        AND site_type NOT LIKE '%NC%'
+		        AND bn.bbs_code = #{bbs_code}
+			</when>
+			<when test='bbs_code == "16"'>
+				SELECT subject , contents , writer , hit , DATE_FORMAT(bn.reg_date,'%Y-%m-%d') AS reg_date , bn.bbs_code , bbs_idx  ,bm.bbs_name	,'' AS classification
+				FROM bbs_gallery bn left join bbs_master bm on bn.bbs_code = bm.bbs_code
+		        WHERE 1=1
+		        AND (subject LIKE CONCAT('%',#{searchStr},'%')
+		        OR contents LIKE CONCAT('%',#{searchStr},'%'))
+		        AND IFNULL(bn.del_state,'0') = 0
+		        <if test="bbs_code != '' and bbs_code != null">
+					 AND bn.bbs_code = #{bbs_code}
+				</if>
+			</when>
+			<otherwise>
+				SELECT subject , contents , writer , hit , DATE_FORMAT(bn.reg_date,'%Y-%m-%d') AS reg_date , bn.bbs_code , bbs_idx  ,bm.bbs_name	,'' AS classification
+				FROM bbs_normal bn left join bbs_master bm on bn.bbs_code = bm.bbs_code
+		        WHERE 1=1
+		        AND (subject LIKE CONCAT('%',#{searchStr},'%')
+		        OR contents LIKE CONCAT('%',#{searchStr},'%'))
+		        AND IFNULL(bn.del_state,'0') = 0
+		        <if test="bbs_code != '' and bbs_code != null">
+					 AND bn.bbs_code = #{bbs_code}
+				</if>
+			</otherwise>
+		</choose>
+		 ORDER BY bn.bbs_code , bn.reg_date desc
+		 <include refid="common_mapper.pageSuffix" />
+	</select>
+
+	<select id="searchDetail" resultType="HashMap" parameterType="HashMap">
+		/****************[customer.searchDetail]****************/
+		<choose>
+			<when test='bbs_code == "2"'>
+				SELECT subject , contents , writer , '' as hit, DATE_FORMAT(bn.reg_date,'%Y-%m-%d') AS reg_date , bn.bbs_code , bbs_idx ,bm.bbs_name
+		        FROM bbs_faq bn left join bbs_master bm on bn.bbs_code = bm.bbs_code
+		        WHERE 1=1
+		        AND bn.bbs_idx = #{bbs_idx}
+		        AND IFNULL(bn.del_state,'0') = 0
+		        AND bn.bbs_code = #{bbs_code}
+			</when>
+			<otherwise>
+				SELECT subject , contents , writer , hit , DATE_FORMAT(bn.reg_date,'%Y-%m-%d') AS reg_date , bn.bbs_code , bbs_idx  ,bm.bbs_name
+				FROM bbs_normal bn left join bbs_master bm on bn.bbs_code = bm.bbs_code
+		        WHERE 1=1
+		        AND bn.bbs_idx = #{bbs_idx}
+		        AND IFNULL(bn.del_state,'0') = 0
+		        <if test="bbs_code != '' and bbs_code != null">
+					 AND bn.bbs_code = #{bbs_code}
+				</if>
+			</otherwise>
+		</choose>
+		 ORDER BY bn.bbs_code , bn.reg_date desc
+	</select>
+
+
+		  &lt;!&ndash; 전시장 체험 예약 접수 후 ERP 등록 &ndash;&gt;
+	<select id="LMSendApi" statementType="CALLABLE" parameterType="hashmap" resultType="hashmap">
+		{CALL RENTAL.dbo.usp_R_LM_SEND_HOMEPAGE (
+			#{SHIPPING_NO, jdbcType=NVARCHAR, mode=IN}
+		)}
+	</select>
+
+
+	<select id="selectOdrNumReviewChkList" resultType="HashMap" parameterType="HashMap">
+	SELECT COUNT(*) as cnt FROM GOODS_REVIEW WHERE erp_order_no = #{ORDER_NO}  and del_yn = 'N'
+	</select>
+
+	<select id="selectMedicalReviewChkList" resultType="HashMap" parameterType="HashMap">
+	SELECT COUNT(*) AS mCnt
+	  FROM RENTAL.dbo.R_GOODS_MEDICAL (NOLOCK)
+	  WHERE 1=1
+	  AND GOODS_CD = #{GOODS_CD}
+	  AND USE_YN = 'Y'
+	</select>
+-->
+</mapper>

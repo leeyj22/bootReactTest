@@ -10,6 +10,7 @@ import com.bf.web.member.bean.SiteInfo;
 import com.bf.web.member.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,7 +27,6 @@ import java.util.Map;
 
 @Controller
 @Slf4j
-@CrossOrigin("http://localhost:3000")
 public class MemberController {
 
     @Resource private MemberService memberService;
@@ -68,12 +68,16 @@ public class MemberController {
      * @return
      */
     @SuppressWarnings("rawtypes")
-    @RequestMapping(value="/member/login_return", method = RequestMethod.GET)
-    public ModelAndView login_return(HttpSession session, @RequestParam Map<String, Object> params
+    @PostMapping(value="/member/login_return")
+    public ModelAndView login_return(HttpSession session
+            , @RequestBody Map<String, Object> param
             , HttpServletResponse response
+            , HttpServletRequest request
             , @CookieValue(value= CommonCodes.CookieCode.ACCESS_TOKEN, required = false) Cookie token
             , @CookieValue(value=CommonCodes.CookieCode.ACCESS_TOKEN_RT, required = false) Cookie tokenRt
     ) throws Exception{
+        Map<String, Object> params = new HashMap<>();
+        Cookie[] cookies = request.getCookies();
 
         if (null == session.getAttribute(Constants.SESSION_SKIN_MODE)) {
             session.setAttribute(Constants.SESSION_SKIN_MODE, "basic");
@@ -110,9 +114,6 @@ public class MemberController {
 
         log.info("[MEMBER][CONTROLLER][MemberController][login_return][END]");
 
-        // URL 처리용 빈 페이지
-        // 화면에서 로컬 스토리지 - returnUrl 받아서 요청한 페이지로 이동해줌
-//        mav.setViewName("/web/member/login_return");
         return mav;
     }
 
