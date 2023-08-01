@@ -23,6 +23,7 @@ export const initalState = {
     certifyLoading: true,
     certifyDone: false,
     certifyError: null,
+    cerfifyFormData: null,
     user: null,
 };
 
@@ -117,6 +118,7 @@ export const reducer = (state = initalState, action) => {
             case CERTIFY_SUCCESS:
                 draft.certifyLoading = false;
                 draft.certifyDone = true;
+                draft.cerfifyFormData = action.data;
                 break;
             case CERTIFY_FAILURE:
                 draft.certifyLoading = false;

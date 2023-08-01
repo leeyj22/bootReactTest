@@ -4,15 +4,24 @@ import AppLayout from "../../components/AppLayout";
 import { pageTypeMap } from "../../data/pageType";
 import { CERTIFY_PAGETYPE_REQUEST, CERTIFY_REQUEST } from "../../reducers/user";
 import { Certify } from "../../hooks/certify";
+import { Validation } from "../../hooks/validation";
 
 //본인인증 Step1
 const certify = () => {
     const dispatch = useDispatch();
-    const { certifyPagetypeDone, certifyPageType, certifyDone } = useSelector(
-        (state) => state.user
-    );
+    const {
+        certifyPagetypeDone,
+        certifyPageType,
+        certifyDone,
+        cerfifyFormData,
+    } = useSelector((state) => state.user);
 
     const [pageType, setPageType] = useState(null);
+    const [certifyForm, setCertifyForm] = useState({
+        tr_cert: "",
+        tr_url: "",
+        tr_add: "",
+    });
     useEffect(() => {
         const pageTypeSession = sessionStorage.getItem("beforeUrl");
         if (pageTypeSession !== "" && pageTypeSession !== undefined) {
@@ -52,11 +61,40 @@ const certify = () => {
     }, [pageType, certifyPagetypeDone]);
 
     useEffect(() => {
-        if (certifyDone) {
+        if (certifyDone && cerfifyFormData !== null) {
+            Certify.openKMCISWindow("reqKMCISForm", cerfifyFormData);
         }
-    }, [certifyDone]);
+    }, [certifyDone, cerfifyFormData]);
 
-    return <AppLayout>본인인증 1</AppLayout>;
+    return (
+        <AppLayout>
+            본인인증 1
+            <iframe
+                id="iframeEle"
+                name="iframeEle"
+                style={{ overflow: "hidden" }}
+            ></iframe>
+            {certifyDone && cerfifyFormData !== null && (
+                <form name="reqKMCISForm">
+                    <input
+                        type="hidden"
+                        name="tr_cert"
+                        // value={certifyForm.tr_cert}
+                    />
+                    <input
+                        type="hidden"
+                        name="tr_url"
+                        // value={cerfifyForm.tr_url}
+                    />
+                    <input
+                        type="hidden"
+                        name="tr_add"
+                        // value={cerfifyForm.tr_add}
+                    />
+                </form>
+            )}
+        </AppLayout>
+    );
 };
 
 // export const getServerSideProps = wrapper.getServerSideProps(
