@@ -9,8 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -75,7 +77,7 @@ public class CertifyController {
 	 * @throws 
 	 */
 	@RequestMapping(value="/certify/certifyResult")
-	public String certifyResult(HttpSession session, HttpServletRequest request) throws BFException {
+	public String certifyResult(HttpSession session, HttpServletRequest request, RedirectAttributes redirectAttr) throws BFException {
 		log.info("[CONTROLLER][CerfifyController][certifyResult][START]");
 
 		Response response = new BFResponse();
@@ -93,11 +95,10 @@ public class CertifyController {
 		plusMap.put("birthDay"	, resultMap.get("birthDay"));
 
 		response.setData(plusMap);
-
+		redirectAttr.addAttribute("data", plusMap.toString());
 		log.info("[CONTROLLER][CerfifyController][certifyResult][END]");
 
-		return "redirect:http://localhost:8080/certify/certify_result";
-//		return response;
+		return "redirect:http://localhost:3000/certify/certify_result";
 	}
 	
 	/**
