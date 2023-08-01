@@ -23,7 +23,7 @@ public class CertifyController {
 	@Autowired
 	CertifyService certifyService;
 
-	@Value(value = "system.kmcert.urlcode.common")
+	@Value(value = "${system.kmcert.urlcode.common}")
 	String kmcertUrlcode;
 	
 	/**
