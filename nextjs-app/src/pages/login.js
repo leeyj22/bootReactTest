@@ -1,14 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import AppLayout from "../components/AppLayout";
 import Breadcrumb from "../components/breadcrumb";
 import { Container, LoginContainer } from "../style/AppCommonStyle";
 import { useDispatch, useSelector } from "react-redux";
 import { LOGIN_URL_REQUEST } from "../reducers/user";
+import CertifyCommon from "../components/certify/certify_common";
 
 const login = () => {
     const dispatch = useDispatch();
 
     const { loginUrlDone, loginUrl } = useSelector((state) => state.user);
+    const [startCertify, setStartCertify] = useState(false);
 
     useEffect(() => {
         if (loginUrlDone) {
@@ -27,7 +29,7 @@ const login = () => {
 
     //본인인증 이동
     const handleLinkCertify = () => {
-        location.href = "/certify/certify";
+        setStartCertify(true);
     };
     return (
         <AppLayout>
@@ -59,6 +61,7 @@ const login = () => {
                         </button>
                     </div>
                 </LoginContainer>
+                {startCertify && <CertifyCommon />}
             </Container>
         </AppLayout>
     );

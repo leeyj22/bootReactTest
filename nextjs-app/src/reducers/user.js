@@ -17,9 +17,7 @@ export const initalState = {
     certifyPagetypeLoading: true,
     certifyPagetypeDone: false,
     certifyPagetypeError: null,
-    certifyPageType: {
-        urlCode: null,
-    },
+    certifyPageType: null,
     certifyLoading: true,
     certifyDone: false,
     certifyError: null,
