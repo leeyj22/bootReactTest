@@ -1,6 +1,7 @@
 package com.bf.common.dao;
 
 import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 
@@ -13,9 +14,10 @@ import javax.annotation.Resource;
 public abstract class GenericMyBatisDao<T> extends GenericMyBatisDaoRoot<T> {
 
 	/**
-	 * config.xml 의 sqlSessionTemplate을 세팅해 준다. 
+	 * config.xml 의 sqlSessionTemplate을 세팅해 준다.
 	 * @param sqlSessionTemplateMysql
 	 */
+
 	@Resource
 	public void init (SqlSessionTemplate sqlSessionTemplateMysql) {
 		setSqlSessionTemplate(sqlSessionTemplateMysql);

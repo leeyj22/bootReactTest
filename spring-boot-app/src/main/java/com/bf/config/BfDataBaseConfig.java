@@ -25,11 +25,10 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
-@MapperScan(annotationClass = Mapper.class
-        ,sqlSessionTemplateRef = "bfSqlSessionTemplate"
+@MapperScan(sqlSessionTemplateRef = "bfSqlSessionTemplate"
         ,basePackages = { Constants.WEB_PACKAGE }
 )
-public class DataBaseConfig {
+public class BfDataBaseConfig {
 
     @Value(value="${spring.datasource.bf.driver-class-name}") private String jdbc_driver;
     @Value(value="${spring.datasource.bf.jdbc-url}") private String jdbc_url;
@@ -64,7 +63,7 @@ public class DataBaseConfig {
     @Primary
     @Bean(name = "transactionManager")
     public PlatformTransactionManager transactionManager(@Qualifier("bfDatasource") DataSource bfDatasource ) {
-        /** API TRANSACTION MANAGER **/
+        /** TRANSACTION MANAGER **/
         DataSourceTransactionManager transaction = new DataSourceTransactionManager( bfDatasource );
         return transaction;
     }

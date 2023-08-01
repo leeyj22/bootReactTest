@@ -1,27 +1,36 @@
 package com.bf.web.customer.service;
 
-import com.bf.web.customer.mapper.CustomerMapper;
+import com.bf.web.customer.dao.CustomerDao;
 import com.bf.web.customer.vo.FaqVO;
 import com.bf.web.customer.vo.NoticeVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class CustomerService implements CustomerMapper{
+@Slf4j
+public class CustomerService{
 
     @Autowired
-    CustomerMapper customerMapper;
+    private CustomerDao customerDao;
 
-    @Override
+    private final int LIST_SIZE = 15;
+    private final static String aes_key = "bfservicekey!@12";
+    private static final String baseUrl = "https://erp.bodyfriend.co.kr";
+    private static final String secretKey = "34587180942444ee9e21180e6a12e941";
+
     public List<NoticeVO> selectNoticeList() {
-        return customerMapper.selectNoticeList();
+        return customerDao.selectNoticeList();
     }
 
-    @Override
+    public List<NoticeVO> selectNoticeNormalList(NoticeVO noticeVO) {
+        return customerDao.selectNoticeNormalList(noticeVO);
+    }
+
     public List<FaqVO> selectFaqList(FaqVO paramVO) {
-        return customerMapper.selectFaqList(paramVO);
+        return customerDao.selectFaqList(paramVO);
     }
 
 }
