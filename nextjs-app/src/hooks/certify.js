@@ -8,16 +8,17 @@ export const Certify = {
             window.open(url, "popupCert");
         } else {
             console.log("피씨!");
-            const certFrame = document.getElementById("certFrame");
-            if (certFrame) {
-                certFrame.remove();
-            }
-            const $iframe = document.createElement("iframe");
-            $iframe.src = url;
-            $iframe.width = "0";
-            $iframe.height = "0";
-            $iframe.id = "certFrame";
-            document.body.appendChild($iframe);
+            // const certFrame = document.getElementById("certFrame");
+            // if (certFrame) {
+            //     certFrame.remove();
+            // }
+            // const $iframe = document.createElement("iframe");
+            // $iframe.src = url;
+            // $iframe.width = "0";
+            // $iframe.height = "0";
+            // $iframe.id = "certFrame";
+            // document.body.appendChild($iframe);
+            window.open(url, "popupCert");
         }
     },
     // PC, MOBILE 구별

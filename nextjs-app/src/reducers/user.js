@@ -20,6 +20,9 @@ export const initalState = {
     certifyPageType: {
         urlCode: null,
     },
+    certifyLoading: true,
+    certifyDone: false,
+    certifyError: null,
     user: null,
 };
 
@@ -38,6 +41,10 @@ export const LOGIN_FAILURE = "LOGIN_FAILURE";
 export const CERTIFY_PAGETYPE_REQUEST = "CERTIFY_PAGETYPE_REQUEST";
 export const CERTIFY_PAGETYPE_SUCCESS = "CERTIFY_PAGETYPE_SUCCESS";
 export const CERTIFY_PAGETYPE_FAILURE = "CERTIFY_PAGETYPE_FAILURE";
+
+export const CERTIFY_REQUEST = "CERTIFY_REQUEST";
+export const CERTIFY_SUCCESS = "CERTIFY_SUCCESS";
+export const CERTIFY_FAILURE = "CERTIFY_FAILURE";
 
 export const reducer = (state = initalState, action) => {
     return produce(state, (d) => {
@@ -100,6 +107,20 @@ export const reducer = (state = initalState, action) => {
             case CERTIFY_PAGETYPE_FAILURE:
                 draft.certifyPagetypeLoading = false;
                 draft.certifyPagetypeError = action.error;
+                break;
+            //본인인증2
+            case CERTIFY_REQUEST:
+                draft.certifyLoading = true;
+                draft.certifyDone = false;
+                draft.certifyError = null;
+                break;
+            case CERTIFY_SUCCESS:
+                draft.certifyLoading = false;
+                draft.certifyDone = true;
+                break;
+            case CERTIFY_FAILURE:
+                draft.certifyLoading = false;
+                draft.certifyError = action.error;
                 break;
         }
     });

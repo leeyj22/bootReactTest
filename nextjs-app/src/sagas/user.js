@@ -13,6 +13,9 @@ import {
     CERTIFY_PAGETYPE_SUCCESS,
     CERTIFY_PAGETYPE_FAILURE,
     CERTIFY_PAGETYPE_REQUEST,
+    CERTIFY_REQUEST,
+    CERTIFY_SUCCESS,
+    CERTIFY_FAILURE,
 } from "../reducers/user";
 
 function getTestAPI(data) {
@@ -86,9 +89,7 @@ function* loginRequest(action) {
 }
 
 //본인인증1
-
 function certifyPageTypeAPI(data) {
-    console.log("data", data);
     return axios.post(`/certify/${data}`);
 }
 
@@ -99,12 +100,35 @@ function* certifyPageType(action) {
 
         yield put({
             type: CERTIFY_PAGETYPE_SUCCESS,
-            data: result.data,
+            data: result.data.data,
         });
     } catch (err) {
         console.error(err);
         yield put({
             type: CERTIFY_PAGETYPE_FAILURE,
+            data: err.response.data,
+        });
+    }
+}
+
+//본인인증2 - 본인인증 화면 호출.
+function certifyRequestAPI(data) {
+    return axios.post(`/certify/requestCertification`, data);
+}
+
+function* certifyRequest(action) {
+    try {
+        const result = yield call(certifyRequestAPI, action.data);
+        console.log("certifyRequestAPI result", result);
+
+        yield put({
+            type: CERTIFY_SUCCESS,
+            data: result.data.data,
+        });
+    } catch (err) {
+        console.error(err);
+        yield put({
+            type: CERTIFY_FAILURE,
             data: err.response.data,
         });
     }
@@ -122,10 +146,14 @@ function* watchLogin() {
 function* watchCertifyPageType() {
     yield takeLatest(CERTIFY_PAGETYPE_REQUEST, certifyPageType);
 }
+function* watchCertify() {
+    yield takeLatest(CERTIFY_REQUEST, certifyRequest);
+}
 
 export default function* userSaga() {
     yield all([fork(watchLoadTest)]);
     yield all([fork(watchLoginUrl)]);
     yield all([fork(watchLogin)]);
     yield all([fork(watchCertifyPageType)]);
+    yield all([fork(watchCertify)]);
 }
