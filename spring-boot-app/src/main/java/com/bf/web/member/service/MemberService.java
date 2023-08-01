@@ -179,8 +179,8 @@ public class MemberService {
                 log.info("[MEMBER][SERVICE][MemberService][login_return][checkLoginRt][resultData]          : {}", resultJson.toString());
                 String accessToken = resultJson.get("access_token").toString();
                 params.put("accessToken", aes256.enc(accessToken));
+                log.info("[MEMBER][SERVICE][MemberService][login_return][checkLoginRt][resultJson]   status : {}", resultJson.get("access_token").toString());
             }
-            log.info("[MEMBER][SERVICE][MemberService][login_return][checkLoginRt][resultJson]   status : {}", resultJson.get("access_token").toString());
 
             if (!UtilManager.isEmptyOrNull(resultJson)) {
                 System.out.println("통합 로그인 API 조회 성공");
