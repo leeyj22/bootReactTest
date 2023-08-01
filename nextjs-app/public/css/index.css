@@ -660,6 +660,9 @@ footer .bottom .app a img {
 .form-file .file-list .file-item span {
   word-break: break-all;
   max-width: calc(100% - 30px);
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .form-file .file-list .file-item .btn-remove-file {
   margin-left: 4px;

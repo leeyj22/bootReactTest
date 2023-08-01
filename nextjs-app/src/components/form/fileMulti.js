@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useFileInput from "../../hooks/useFileInput";
+import { fileToSize } from "../../hooks/fileToSize";
 
 const FileMulti = ({ name, maxSize, maxLen, fileList, onFormChange }) => {
     const {
@@ -8,7 +9,8 @@ const FileMulti = ({ name, maxSize, maxLen, fileList, onFormChange }) => {
         handleFileChange,
         handleRemoveFile,
         openFileDialog,
-    } = useFileInput(3);
+        isFileAddFailed,
+    } = useFileInput(3, 10);
 
     useEffect(() => {
         if (selectedFiles.length > 1) {
@@ -24,8 +26,11 @@ const FileMulti = ({ name, maxSize, maxLen, fileList, onFormChange }) => {
                         {selectedFiles.map((file, index) => {
                             return (
                                 <div className="file-item" key={index}>
-                                    <span>{file.name}</span>
+                                    <span title={file.name}>
+                                        {file.name}({fileToSize(file.size)})
+                                    </span>
                                     <button
+                                        title="파일 빼기"
                                         className="btn-remove-file"
                                         key={index}
                                         onClick={() => handleRemoveFile(index)}

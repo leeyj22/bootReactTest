@@ -1,6 +1,6 @@
 import Breadcrumb from "../components/breadcrumb";
 import AppLayout from "../components/AppLayout";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container } from "../style/AppCommonStyle";
 import PageName from "../components/pagename";
 import Term from "../components/term/term";
@@ -19,7 +19,7 @@ const Service = () => {
         console.log("checkValidation data", data);
         return data;
     };
-    const handleSubmit = () => {};
+
     return (
         <AppLayout>
             <Breadcrumb pageId="service" pageSubId="service1" />
@@ -45,7 +45,6 @@ const Service = () => {
                     pos="center"
                     formData={formData}
                     checkValidation={checkValidation}
-                    handleSubmit={handleSubmit}
                 />
             </Container>
         </AppLayout>
