@@ -21,4 +21,36 @@ const InputChkbox = styled.span`
     }
 `;
 
-export { InputChkbox };
+const SearchInputStyle = styled.div`
+    display: flex;
+    justify-content: ${(props) => (props.pos == "right" ? "end" : "initial")};
+    margin-top: ${(props) => (props.pos == "right" ? "-50px" : "0")};
+    input[type="text"] {
+        padding: 0 10px 0 50px;
+        height: 50px;
+        font-size: 2rem;
+        border: 1px solid var(--color-border1);
+        border-radius: 40px;
+    }
+`;
+
+const TabStyle1 = styled.div`
+    ul {
+        display: flex;
+    }
+    button {
+        margin-right: 15px;
+        font-size: 2rem;
+        color: var(--color-primary);
+        display: inline-block;
+        padding: 16px 20px;
+        border-radius: 30px;
+        background-color: var(--color-white);
+        &.active,
+        &:active {
+            background-color: var(--color-secondary);
+            font-weight: 700;
+        }
+    }
+`;
+export { InputChkbox, SearchInputStyle, TabStyle1 };

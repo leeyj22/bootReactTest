@@ -1,3 +1,11 @@
+export const bfCode = {
+    mainCategory: {
+        bodyfriend: "바디프랜드",
+        lacloud: "라클라우드",
+        w_water: "W정수기",
+    },
+};
+
 export const menu = {
     depth1: [
         { id: "guide", link: "/guide", name: "문제해결" },
