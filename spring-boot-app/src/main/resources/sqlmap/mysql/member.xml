@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="MemberDao">
+<mapper namespace="com.bf.web.customer.mapper.MemberMapper">
 
-	<resultMap id='MemberMap' type='com.bf.web.member.bean.Member'>
+	<resultMap id='MemberMap' type='com.bf.web.member.vo.Member'>
 		<result property='userIdx' column='USER_IDX' />
 		<result property='userId' column='USER_ID' />
 		<result property='pwd' column='PWD' />
@@ -16,7 +16,7 @@
 		<result property='levelName' column='LEVEL_NAME' />
 	</resultMap>
 	
-	<resultMap id='SiteInfoMap' type='com.bf.web.member.bean.SiteInfo'>
+	<resultMap id='SiteInfoMap' type='com.bf.web.member.vo.SiteInfo'>
 		<result property='memberIdx' column='member_idx' />
 		<result property='serviceNbr' column='service_nbr' />
 		<result property='apiKey' column='api_key' />
@@ -35,7 +35,7 @@
 		<result property='siteCell' column='site_cell' />
 	</resultMap>
 	
-	<resultMap id='OrdersMap' type='com.bf.web.member.bean.Orders'>
+	<resultMap id='OrdersMap' type='com.bf.web.member.vo.Orders'>
 		<result property='ordNbr' column='ord_nbr' />
 		<result property='ordGoods' column='ord_goods' />
 		<result property='amount' column='amount' />
@@ -46,7 +46,7 @@
 		<result property='orderType' column='order_type' />
 	</resultMap>
 
-	<select id="loginCheck" parameterType="com.bf.web.member.bean.Member" resultMap="MemberMap">
+	<select id="loginCheck" parameterType="com.bf.web.member.vo.Member" resultMap="MemberMap">
 		SELECT 
 			a.USER_IDX
 			, a.LEVEL_CODE
@@ -133,7 +133,7 @@
 		WHERE c.ID = #{userId}
 	</select>
 	
-	<update id="updateBasketUser" parameterType="com.bf.web.member.bean.Member">
+	<update id="updateBasketUser" parameterType="com.bf.web.member.vo.Member">
 		update basket 
 		set session_id = #{sessionId}
 		<if test="userIdx !='' and userIdx != null "> 
@@ -141,7 +141,7 @@
 		</if>
 	</update>
 	
-	<update id="updateMemberVisit" parameterType="com.bf.web.member.bean.Member">
+	<update id="updateMemberVisit" parameterType="com.bf.web.member.vo.Member">
 		update member set visit_date = now(), visit_cnt = visit_cnt + 1, ip = #{ip} where user_idx = #{userIdx}
 	</update>
 	
@@ -159,17 +159,17 @@
 		from site_info
 	</select>
 	
-	<select id="getUserId" parameterType="com.bf.web.member.bean.Member" resultMap="MemberMap">
+	<select id="getUserId" parameterType="com.bf.web.member.vo.Member" resultMap="MemberMap">
 		select USER_ID, NAME from member where name = #{name} and email = #{email}
 	</select>
 	
-	<select id="getUserPw" parameterType="com.bf.web.member.bean.Member" resultMap="MemberMap">
+	<select id="getUserPw" parameterType="com.bf.web.member.vo.Member" resultMap="MemberMap">
 		select name, email, user_id, user_idx, cell_1, cell_2, cell_3 
 		from member 
 		where name = #{name} and email = #{email} and user_id = #{userId}
 	</select>
 	
-	<update id="updateMemberPwd" parameterType="com.bf.web.member.bean.Member">
+	<update id="updateMemberPwd" parameterType="com.bf.web.member.vo.Member">
 		update member set pwd = #{pwd} where user_idx = #{userIdx}
 	</update>
 	
@@ -223,11 +223,11 @@
         LIMIT 1
 	</select>
 	
-<!-- 	<select id="outCheckId" parameterType="String" resultType="HashMap">
+	<select id="outCheckId" parameterType="String" resultType="HashMap">
 		SELECT COUNT(*) as cnt
-		FROM member_out_log 
+		FROM member_out_log
 		WHERE user_id = #{id}
-	</select> -->
+	</select>
 	
 	<select id="findPwChkId" parameterType="String" resultType="HashMap">
 		SELECT COUNT(*) as cnt
@@ -241,7 +241,7 @@
 		WHERE com_no_1 = #{comNo1} and com_no_2 = #{comNo2} and com_no_3 = #{comNo3}
 	</select>
 	
-	<insert id="join" parameterType="com.bf.web.member.bean.Member">
+	<insert id="join" parameterType="com.bf.web.member.vo.Member">
 		INSERT INTO MEMBER (
 			LEVEL_CODE
 			,USER_ID
@@ -453,7 +453,7 @@
 		)
 	</insert>
 		
-	<insert id="insertTbMember" parameterType="com.bf.web.member.bean.MemberVO" useGeneratedKeys="true" keyProperty="userIdx">
+	<insert id="insertTbMember" parameterType="com.bf.web.member.vo.MemberVO" useGeneratedKeys="true" keyProperty="userIdx">
 		INSERT INTO MEMBER (
 			LEVEL_CODE
 			,USER_ID

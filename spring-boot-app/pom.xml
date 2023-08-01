@@ -140,6 +140,14 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.icert.comm.secu</groupId>
+            <artifactId>icertsecu</artifactId>
+            <version>18</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/ICERTSecu_JDK18.jar</systemPath>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>

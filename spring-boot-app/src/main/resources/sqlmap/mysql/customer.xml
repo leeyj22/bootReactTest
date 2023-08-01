@@ -290,8 +290,8 @@
 	</select>
 
 	<!-- FAQ List 안마의자 전용 API용 -->
-	<select id="selectChiarFaqListApi" resultType="HashMap" parameterType="HashMap">
-		/****************[customer.selectChiarFaqListApi]****************/
+	<select id="selectChairFaqListApi" resultType="HashMap" parameterType="HashMap">
+		/****************[customer.selectChairFaqListApi]****************/
 		select
 			  bbs_idx bbsIdx
 			, IFNULL(site_type, '') as siteType
@@ -303,8 +303,8 @@
 	</select>
 
 	<!-- FAQ Detail 안마의자 전용 API용 -->
-	<select id="selectChiarFaqDetailApi" resultType="com.bf.web.customer.vo.NoticeVO" parameterType="com.bf.web.customer.vo.NoticeVO">
-		/****************[customer.selectChiarFaqDetailApi]****************/
+	<select id="selectChairFaqDetailApi" resultType="com.bf.web.customer.vo.NoticeVO" parameterType="com.bf.web.customer.vo.NoticeVO">
+		/****************[customer.selectChairFaqDetailApi]****************/
 		select
 			  bbs_idx bbsIdx
 			, IFNULL(site_type, '') as siteType
@@ -321,8 +321,8 @@
 		select ifnull(max(groups), 0) + 1 as groups from bbs_one_to_one;
 	</select>
 
-	<!--&lt;!&ndash; 1:1문의(Q&A) 등록 &ndash;&gt;
-	<insert id="insertQna" parameterType="com.bf.web.myinfo.bean.Myinfo">
+	<!-- 1:1문의(Q&A) 등록 -->
+	<insert id="insertQna" parameterType="com.bf.web.myinfo.vo.Myinfo">
 		/********************* customer.insertQna *********************/
 		insert into bbs_one_to_one (
 			origin_user_idx, user_idx, ord_nbr, product_type, product_name, groups, depth, ref
@@ -339,8 +339,8 @@
 		)
 	</insert>
 
-	&lt;!&ndash; 1:1문의(Q&A) 게시글 수정 &ndash;&gt;
-	<update id="updateQna" parameterType="com.bf.web.myinfo.bean.Myinfo">
+	<!-- 1:1문의(Q&A) 게시글 수정 -->
+	<update id="updateQna" parameterType="com.bf.web.myinfo.vo.Myinfo">
 		UPDATE BBS_ONE_TO_ONE SET
 			classification = #{classification}
 			, subject = #{subject}
@@ -353,8 +353,8 @@
 
 	</update>
 
-	&lt;!&ndash; 1:1문의(Q&A) 비밀번호 체크 &ndash;&gt;
-	<select id="qnaPwdCheck" parameterType="com.bf.web.myinfo.bean.Myinfo" resultType="HashMap">
+	<!-- 1:1문의(Q&A) 비밀번호 체크 -->
+	<select id="qnaPwdCheck" parameterType="com.bf.web.myinfo.vo.Myinfo" resultType="HashMap">
 		select
 			bbs_idx as bbsIdx
 			, groups
@@ -364,7 +364,7 @@
 		 where depth = 1 and site_type = 'B' and bbs_idx = #{bbsIdx} and qna_pwd = #{qnaPwd}
 	</select>
 
-	&lt;!&ndash; 1:1문의(Q&A) 리스트 데이터 조회 &ndash;&gt;
+	<!-- 1:1문의(Q&A) 리스트 데이터 조회 -->
 	<select id="selectQnaList" resultType="com.bf.web.customer.vo.NoticeVO" parameterType="com.bf.web.customer.vo.NoticeVO">
 		<include refid="common_mapper.pagePrefix" />
 		select userIdx, bbsIdx, groups, depth, ref, subject, classification, writer
@@ -376,7 +376,7 @@
 				when 4 then '교환/반품 문의'
 				when 5 then '환불/취소 문의'
 				when 6 then '환불/취소 문의'
-				&lt;!&ndash; when 7 then 'A/S 문의' &ndash;&gt;
+				<!-- when 7 then 'A/S 문의' -->
 				when 8 then '회원정보 문의'
 				when 9 then '기타 문의'
 				when 10 then '입금/결제 문의'
@@ -414,7 +414,7 @@
 			, reg_date as regDate, contents, publish_status as publishStatus
 			, qna_pwd as qnaPwd, user_idx as userIdx, reply_complete as replyComplete
 			from bbs_one_to_one
-			&lt;!&ndash; where origin_user_idx = #{userIdx} &ndash;&gt;
+			<!-- where origin_user_idx = #{userIdx} -->
 			where depth = 1
 				and site_type = 'B'
 				<if test="tab.equals('product')">
@@ -455,7 +455,7 @@
 		<include refid="common_mapper.pageSuffix" />
 	</select>
 
-	&lt;!&ndash; 1:1문의(Q&A) 상세 데이터 조회 &ndash;&gt;
+	<!-- 1:1문의(Q&A) 상세 데이터 조회 -->
 	<select id="selectQnaDetail" parameterType="HashMap" resultType="HashMap">
 		SELECT NAV.*
       	FROM ( SELECT @rownum:=@rownum+1 AS rowNbr, TM.*
@@ -491,7 +491,7 @@
 		        	) NAV
 	</select>
 
-	&lt;!&ndash; 1:1문의(Q&A) 수정 - 상세 데이터 조회 &ndash;&gt;
+	<!-- 1:1문의(Q&A) 수정 - 상세 데이터 조회 -->
 	<select id="serviceQnaWriteData" parameterType="HashMap" resultType="HashMap">
 		SELECT NAV.*
       	FROM ( SELECT @rownum:=@rownum+1 AS rowNbr, TM.*
@@ -527,7 +527,7 @@
 		        	) NAV
 	</select>
 
-	&lt;!&ndash; 1:1문의(Q&A) 게시글 작성자 IDX Check &ndash;&gt;
+	<!-- 1:1문의(Q&A) 게시글 작성자 IDX Check -->
 	<select id="selectUserIdx" parameterType="String" resultType="String">
 		select
 			user_idx as userIdx
@@ -535,14 +535,14 @@
 		 where depth = 1 and site_type = 'B' and bbs_idx = #{bbsIdx}
 	</select>
 
-	&lt;!&ndash; 1:1문의(Q&A) 게시글 삭제 &ndash;&gt;
+	<!-- 1:1문의(Q&A) 게시글 삭제 -->
 	<delete id="qnaDelete" parameterType="HashMap">
 		DELETE FROM bbs_one_to_one
 		WHERE groups = #{groups}
 		and site_type = 'B'
 	</delete>
 
-	&lt;!&ndash; 서비스 접수 홈페이지 DB 등록 &ndash;&gt;
+	<!-- 서비스 접수 홈페이지 DB 등록 -->
 	<insert id="insertOnlineService" parameterType="com.bf.web.customer.vo.OnlineVO" useGeneratedKeys="true" keyProperty="serviceIdx">
 		insert into
 		    online_service (
@@ -590,7 +590,7 @@
 		    );
 	</insert>
 
-	&lt;!&ndash; 에브리알 상담접수 (등록) &ndash;&gt;
+	<!-- 에브리알 상담접수 (등록) -->
 	<insert id="everyRConsultInsert" parameterType="HashMap">
 		INSERT INTO CONSULT_INFO (
 			  USER_IDX
@@ -627,7 +627,7 @@
 		)
 	</insert>
 
-	&lt;!&ndash; 공용 안마의자 문의 상담접수 (등록) &ndash;&gt;
+	<!-- 공용 안마의자 문의 상담접수 (등록) -->
 	<insert id="shareConsultInsert" parameterType="HashMap">
 		INSERT INTO CONSULT_INFO (
 			  USER_IDX
@@ -656,12 +656,12 @@
 		)
 	</insert>
 
-	&lt;!&ndash; 상담접수 consultIdx 조회 &ndash;&gt;
+	<!-- 상담접수 consultIdx 조회 -->
 	<select id="selectConsultIdx" resultType="String">
 		SELECT MAX(consult_idx) FROM CONSULT_INFO
 	</select>
 
-	&lt;!&ndash; 상담접수 (이미지 맵핑 데이터 등록) &ndash;&gt;
+	<!-- 상담접수 (이미지 맵핑 데이터 등록) -->
 	<insert id="consultMappingInsert" parameterType="HashMap">
 		INSERT INTO CONSULT_INFO_MAPPING (
 			  CONSULT_IDX
@@ -682,7 +682,7 @@
 		)
 	</insert>
 
-	&lt;!&ndash; 간편 서비스 인증 &ndash;&gt;
+	<!-- 간편 서비스 인증 -->
 	<select id="selectServiceAuth" parameterType="hashmap" resultType="int">
 		SELECT
 			   /****************[customer.selectServiceAuth]****************/
@@ -705,7 +705,7 @@
 
 	</select>
 
-	&lt;!&ndash; 간편 서비스 인증 &ndash;&gt;
+	<!-- 간편 서비스 인증 -->
 	<select id="selectServiceAuthUNIERP" parameterType="hashmap" resultType="int">
 		/****************[customer.selectServiceAuthUNIERP]****************/
 		SELECT count(*)
@@ -726,7 +726,7 @@
 
 	</select>
 
-	&lt;!&ndash; SERVICE DB 접수상태 내역 조회, [FN_DECRYPT_AES256]복호키는 운영에만 존재함 &ndash;&gt;
+	<!-- SERVICE DB 접수상태 내역 조회, [FN_DECRYPT_AES256]복호키는 운영에만 존재함 -->
 	<select id="selectServiceInfo" parameterType="HashMap" resultType="HashMap">
 	 SELECT
 				/**************** [customer.selectServiceInfo] ****************/
@@ -760,7 +760,7 @@
 			info.RECEIVE_SEQ = #{receiveSeq}
 	</select>
 
-	&lt;!&ndash; erp 구매/렌탈 제품리스트 &ndash;&gt;
+	<!-- erp 구매/렌탈 제품리스트 -->
 	<select id="selectMyRentalList" parameterType="HashMap" resultType="Hashmap">
 		SELECT
 			/**************** [customer_help.selectMyRentalList] ****************/
@@ -861,7 +861,7 @@
 		 WHERE model_code = #{modelCode}
 	</select>
 
-	&lt;!&ndash; erp 구매/렌탈 제품리스트(사용자만 조회) &ndash;&gt;
+	<!-- erp 구매/렌탈 제품리스트(사용자만 조회) -->
 	<select id="selectMyRentalList_Inst" parameterType="HashMap" resultType="Hashmap">
 		SELECT
 			/**************** [selectMyRentalList] ****************/
@@ -910,7 +910,7 @@
 			AND A.CUSTNAME = #{name}
 			AND ((A.MOBILE = #{phone}) OR (A.TEL = #{phone}))
 			AND (E.custkind = '01'or E.custkind = '03' or E.custkind = '06')
-			&lt;!&ndash; AND (E.custkind = '01'or (E.custkind = '03' and C.MODELNAME like '%전동%') or E.custkind = '06') &ndash;&gt;
+			<!-- AND (E.custkind = '01'or (E.custkind = '03' and C.MODELNAME like '%전동%') or E.custkind = '06') -->
 		UNION
 		SELECT
 			A.CUSTCODE
@@ -958,11 +958,11 @@
 			AND B.INSTCUSTNAME = #{name}
 			AND ((B.INSTMOBILE = #{phone}) OR (B.INSTTEL = #{phone}))
 			AND (E.custkind = '01' or E.custkind = '03' or E.custkind = '06')
-			&lt;!&ndash; AND (E.custkind = '01'or (E.custkind = '03' and C.MODELNAME like '%전동%') or E.custkind = '06') &ndash;&gt;
+			<!-- AND (E.custkind = '01'or (E.custkind = '03' and C.MODELNAME like '%전동%') or E.custkind = '06') -->
 	</select>
 
 
-	&lt;!&ndash; 간편배송 인증 &ndash;&gt;
+	<!-- 간편배송 인증 -->
 	<select id="selectDeliveryAuth" parameterType="hashmap" resultType="int">
 		SELECT
 			   /****************[selectDeliveryAuth]****************/
@@ -979,7 +979,7 @@
 		  </where>
 	</select>
 
-	&lt;!&ndash; 간편배송 상세 &ndash;&gt;
+	<!-- 간편배송 상세 -->
 	<select id="selectDeliveryInfo" parameterType="hashmap" resultType="hashmap">
 		SELECT TOP 1
 			   /****************[selectDeliveryInfo]****************/
@@ -1021,11 +1021,11 @@
 		  	</trim>
 	  			AND delyn = 'N'
 		  </where>
-		 &lt;!&ndash; ORDER BY SHIPPING_SEQ DESC &ndash;&gt;
+		 <!-- ORDER BY SHIPPING_SEQ DESC -->
 		 ORDER BY RECEIVE_DATE DESC, DUE_DATE DESC
 	</select>
 
-	&lt;!&ndash; 배송 주소 이력 INSERT &ndash;&gt;
+	<!-- 배송 주소 이력 INSERT -->
 	<insert id="insertHistoryData" parameterType="hashmap">
 		INSERT INTO TB_ADDRESS_HISTORY
 		/****************[insertHistoryData]****************/
@@ -1043,7 +1043,7 @@
 			)
 	</insert>
 
-	&lt;!&ndash; 지역 코드 조회 &ndash;&gt;
+	<!-- 지역 코드 조회 -->
 	<select id="selectAreaCode" parameterType="hashmap" resultType="String">
 		/****************[selectAreaCode]****************/
 		SELECT
@@ -1052,7 +1052,7 @@
 		 WHERE area_name like CONCAT('%',#{addrName},'%')
 	</select>
 
-	&lt;!&ndash; 배송일 지정 및 주소변경 &ndash;&gt;
+	<!-- 배송일 지정 및 주소변경 -->
 	<update id="updateCustInfo" parameterType="hashmap">
 		UPDATE BFDELIV.DBO.TB_SHIPPING_INFO
 		/****************[updateCustInfo]****************/
@@ -1070,7 +1070,7 @@
 		   AND SHIPPING_SEQ 	= #{shipSeq}
 	</update>
 
-	&lt;!&ndash; 간편배송 인증 UNIERP&ndash;&gt;
+	<!-- 간편배송 인증 UNIERP-->
 	<select id="selectDeliveryAuthUNIERP" parameterType="hashmap" resultType="int">
 		SELECT
 			   /****************[selectDeliveryAuthUNIERP]****************/
@@ -1087,7 +1087,7 @@
 			</where>
 	</select>
 
-	&lt;!&ndash; 간편배송 상세 UNIERP &ndash;&gt;
+	<!-- 간편배송 상세 UNIERP -->
 	<select id="selectDeliveryInfoUNIERP" parameterType="hashmap" resultType="hashmap">
 		SELECT TOP 1
 			   /****************[selectDeliveryInfoUNIERP]****************/
@@ -1115,7 +1115,7 @@
 			   ,A.GOODS_NM												AS PRODUCT_NAME
 			   ,''														AS COLORTYPE
 
-			   ,A.CALLER_ID												AS PURCHASING_OFFICE &lt;!&ndash; 코드값 변경됨 &ndash;&gt;
+			   ,A.CALLER_ID												AS PURCHASING_OFFICE <!-- 코드값 변경됨 -->
 			   ,A.STATUS_CD												AS INS_COMPLETE
 			   ,A.SERVICE_MONTH
 			   ,A.DIV_STATUS
@@ -1140,11 +1140,11 @@
 		  	</trim>
 	  			AND A.DEL_FLAG = 'N'
 		  </where>
-		 &lt;!&ndash; ORDER BY SHIPPING_SEQ DESC &ndash;&gt;
+		 <!-- ORDER BY SHIPPING_SEQ DESC -->
 		  ORDER BY RECEIVE_DATE DESC, DUE_DATE DESC
 	</select>
 
-	&lt;!&ndash; 지역 코드 조회 UNIERP &ndash;&gt;
+	<!-- 지역 코드 조회 UNIERP -->
 	<select id="selectAreaCodeUNIERP" parameterType="hashmap" resultType="String">
 		/****************[selectAreaCodeUNIERP]****************/
 		SELECT
@@ -1155,7 +1155,7 @@
 		 limit 1
 	</select>
 
-	&lt;!&ndash; 배송 주소 이력 INSERT &ndash;&gt;
+	<!-- 배송 주소 이력 INSERT -->
 	<insert id="insertHistoryDataUNIERP" parameterType="hashmap">
 	    /****************[insertHistoryDataUNIERP]****************/
 
@@ -1200,7 +1200,7 @@
 			)
 	</insert>
 
-	&lt;!&ndash; 배송일 지정 및 주소변경 UNIERP &ndash;&gt;
+	<!-- 배송일 지정 및 주소변경 UNIERP -->
 	<update id="updateCustInfoUNIERP" parameterType="hashmap">
 		UPDATE RENTAL.DBO.R_SHIPPING_INFO
 		/****************[updateCustInfoUNIERP]****************/
@@ -1226,14 +1226,14 @@
 			</if>
 		      ,UPDT_USER_ID	 = 'shipadmin'
 		      ,UPDT_DT    	 = GETDATE()
-		      ,CHANGE_FLAG	 = 'Y'  			&lt;!&ndash;  고객 업데이트 &ndash;&gt;
-		      ,HEDOFC_REMARK = concat((select HEDOFC_REMARK from RENTAL.dbo.R_SHIPPING_INFO WITH (NOLOCK) where SHIPPING_NO = #{shipSeq}), '//' , #{companyCheck})		&lt;!&ndash; 이력에 추가  &ndash;&gt;
-			  ,REMARK        = concat((select REMARK from RENTAL.dbo.R_SHIPPING_INFO WITH (NOLOCK) where SHIPPING_NO = #{shipSeq}), ' ' ,'설치정보변경 :  (',convert(varchar , getdate() , 23),',고객변경)')		&lt;!&ndash; 이력에 추가  &ndash;&gt;
+		      ,CHANGE_FLAG	 = 'Y'  			<!--  고객 업데이트 -->
+		      ,HEDOFC_REMARK = concat((select HEDOFC_REMARK from RENTAL.dbo.R_SHIPPING_INFO WITH (NOLOCK) where SHIPPING_NO = #{shipSeq}), '//' , #{companyCheck})		<!-- 이력에 추가  -->
+			  ,REMARK        = concat((select REMARK from RENTAL.dbo.R_SHIPPING_INFO WITH (NOLOCK) where SHIPPING_NO = #{shipSeq}), ' ' ,'설치정보변경 :  (',convert(varchar , getdate() , 23),',고객변경)')		<!-- 이력에 추가  -->
 		 WHERE
 		   SHIPPING_NO       = #{shipSeq}
 	</update>
 
-	&lt;!&ndash; 배송 제외일 조회 &ndash;&gt;
+	<!-- 배송 제외일 조회 -->
 	<select id="selectExceptDay" resultType="hashmap">
 		SELECT DET_CD_NM
 		 FROM BFDELIV.DBO.TB_CODE
@@ -1243,7 +1243,7 @@
 		  AND DET_CD_NM LIKE '%'+#{yearAndMonth}+'%'
 	</select>
 
-	&lt;!&ndash; 사은품 관련 정보 조회 &ndash;&gt;
+	<!-- 사은품 관련 정보 조회 -->
 	<select id="selectGiftInfo" parameterType="hashmap" resultType="hashmap">
 		SELECT TOP 1
 	   		   A.CUSTCODE
@@ -1256,7 +1256,7 @@
    	     ORDER BY A.IN_DATE DESC
 	</select>
 
-	&lt;!&ndash; 사은품 주소 변경 &ndash;&gt;
+	<!-- 사은품 주소 변경 -->
 	<update id="updateGiftAddr" parameterType="hashmap">
 		UPDATE BODYF.dbo.TBLPARCEL
 		   SET POST  = #{postCode}
@@ -1265,7 +1265,7 @@
 		 WHERE CUSTCODE = #{custCode}
 	</update>
 
-	&lt;!&ndash; 사은품 관련 정보 조회  UNIERP&ndash;&gt;
+	<!-- 사은품 관련 정보 조회  UNIERP-->
 	<select id="selectGiftInfoUNIERP" parameterType="hashmap" resultType="hashmap">
 		SELECT TOP 1
 			   A.ORDER_NO AS CUSTCODE
@@ -1283,7 +1283,7 @@
    	     ORDER BY A.INSRT_DT DESC
 	</select>
 
-	&lt;!&ndash; 사은품 주소 변경 UNIERP &ndash;&gt;
+	<!-- 사은품 주소 변경 UNIERP -->
 	<update id="updateGiftAddrUNIERP" parameterType="hashmap">
 		UPDATE RENTAL.DBO.R_ORDER_GIFT
 		   SET
@@ -1306,8 +1306,8 @@
 		 WHERE ORDER_NO    = #{custCode}
 	</update>
 
-	&lt;!&ndash; 법인/관공서 구매 정보 등록 &ndash;&gt;
-	&lt;!&ndash; <insert id="insertBbsGalleryInfo" parameterType="com.bf.web.customer.vo.SinmungoVO" useGeneratedKeys="true" keyProperty="bbsIdx"> &ndash;&gt;
+	<!-- 법인/관공서 구매 정보 등록 -->
+	<!-- <insert id="insertBbsGalleryInfo" parameterType="com.bf.web.customer.vo.SinmungoVO" useGeneratedKeys="true" keyProperty="bbsIdx"> -->
 	<insert id="insertBbsGalleryInfo" parameterType="HashMap" useGeneratedKeys="true" keyProperty="bbsIdx">
 		insert into bbs_formmail
 		(
@@ -1347,12 +1347,12 @@
 			, now()
 		)
 	</insert>
-	&lt;!&ndash; B2B bbsIdx 조회 &ndash;&gt;
+	<!-- B2B bbsIdx 조회 -->
 	<select id="selectBbsIdx" resultType="String">
 		SELECT MAX(bbs_idx) FROM BBS_FORMMAIL WHERE bbs_code = 43
 	</select>
 
-	&lt;!&ndash; 업로드 파일 정보 등록 &ndash;&gt;
+	<!-- 업로드 파일 정보 등록 -->
 	<insert id="insertFormMailUpFile" parameterType="HashMap">
 		insert into bbs_formmail_upfile
 		(
@@ -1374,7 +1374,7 @@
 			, now()
 		)
 	</insert>
-	&lt;!&ndash; B2B 이미지 업로드 리스트 조회 &ndash;&gt;
+	<!-- B2B 이미지 업로드 리스트 조회 -->
 	<select id="selectB2bFileList" parameterType="HashMap" resultType="HashMap">
 		SELECT
 			     BBS_IDX as bbsIdx
@@ -1386,7 +1386,7 @@
 		  AND BBS_CODE = #{bbsCode}
 	</select>
 
-	&lt;!&ndash; 이미지 등록 &ndash;&gt;
+	<!-- 이미지 등록 -->
 	<insert id="insertUpfile" parameterType="HashMap" useGeneratedKeys="true" keyProperty="bbsIdx">
 		INSERT INTO CONSULT_INFO_MAPPING (
 			  CONSULT_IDX
@@ -1407,7 +1407,7 @@
 		)
 	</insert>
 
-	&lt;!&ndash; 이미지 업로드 리스트 조회 &ndash;&gt;
+	<!-- 이미지 업로드 리스트 조회 -->
 	<select id="selectFileList" parameterType="HashMap" resultType="HashMap">
 		SELECT
 			     SEQ as seq
@@ -1437,7 +1437,7 @@
 		    );
 	</insert>
 
-	&lt;!&ndash; UNIERP 이전설치 본인인증 후 구매/렌탈 리스트 조회 &ndash;&gt;
+	<!-- UNIERP 이전설치 본인인증 후 구매/렌탈 리스트 조회 -->
 	<select id="selectMyRentalListUNIERP_info" parameterType="HashMap" resultType="Hashmap">
 		SELECT
 			/**************** [selectMyRentalListUNIERP_info] ****************/
@@ -1527,11 +1527,11 @@
 				, CASE WHEN ISNUMERIC(OC.AS_PERIOD) = 1 THEN DATEADD(M, OC.AS_PERIOD, OA.CONT_DT - 1) ELSE OC.RENTAL_TO_DT END freeAsEndDate
 				, OC.RENTAL_FR_DT		rentalStartDate
 				, OC.RENTAL_TO_DT		rentalEndDate
-				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	&#45;&#45; chair
-					    WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	&#45;&#45; lacloud
-						WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	&#45;&#45; Water
-						WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	&#45;&#45; BTN GLED
-						WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	&#45;&#45; 생활가전 블롬베르크
+				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	-- chair
+					    WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	-- lacloud
+						WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	-- Water
+						WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	-- BTN GLED
+						WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	-- 생활가전 블롬베르크
 						ELSE OC.ITEM_GROUP_BIG
 					END custKind
 				, OI.INSTL_ZIP_CD		instPost
@@ -1562,10 +1562,10 @@
 					LEFT JOIN (SELECT DISTINCT ORDER_NO  FROM RENTAL.DBO.R_WD_CMS_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CMSR  ON VOK.ORDER_NO = CMSR.ORDER_NO
 					LEFT JOIN (SELECT DISTINCT ORDER_NO FROM RENTAL.DBO.R_WD_CARD_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CARDR  ON VOK.ORDER_NO = CARDR.ORDER_NO
 				WHERE
-					OA.APROV_DT IS NOT NULL	&#45;&#45; 승인일
-			        AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	&#45;&#45; 계약상태 (해지, 환불, ...)
+					OA.APROV_DT IS NOT NULL	-- 승인일
+			        AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	-- 계약상태 (해지, 환불, ...)
 					AND ISNULL(OC.ORDER_STS, '') NOT IN ('37', '45', 'Z5')
-					AND OC.SALES_GRP NOT IN ('1050', '2005', '1054', '1051') &#45;&#45; 롯데하이마트, 쿠팡, 전자랜드, 방방 고객 아닌것
+					AND OC.SALES_GRP NOT IN ('1050', '2005', '1054', '1051') -- 롯데하이마트, 쿠팡, 전자랜드, 방방 고객 아닌것
 					AND CS.CUST_NM LIKE CONCAT('%', #{name}, '%')
 					AND (CS.TEL_NO = RENTAL.DBO.FN_ENC(#{phone}) OR CS.HAND_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}))
 					AND ((OC.ITEM_GROUP_BIG LIKE 'A%' OR OC.ITEM_GROUP_BIG LIKE 'L%' OR OC.ITEM_GROUP_BIG LIKE 'W%' OR OC.ITEM_GROUP_BIG = 'U10000') OR (OC.ITEM_GROUP_BIG LIKE 'B%' AND OC.GOODS_NM LIKE '%GLED%'))
@@ -1614,11 +1614,11 @@
 				, CASE WHEN ISNUMERIC(OC.AS_PERIOD) = 1 THEN DATEADD(M, OC.AS_PERIOD, OA.CONT_DT - 1) ELSE OC.RENTAL_TO_DT END freeAsEndDate
 				, OC.RENTAL_FR_DT		rentalStartDate
 				, OC.RENTAL_TO_DT		rentalEndDate
-				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	&#45;&#45; chair
-					    WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	&#45;&#45; lacloud
-						WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	&#45;&#45; Water
-						WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	&#45;&#45; BTN GLED
-						WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	&#45;&#45; 생활가전 블롬베르크
+				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	-- chair
+					    WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	-- lacloud
+						WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	-- Water
+						WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	-- BTN GLED
+						WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	-- 생활가전 블롬베르크
 						ELSE OC.ITEM_GROUP_BIG
 					END custKind
 				, OI.INSTL_ZIP_CD		instPost
@@ -1649,10 +1649,10 @@
 					LEFT JOIN (SELECT DISTINCT ORDER_NO  FROM RENTAL.DBO.R_WD_CMS_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CMSR  ON VOK.ORDER_NO = CMSR.ORDER_NO
 					LEFT JOIN (SELECT DISTINCT ORDER_NO FROM RENTAL.DBO.R_WD_CARD_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CARDR  ON VOK.ORDER_NO = CARDR.ORDER_NO
 				WHERE
-					OA.APROV_DT IS NOT NULL	&#45;&#45; 승인일
-			        AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	&#45;&#45; 계약상태 (해지, 환불, ...)
+					OA.APROV_DT IS NOT NULL	-- 승인일
+			        AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	-- 계약상태 (해지, 환불, ...)
 					AND ISNULL(OC.ORDER_STS, '') NOT IN ('37', '45', 'Z5')
-					AND OC.SALES_GRP NOT IN ('1050', '2005', '1054', '1051') &#45;&#45; 롯데하이마트, 쿠팡, 전자랜드, 방방 고객 아닌것
+					AND OC.SALES_GRP NOT IN ('1050', '2005', '1054', '1051') -- 롯데하이마트, 쿠팡, 전자랜드, 방방 고객 아닌것
 					AND OI.INSTL_CUST_NM LIKE CONCAT('%', #{name}, '%')
 					AND (OI.INSTL_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}) OR OI.INSTL_HAND_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}))
 					AND ((OC.ITEM_GROUP_BIG LIKE 'A%' OR OC.ITEM_GROUP_BIG LIKE 'L%' OR OC.ITEM_GROUP_BIG LIKE 'W%' OR OC.ITEM_GROUP_BIG = 'U10000') OR (OC.ITEM_GROUP_BIG LIKE 'B%' AND OC.GOODS_NM LIKE '%GLED%'))
@@ -1702,11 +1702,11 @@
 				, CASE WHEN ISNUMERIC(OC.AS_PERIOD) = 1 THEN DATEADD(M, OC.AS_PERIOD, OA.CONT_DT - 1) ELSE OC.RENTAL_TO_DT END freeAsEndDate
 				, OC.RENTAL_FR_DT		rentalStartDate
 				, OC.RENTAL_TO_DT		rentalEndDate
-				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	&#45;&#45; chair
-						WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	&#45;&#45; lacloud
-						WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	&#45;&#45; Water
-						WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	&#45;&#45; BTN GLED
-						WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	&#45;&#45; 생활가전 블롬베르크
+				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	-- chair
+						WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	-- lacloud
+						WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	-- Water
+						WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	-- BTN GLED
+						WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	-- 생활가전 블롬베르크
 						ELSE OC.ITEM_GROUP_BIG
 					END custKind
 				, OI.INSTL_ZIP_CD		instPost
@@ -1735,10 +1735,10 @@
 					LEFT JOIN (SELECT DISTINCT ORDER_NO  FROM RENTAL.DBO.R_WD_CMS_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CMSR  ON VOK.ORDER_NO = CMSR.ORDER_NO
 					LEFT JOIN (SELECT DISTINCT ORDER_NO FROM RENTAL.DBO.R_WD_CARD_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CARDR  ON VOK.ORDER_NO = CARDR.ORDER_NO
 			WHERE
-				OA.CONT_DT IS NOT NULL	&#45;&#45; 승인일
-				AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	&#45;&#45; 계약상태 (해지, 환불, ...)
+				OA.CONT_DT IS NOT NULL	-- 승인일
+				AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	-- 계약상태 (해지, 환불, ...)
 				AND ISNULL(OC.ORDER_STS, '') NOT IN ('37', '45', 'Z5')
-				AND OC.SALES_GRP IN ('1050', '2005', '1054', '1051') &#45;&#45; 롯데하이마트, 쿠팡, 전자랜드, 방방 고객
+				AND OC.SALES_GRP IN ('1050', '2005', '1054', '1051') -- 롯데하이마트, 쿠팡, 전자랜드, 방방 고객
 				AND OI.INSTL_CUST_NM LIKE CONCAT('%', #{name}, '%')
 				AND (OI.INSTL_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}) OR OI.INSTL_HAND_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}))
 				AND ((OC.ITEM_GROUP_BIG LIKE 'A%' OR OC.ITEM_GROUP_BIG LIKE 'L%' OR OC.ITEM_GROUP_BIG LIKE 'W%' OR OC.ITEM_GROUP_BIG = 'U10000') OR (OC.ITEM_GROUP_BIG LIKE 'B%' AND OC.GOODS_NM LIKE '%GLED%'))
@@ -1832,11 +1832,11 @@
 				, CASE WHEN ISNUMERIC(OC.AS_PERIOD) = 1 THEN DATEADD(M, OC.AS_PERIOD, OA.CONT_DT - 1) ELSE OC.RENTAL_TO_DT END freeAsEndDate
 				, OC.RENTAL_FR_DT		rentalStartDate
 				, OC.RENTAL_TO_DT		rentalEndDate
-				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	&#45;&#45; chair
-				       WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	&#45;&#45; lacloud
-					   WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	&#45;&#45; Water
-					   WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	&#45;&#45; BTN GLED
-					   WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	&#45;&#45; 생활가전 블롬베르크
+				, CASE WHEN OC.ITEM_GROUP_BIG LIKE 'A%' THEN 'M'	-- chair
+				       WHEN OC.ITEM_GROUP_BIG LIKE 'L%' THEN 'L'	-- lacloud
+					   WHEN OC.ITEM_GROUP_BIG LIKE 'W%' THEN 'W'	-- Water
+					   WHEN OC.ITEM_GROUP_BIG LIKE 'B%' THEN 'G'	-- BTN GLED
+					   WHEN OC.ITEM_GROUP_BIG = 'U11000' THEN 'BB'	-- 생활가전 블롬베르크
 					   ELSE OC.ITEM_GROUP_BIG
 				  END custKind
 				, OI.INSTL_ZIP_CD		instPost
@@ -1866,10 +1866,10 @@
 					LEFT JOIN RENTAL.DBO.V_ORDER_KEY 			VOK WITH(NOEXPAND) ON (VOK.ORDER_NO = OC.ORDER_NO)
 					LEFT JOIN (SELECT DISTINCT ORDER_NO  FROM RENTAL.DBO.R_WD_CMS_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CMSR  ON VOK.ORDER_NO = CMSR.ORDER_NO
 					LEFT JOIN (SELECT DISTINCT ORDER_NO FROM RENTAL.DBO.R_WD_CARD_RESULT (NOLOCK) WHERE REFLECT_FLAG IS NULL) AS CARDR  ON VOK.ORDER_NO = CARDR.ORDER_NO
-				WHERE OA.APROV_DT IS NOT NULL	&#45;&#45; 승인일
-		        	AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	&#45;&#45; 계약상태 (해지, 환불, ...)
+				WHERE OA.APROV_DT IS NOT NULL	-- 승인일
+		        	AND OC.CONT_STS NOT IN ('36', '40', '42', '43', '47', '55', '75', '80')	-- 계약상태 (해지, 환불, ...)
 					AND ISNULL(OC.ORDER_STS, '') NOT IN ('37', '45', 'Z5')
-					AND OC.SALES_GRP NOT IN ('1050', '2005', '1054', '1051') &#45;&#45; 롯데하이마트, 쿠팡, 전자랜드, 방방 고객 아닌것
+					AND OC.SALES_GRP NOT IN ('1050', '2005', '1054', '1051') -- 롯데하이마트, 쿠팡, 전자랜드, 방방 고객 아닌것
 					AND CS.CUST_NM LIKE CONCAT('%', #{name}, '%')
 					AND (CS.TEL_NO = RENTAL.DBO.FN_ENC(#{phone}) OR CS.HAND_TEL_NO = RENTAL.DBO.FN_ENC(#{phone}))
 					AND ((OC.ITEM_GROUP_BIG LIKE 'A%' OR OC.ITEM_GROUP_BIG LIKE 'L%' OR OC.ITEM_GROUP_BIG LIKE 'W%' OR OC.ITEM_GROUP_BIG = 'U10000') OR (OC.ITEM_GROUP_BIG LIKE 'B%' AND OC.GOODS_NM LIKE '%GLED%'))
@@ -1877,8 +1877,8 @@
 		) INFO
 	</select>
 
-	&lt;!&ndash; 건강수명 Plus 게시판 List 조회 &ndash;&gt;
-	<select id="selectHealthyLifeList" resultType="com.bf.web.customer.vo.HealthyLifeVO" parameterType="com.bf.web.customer.vo.HealthyLifeVO">
+	<!-- 건강수명 Plus 게시판 List 조회 -->
+	<!--<select id="selectHealthyLifeList" resultType="com.bf.web.customer.vo.HealthyLifeVO" parameterType="com.bf.web.customer.vo.HealthyLifeVO">
 			<include refid="common_mapper.pagePrefix" />
 			SELECT
 		   		/****************[selectHealthyLifeList]****************/
@@ -1972,7 +1972,7 @@
 				,#{userIdx}
 		        ,SYSDATE()
 		    );
-	</insert>
+	</insert>-->
 
 	<update id="updateHitCountForHealthyLife" parameterType="String">
 		update
@@ -1981,7 +1981,7 @@
 		where bbs_idx = #{bbsIdx}
 	</update>
 
-	&lt;!&ndash; 건강수명 게시판 고객행위분석 &ndash;&gt;
+	<!-- 건강수명 게시판 고객행위분석 -->
 	<insert id="insertCustomerAnalysisHist" parameterType="com.bf.web.customer.vo.CustomerAnalysisHistVO">
 		insert into
 		    customer_analysis_hist (
@@ -2009,8 +2009,8 @@
 		    );
 	</insert>
 
-	&lt;!&ndash; 일반 유형 게시판 게시물 상세 첨부 파일 &ndash;&gt;
-	<select id="selectHealthyLifeUpFile" parameterType="java.util.HashMap" resultType="com.bf.web.customer.vo.HealthyLifeVO">
+	<!-- 일반 유형 게시판 게시물 상세 첨부 파일 -->
+	<!--<select id="selectHealthyLifeUpFile" parameterType="java.util.HashMap" resultType="com.bf.web.customer.vo.HealthyLifeVO">
 		SELECT
 			 /*********** customer.selectHealthyLifeUpFile ****************/
       		  UP_FILE_NAME			AS upFileName,					/* 업로드된 파일 이름 */
@@ -2018,10 +2018,10 @@
   	     FROM BBS_NORMAL_UPFILE
  		WHERE BBS_CODE = #{bbsCd}
           AND UPFILE_IDX  = #{idx}
-	</select>
+	</select>-->
 
-	&lt;!&ndash; 일반 유형 게시판 게시물 상세 첨부 파일 &ndash;&gt;
-	<select id="selectNormalUpFileHealthyLife" parameterType="com.bf.web.customer.vo.HealthyLifeVO" resultType="java.util.HashMap">
+	<!-- 일반 유형 게시판 게시물 상세 첨부 파일 -->
+	<!--<select id="selectNormalUpFileHealthyLife" parameterType="com.bf.web.customer.vo.HealthyLifeVO" resultType="java.util.HashMap">
 		SELECT
 			 /*********** customer.selectNormalUpFileHealthyLife ****************/
        		  UPFILE_IDX			AS upFileIdx,					/* 파일인덱스 		  */
@@ -2033,9 +2033,9 @@
  		 WHERE BBS_CODE = 45
          AND BBS_IDX  = #{bbsIdx}
          ORDER BY ORDER_NUM is null ASC, ORDER_NUM ASC
-	</select>
+	</select>-->
 
-	&lt;!&ndash; 알림톡 템플릿 조회 &ndash;&gt;
+	<!-- 알림톡 템플릿 조회 -->
 	<select id="selectTemplate" parameterType="String" resultType="HashMap">
 		SELECT
 			  TEMPLATE_TITLE as templateTitle
@@ -2046,28 +2046,28 @@
 			TEMPLATE_CODE = #{templateCode}
 	</select>
 
-	&lt;!&ndash; 분해조립 주문번호 채번 &ndash;&gt;
+	<!-- 분해조립 주문번호 채번 -->
 	<select id="getPayOrdNo" resultType="String">
 		SELECT CONCAT(DATE_FORMAT(now(), '%Y%m%d'), '-A-', UPPER(SUBSTRING(MD5(RAND()), 3, 5))) payOrdNo;
 	</select>
 
-	&lt;!&ndash; 분해조립 주문번호 확인 &ndash;&gt;
+	<!-- 분해조립 주문번호 확인 -->
 	<select id="checkPayOrdNo" resultType="int" parameterType="String">
 		SELECT COUNT(*) cnt FROM tb_assemble_ord_no WHERE pay_ord_no = #{value}
 	</select>
 
-	&lt;!&ndash; 분해조립 주문번호 등록 &ndash;&gt;
+	<!-- 분해조립 주문번호 등록 -->
 	<insert id="insertPayOrdNo" parameterType="hashmap">
 		INSERT INTO tb_assemble_ord_no (pay_ord_no, order_info)
 		VALUES (#{payOrdNo}, #{orderInfo});
 	</insert>
 
-	&lt;!&ndash; 분해조립 주문정보 조회 &ndash;&gt;
+	<!-- 분해조립 주문정보 조회 -->
 	<select id="getPayOrdInfo" parameterType="String" resultType="String">
 		SELECT order_info AS orderInfo FROM tb_assemble_ord_no WHERE pay_ord_no = #{value}
 	</select>
 
-	&lt;!&ndash; 분해조립 serviceIdx 조회 &ndash;&gt;
+	<!-- 분해조립 serviceIdx 조회 -->
 	<select id="getServiceIdxFromPayOrdNo" parameterType="String" resultType="String">
 		SELECT service_idx AS serviceIdx
 		FROM online_service_assemble
@@ -2075,7 +2075,7 @@
 	</select>
 
 
-	&lt;!&ndash; 간편 배송 조회 인증 리스트 &ndash;&gt;
+	<!-- 간편 배송 조회 인증 리스트 -->
 	<select id="selectOdrNumList" resultType="HashMap" parameterType="HashMap">
 		/****************[customer.selectOdrNumList]****************/
 		 SELECT DISTINCT
@@ -2090,7 +2090,7 @@
 
 	</select>
 
-		&lt;!&ndash; 후기작성 인증 리스트 &ndash;&gt;
+		<!-- 후기작성 인증 리스트 -->
 	<select id="selectOdrNumReviewList" resultType="HashMap" parameterType="HashMap">
 		/****************[customer.selectOdrNumReviewList]****************/
 		 SELECT DISTINCT
@@ -2129,7 +2129,7 @@
 
 	</select>
 
-	&lt;!&ndash; 검색 &ndash;&gt;
+	<!-- 검색 -->
 	<select id="search" resultType="HashMap" parameterType="HashMap">
 		/****************[customer.search]****************/
 
@@ -2190,7 +2190,7 @@
 
 	</select>
 
-		&lt;!&ndash; 검색 &ndash;&gt;
+		<!-- 검색 -->
 	<select id="searchCount" resultType="HashMap" parameterType="HashMap">
 		/****************[customer.searchCount]****************/
 
@@ -2245,7 +2245,7 @@
             )B LEFT JOIN bbs_master bm ON B.BBS_NAME = bm.BBS_NAME   AND IFNULL(bm.del_state,'0') = 0
 
 	</select>
-	&lt;!&ndash; 검색어 수집 &ndash;&gt;
+	<!-- 검색어 수집 -->
 	<insert id="searchHistory" parameterType="hashmap">
 		INSERT INTO search_history (key_word)
 		VALUES (#{word});
@@ -2333,7 +2333,7 @@
 	</select>
 
 
-		  &lt;!&ndash; 전시장 체험 예약 접수 후 ERP 등록 &ndash;&gt;
+		  <!-- 전시장 체험 예약 접수 후 ERP 등록 -->
 	<select id="LMSendApi" statementType="CALLABLE" parameterType="hashmap" resultType="hashmap">
 		{CALL RENTAL.dbo.usp_R_LM_SEND_HOMEPAGE (
 			#{SHIPPING_NO, jdbcType=NVARCHAR, mode=IN}
@@ -2352,5 +2352,4 @@
 	  AND GOODS_CD = #{GOODS_CD}
 	  AND USE_YN = 'Y'
 	</select>
--->
 </mapper>

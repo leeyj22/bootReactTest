@@ -6,11 +6,11 @@ import com.bf.common.element.Response;
 import com.bf.common.util.AES256Util;
 import com.bf.common.util.Sha256;
 import com.bf.common.util.UtilManager;
-import com.bf.web.member.bean.Member;
-import com.bf.web.member.bean.MemberVO;
-import com.bf.web.member.bean.Orders;
-import com.bf.web.member.bean.SiteInfo;
-//import com.bf.web.member.dao.MemberDao;
+import com.bf.web.member.dao.MemberDao;
+import com.bf.web.member.vo.Member;
+import com.bf.web.member.vo.MemberVO;
+import com.bf.web.member.vo.Orders;
+import com.bf.web.member.vo.SiteInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,8 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,9 +44,9 @@ public class MemberService {
     String withdrawUrl;
     @Value(value = "${system.withdraw.secretKey}")
     String withdrawKey;
-//
-//    @Resource
-//    private MemberDao memberDao;
+
+    @Resource
+    private MemberDao memberDao;
 
     private final static String aes_key = "a&9fql3@jDAE2f8#";
 
@@ -204,9 +202,9 @@ public class MemberService {
         Sha256 sha256 = new Sha256();
         Map resultMap = new HashMap();
 
-//        member.setPwd(sha256.enc(member.getPwd()));
-//
-//        try {
+        member.setPwd(sha256.enc(member.getPwd()));
+
+        try {
 //            member = memberDao.selectOne("loginCheck", member);
 //
 //            if(member != null){
@@ -215,11 +213,11 @@ public class MemberService {
 //            }else{
 //                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
 //            }
-//
-//        } catch (Exception e) {
-//            resultMap.put(Constants.RESULT_CODE, Constants.ERROR);
-//            e.printStackTrace();
-//        }
+
+        } catch (Exception e) {
+            resultMap.put(Constants.RESULT_CODE, Constants.ERROR);
+            e.printStackTrace();
+        }
 
         return resultMap;
     }
@@ -228,24 +226,24 @@ public class MemberService {
     public Map loginCheck_social(String userId) {
 
         Map resultMap = new HashMap();
-//        Map dataMap = new HashMap();
-//        Map paramMap = new HashMap();
-//        paramMap.put("userId", userId);
-//
-//        try {
-//            Member member = memberDao.loginCheck_social(paramMap);
-//
-//            if(dataMap != null){
-//                resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
-//                resultMap.put(Constants.RESULT_DATA, member);
-//            }else{
-//                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
-//            }
-//
-//        } catch (Exception e) {
-//            resultMap.put(Constants.RESULT_CODE, Constants.ERROR);
-//            e.printStackTrace();
-//        }
+        Map dataMap = new HashMap();
+        Map paramMap = new HashMap();
+        paramMap.put("userId", userId);
+
+        try {
+            Member member = memberDao.loginCheck_social(paramMap);
+
+            if(dataMap != null){
+                resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
+                resultMap.put(Constants.RESULT_DATA, member);
+            }else{
+                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
+            }
+
+        } catch (Exception e) {
+            resultMap.put(Constants.RESULT_CODE, Constants.ERROR);
+            e.printStackTrace();
+        }
 
         return resultMap;
     }
@@ -255,18 +253,18 @@ public class MemberService {
     public Map loginCheckNomember(Map<String, Object> params) {
         Map resultMap = new HashMap();
 
-//        try {
-//            Orders order = memberDao.loginCheckNomember(params);
-//            if(!UtilManager.isEmptyOrNull(order)){
-//                resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
-//                resultMap.put(Constants.RESULT_DATA, order);
-//            } else {
-//                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
-//            }
-//        } catch (Exception e) {
-//            resultMap.put(Constants.RESULT_CODE, Constants.ERROR);
-//            e.printStackTrace();
-//        }
+        try {
+            Orders order = memberDao.loginCheckNomember(params);
+            if(!UtilManager.isEmptyOrNull(order)){
+                resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
+                resultMap.put(Constants.RESULT_DATA, order);
+            } else {
+                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
+            }
+        } catch (Exception e) {
+            resultMap.put(Constants.RESULT_CODE, Constants.ERROR);
+            e.printStackTrace();
+        }
 
         return resultMap;
     }
@@ -275,44 +273,49 @@ public class MemberService {
      * 회원 쿠폰 삭제 (DELETE)
      * TABLE : COUPON_ISSUE
      */
-    //    public int memberCouponDel(Member member) {
+        public int memberCouponDel(Member member) {
 //        return memberDao.delete("memberCouponDel", member);
-//    }
-//
-//    /*
-//     * 회원 후기 삭제 (DELETE)
-//     * TABLE : goods_review
-//     */
-//    @SuppressWarnings({ "rawtypes", "unchecked" })
-//    public int memberReviewDel(Member member) {
+        return 0;
+        }
+
+    /*
+     * 회원 후기 삭제 (DELETE)
+     * TABLE : goods_review
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public int memberReviewDel(Member member) {
+        return 0;
 //        return memberDao.delete("memberReviewDel", member);
-//    }
-//
-//    /*
-//     * 회원 1:1문의 삭제 (DELETE)
-//     * TABLE : COUPON_ISSUE
-//     */
-//    @SuppressWarnings({ "rawtypes", "unchecked" })
-//    public int memberQnaDel(Member member) {
+    }
+
+    /*
+     * 회원 1:1문의 삭제 (DELETE)
+     * TABLE : COUPON_ISSUE
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public int memberQnaDel(Member member) {
+        return 0;
 //        return memberDao.delete("memberQnaDel", member);
-//    }
-//
-//    /*
-//     * 회원 서비스접수 삭제 (DELETE)
-//     * TABLE : online_service
-//     */
-//    @SuppressWarnings({ "rawtypes", "unchecked" })
-//    public int memberOnServiceDel(Member member) {
+    }
+
+    /*
+     * 회원 서비스접수 삭제 (DELETE)
+     * TABLE : online_service
+     */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public int memberOnServiceDel(Member member) {
+        return 0;
 //        return memberDao.delete("memberOnServiceDel", member);
-//    }
-//
-//    /*
-//     * 소셜 가입 히스토리 삭제 (DELETE)
-//     * TABLE : SOCIAL_HISTORY
-//     */
-//    public int socialHistoryDel(Member member) {
+    }
+
+    /*
+     * 소셜 가입 히스토리 삭제 (DELETE)
+     * TABLE : SOCIAL_HISTORY
+     */
+    public int socialHistoryDel(Member member) {
+        return 0;
 //        return memberDao.delete("socialHistoryDel", member);
-//    }
+    }
 
     /*
      * 회원 탈퇴 (Delete)
@@ -323,8 +326,8 @@ public class MemberService {
     public Map memberOutCheck(Member member) {
 
         Map resultMap = new HashMap();
-//        try {
-//            // 회원 탈퇴 처리
+        try {
+            // 회원 탈퇴 처리
 //            member = memberDao.selectOne("memberOutCheck", member);
 //            if(member != null){
 //                resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
@@ -332,26 +335,28 @@ public class MemberService {
 //            }else{
 //                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
 //            }
-//
-//        } catch (Exception e) {
-//            resultMap.put(Constants.RESULT_CODE, Constants.ERROR);
-//            e.printStackTrace();
-//        }
+
+        } catch (Exception e) {
+            resultMap.put(Constants.RESULT_CODE, Constants.ERROR);
+            e.printStackTrace();
+        }
 
         return resultMap;
     }
 
-//    public SiteInfo getSiteInfo() {
-//        return memberDao.getSiteInfo();
-//    }
-//
-//    public int updateBasketUser(Member member) {
+    public SiteInfo getSiteInfo() {
+        return memberDao.getSiteInfo();
+    }
+
+    public int updateBasketUser(Member member) {
+        return 0;
 //        return memberDao.update("updateBasketUser", member);
-//    }
-//
-//    public int updateMemberVisit(Member member) {
+    }
+
+    public int updateMemberVisit(Member member) {
+        return 0;
 //        return memberDao.update("updateMemberVisit", member);
-//    }
+    }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public Map getUserId(Member member) {
@@ -370,60 +375,6 @@ public class MemberService {
         return resultMap;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public Map getUserPw(Member member) {
-        Map resultMap = new HashMap();
-//        Member m = memberDao.selectOne("getUserPw", member);
-//
-//        if (m != null) {
-//            // 임시 비밀번호 만들기
-//            int val = (int)(Math.random()*999999)+1;
-//            String str = String.valueOf(val);
-//            String MD5 = "";
-//            try {
-//                MessageDigest md = MessageDigest.getInstance("MD5");
-//                md.update(str.getBytes());
-//                byte byteData[] = md.digest();
-//                StringBuffer sb = new StringBuffer();
-//                for(int i = 0 ; i < byteData.length ; i++){
-//                    sb.append(Integer.toString((byteData[i]&0xff) + 0x100, 16).substring(1));
-//                }
-//                MD5 = sb.toString();
-//            } catch (NoSuchAlgorithmException e) {
-//                e.printStackTrace();
-//                MD5 = "f709755f";
-//            }
-//
-//            String tempPw = MD5.substring(0, 8); // 임시 비밀번호
-//            System.out.println("========== tempPw: "+tempPw);
-//
-//            // 비밀번호 업데이트
-//            Sha256 sha256 = new Sha256();
-//            member.setUserIdx(m.getUserIdx());
-//            member.setPwd(sha256.enc(tempPw));
-//
-//            /*TODO: 이 부분 히스토리 확인 필요*/
-//            /*
-//             * 메일로 임시 비밀번호 줘야 함.. 메일 기능 구현 안 되어서 업데이트 막아 놓음..
-//             * */
-//            //memberDao.update("updateMemberPwd", member);
-//
-//            // 메일발송
-//
-//            /* SMS 발송 -> 안 쓰고 있음. */
-//
-//            resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
-//            resultMap.put(Constants.RESULT_DATA, m);
-//            resultMap.put(Constants.RESULT_MSG, m.getName()+"님의 이메일로 비밀번호가 발송되었습니다.");
-//        } else {
-//            resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
-//            resultMap.put(Constants.RESULT_MSG, "고객님의 일치하는 회원정보가 없습니다.");
-//        }
-
-        return resultMap;
-    }
-
-
     //TODO : 사용하는지 확인 필요
     @Transactional
     public Map savePointModule(Map params) {
@@ -432,81 +383,75 @@ public class MemberService {
         HttpServletRequest request = sra.getRequest();
         HttpSession session = request.getSession();
         Map resultMap = new HashMap<>();
-//        int updateMemberPoint = 0;
-//        int insertPointLog = 0;
-//
-//        if( params.get("section")!=null ) {
-//            switch ((String)params.get("section")) {
-//                case "2":
-//                    params.put("log", "회원가입 축하");
-//                    break;
-//                case "4":
-//                    params.put("log", "상품취소완료");
-//                    break;
-//                case "7":
-//                    params.put("log", "상품후기 작성");
-//                    break;
-//                case "9":
-//                    params.put("log", "상품구매완료");
-//                    break;
-//                default:
-//                    resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
-//                    resultMap.put(Constants.RESULT_MSG, "저장가능한 포인트 종류가 아닙니다.");
-//                    break;
-//            }
-//        } else {
-//            resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
-//            resultMap.put(Constants.RESULT_MSG, "포인트 종류를 입력해주세요(파라미터명 : section).");
-//            return resultMap;
-//        }
-//
-//        if((params.get("section").equals("4")||params.get("section").equals("9"))&&params.get("ord_nbr")==null) {
-//            resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
-//            resultMap.put(Constants.RESULT_MSG, "주문번호를 입력해주세요(파라미터명 : ord_nbr).");
-//            return resultMap;
-//        }
-//
-//        if(params.get("point")!=null) {
-//            int point = 0;
-//            try {
-//                point = Integer.parseInt(params.get("point").toString());
-//            } catch (Exception e) {
-//                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
-//                resultMap.put(Constants.RESULT_MSG, "입력된 포인트가 숫자 형식이 아닙니다.");
-//            }
-//            if(point<0) {
-//                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
-//                resultMap.put(Constants.RESULT_MSG, "적립 시에는 입력된 포인트가 0보다 커야합니다.");
-//            }
-//        } else {
-//            resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
-//            resultMap.put(Constants.RESULT_MSG, "포인트를 입력해주세요(파라미터명 : point).");
-//            return resultMap;
-//        }
-//
-//        if(resultMap.get(Constants.RESULT_CODE)==null) {
-//            params.put("user_idx", session.getAttribute(Constants.SESSION_USER_IDX));
-//            insertPointLog = memberDao.insertPointLog(params);
-//            if(insertPointLog>0) {
-//                updateMemberPoint = memberDao.updateMemberPoint(params);
-//            }
-//            if(updateMemberPoint>0) {
-//                resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
-//                resultMap.put(Constants.RESULT_MSG, Constants.Message.INSERT_SUCCESS);
-//            }
-//        }
+        int updateMemberPoint = 0;
+        int insertPointLog = 0;
+
+        if( params.get("section")!=null ) {
+            switch ((String)params.get("section")) {
+                case "2":
+                    params.put("log", "회원가입 축하");
+                    break;
+                case "4":
+                    params.put("log", "상품취소완료");
+                    break;
+                case "7":
+                    params.put("log", "상품후기 작성");
+                    break;
+                case "9":
+                    params.put("log", "상품구매완료");
+                    break;
+                default:
+                    resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
+                    resultMap.put(Constants.RESULT_MSG, "저장가능한 포인트 종류가 아닙니다.");
+                    break;
+            }
+        } else {
+            resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
+            resultMap.put(Constants.RESULT_MSG, "포인트 종류를 입력해주세요(파라미터명 : section).");
+            return resultMap;
+        }
+
+        if((params.get("section").equals("4")||params.get("section").equals("9"))&&params.get("ord_nbr")==null) {
+            resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
+            resultMap.put(Constants.RESULT_MSG, "주문번호를 입력해주세요(파라미터명 : ord_nbr).");
+            return resultMap;
+        }
+
+        if(params.get("point")!=null) {
+            int point = 0;
+            try {
+                point = Integer.parseInt(params.get("point").toString());
+            } catch (Exception e) {
+                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
+                resultMap.put(Constants.RESULT_MSG, "입력된 포인트가 숫자 형식이 아닙니다.");
+            }
+            if(point<0) {
+                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
+                resultMap.put(Constants.RESULT_MSG, "적립 시에는 입력된 포인트가 0보다 커야합니다.");
+            }
+        } else {
+            resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
+            resultMap.put(Constants.RESULT_MSG, "포인트를 입력해주세요(파라미터명 : point).");
+            return resultMap;
+        }
+
+        if(resultMap.get(Constants.RESULT_CODE)==null) {
+            params.put("user_idx", session.getAttribute(Constants.SESSION_USER_IDX));
+            insertPointLog = memberDao.insertPointLog(params);
+            if(insertPointLog>0) {
+                updateMemberPoint = memberDao.updateMemberPoint(params);
+            }
+            if(updateMemberPoint>0) {
+                resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
+                resultMap.put(Constants.RESULT_MSG, Constants.Message.INSERT_SUCCESS);
+            }
+        }
         return resultMap;
     }
 
-//
-//    @SuppressWarnings({ "rawtypes" })
-//    public HashMap<String, String> checkEmail(String email) {
-//        return memberDao.checkEmail(email);
-//    }
-//
-//    public HashMap<String, String> checkId(String id) {
-//        return memberDao.checkId(id);
-//    }
+    public HashMap<String, String> checkId(String id) {
+        return memberDao.checkId(id);
+    }
 
     public String getClientIP(HttpServletRequest request) {
 
@@ -523,45 +468,6 @@ public class MemberService {
         }
         return ip;
     }
-
-    @SuppressWarnings({ "rawtypes" })
-    public Map join(Member member, HttpServletRequest request) {
-        Map resultMap = new HashMap();
-//        Sha256 sha256 = new Sha256();
-//        int result = 0;
-//        int tempCoupon = 0;
-//        member.setLevelCode("1");
-//        member.setRealNameCertType("0");
-//        member.setMarried("0");
-//        member.setVisitCnt("0");
-//        member.setApproval("1");
-//        member.setPurchasePrice("0");
-//        member.setPoint("0");
-//        member.setDeposit("0");
-//        member.setIp(getClientIP(request));
-//        member.setPwd(sha256.enc(member.getPwd()));
-//
-//        result = memberDao.join(member);
-//        Member memberLogin = memberDao.selectOne("loginCheck", member);
-//
-//        resultMap.put(Constants.RESULT_CODE, result);
-//        if(result > 0){
-//            if(tempCoupon > 0) {
-//                resultMap.put(Constants.RESULT_MSG, "회원가입에 성공하였습니다.\n'진심이 알고싶다' 3%할인쿠폰이 발급되었습니다.");
-//            } else {
-//                resultMap.put(Constants.RESULT_MSG, "회원가입에 성공하였습니다.");
-//            }
-//        }else{
-//            resultMap.put(Constants.RESULT_MSG, "회원가입을 실패하였습니다.\n문의사항이 있으시면 02-3448-8980로 연락주시기 바랍니다.");
-//        }
-
-        return resultMap;
-    }
-
-//    public HashMap<String, String> checkCompany(HashMap<String, String> comNo) {
-//        return memberDao.checkCompany(comNo);
-//    }
-
     public void insertSocialLogin(String userId, String email, String token, String type) {
         Map param = new HashMap();
 
@@ -570,143 +476,138 @@ public class MemberService {
         param.put("token", token);
         param.put("type", type);
 
-//        memberDao.insertSocialLogin(param);
+        memberDao.insertSocialLogin(param);
     }
 
-//    public HashMap<String, String> findIdFromPhone(HashMap<String, String> memberVo) {
-//        return memberDao.findIdFromPhone(memberVo);
-//    }
-//
-//    //핸드폰인증 - 아이디찾기
-//    public List<HashMap<String, String>> findIdPhone(HashMap<String, String> memberVo) {
-//        return memberDao.findIdPhone(memberVo);
-//    }
-//
-//    public HashMap<String, String> checkJoin(HashMap<String, String> memberVo) {
-//        return memberDao.checkJoin(memberVo);
-//    }
-//
-//    public HashMap<String, String> findPwChkId(HashMap<String, String> data) {
-//        return memberDao.findPwChkId(data);
-//    }
-//
-//    public int replacePw(HashMap<String, String> data) {
-//        return memberDao.replacePw(data);
-//    }
-//
-//    public HashMap<String, String> findIdFromEmail(HashMap<String, String> data) {
-//        return memberDao.findIdFromEmail(data);
-//    }
-//
-//    public HashMap<String, String> updatePw(HashMap<String, String> data) {
-//        return memberDao.updatePw(data);
-//    }
-//
-//    public HashMap<String, String> findPwCheck(HashMap<String, String> data) {
-//        return memberDao.findPwCheck(data);
-//    }
-//
-//    @SuppressWarnings({ "rawtypes" })
-//    public int socialMemberCheck(String socialId) {
-//
-//        return memberDao.socialMemberCheck(socialId);
-//    }
-//
-//    @SuppressWarnings({ "rawtypes" })
-//    public String checkTbMember(HttpServletRequest request) {
-//
-//        Map paramMap = new HashMap();
-//
-//        paramMap.put("name", request.getParameter("name"));
-//        paramMap.put("cell1", request.getParameter("cell1"));
-//        paramMap.put("cell2", request.getParameter("cell2"));
-//        paramMap.put("cell3", request.getParameter("cell3"));
-//
-//        return memberDao.checkTbMember(paramMap);
-//    }
-//
-//    @SuppressWarnings({ "rawtypes" })
-//    public int insertTbSocial(HttpServletRequest request, String userIdx) {
-//
-//        Map paramMap = new HashMap();
-//
-//        paramMap.put("userId", request.getParameter("userId"));
-//        paramMap.put("email", request.getParameter("email"));
-//        paramMap.put("token", request.getParameter("token"));
-//        paramMap.put("type", request.getParameter("type"));
-//        paramMap.put("userIdx", userIdx);
-//
-//        return memberDao.insertTbSocial(paramMap);
-//
-//    }
-//
-//    @SuppressWarnings({ "rawtypes" })
-//    public String insertTbMember(HttpServletRequest request, String userIdx) {
-//
-//        MemberVO memberVO = new MemberVO();
-//        Sha256 sha256 = new Sha256();
-//
-//        memberVO.setName(request.getParameter("name"));
-//        memberVO.setCell1(request.getParameter("cell1"));
-//        memberVO.setCell2(request.getParameter("cell2"));
-//        memberVO.setCell3(request.getParameter("cell3"));
-//        memberVO.setEmail(request.getParameter("email"));
-//        memberVO.setSex("1");
-//        memberVO.setLevelCode("1");
-//        memberVO.setRealNameCertType("0");
-//        memberVO.setBirthOp("1");
-//        memberVO.setEmailState("0");
-//        memberVO.setSmsState("0");
-//        memberVO.setMarried("0");
-//        memberVO.setVisitCnt("0");
-//        memberVO.setApproval("1");
-//        memberVO.setPurchasePrice("0");
-//        memberVO.setPoint("0");
-//        memberVO.setDeposit("0");
-//        memberVO.setIp(getClientIP(request));
-//        memberVO.setPwd(sha256.enc(request.getParameter("cell1")+request.getParameter("cell2")+request.getParameter("cell3")));
-//
-//        memberDao.insertTbMember(memberVO);
-//
-//        return memberVO.getUserIdx();
-//    }
-//
-//    @SuppressWarnings({ "rawtypes" })
-//    public void updateTbSocial(String userId, String email, String token, String type) {
-//
-//        Map param = new HashMap();
-//
-//        param.put("userId", userId);
-//        param.put("email", email);
-//        param.put("token", token);
-//        param.put("type", type);
-//
-//        memberDao.updateTbSocial(param);
-//
-//    }
+    public HashMap<String, String> findIdFromPhone(HashMap<String, String> memberVo) {
+        return memberDao.findIdFromPhone(memberVo);
+    }
+
+    public HashMap<String, String> checkJoin(HashMap<String, String> memberVo) {
+        return memberDao.checkJoin(memberVo);
+    }
+
+    public HashMap<String, String> findPwChkId(HashMap<String, String> data) {
+        return memberDao.findPwChkId(data);
+    }
+
+    public int replacePw(HashMap<String, String> data) {
+        return memberDao.replacePw(data);
+    }
+
+    public HashMap<String, String> findIdFromEmail(HashMap<String, String> data) {
+        return memberDao.findIdFromEmail(data);
+    }
+
+    public HashMap<String, String> updatePw(HashMap<String, String> data) {
+        return memberDao.updatePw(data);
+    }
+
+    public HashMap<String, String> findPwCheck(HashMap<String, String> data) {
+        return memberDao.findPwCheck(data);
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    public int socialMemberCheck(String socialId) {
+
+        return memberDao.socialMemberCheck(socialId);
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    public String checkTbMember(HttpServletRequest request) {
+
+        Map paramMap = new HashMap();
+
+        paramMap.put("name", request.getParameter("name"));
+        paramMap.put("cell1", request.getParameter("cell1"));
+        paramMap.put("cell2", request.getParameter("cell2"));
+        paramMap.put("cell3", request.getParameter("cell3"));
+
+        return memberDao.checkTbMember(paramMap);
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    public int insertTbSocial(HttpServletRequest request, String userIdx) {
+
+        Map paramMap = new HashMap();
+
+        paramMap.put("userId", request.getParameter("userId"));
+        paramMap.put("email", request.getParameter("email"));
+        paramMap.put("token", request.getParameter("token"));
+        paramMap.put("type", request.getParameter("type"));
+        paramMap.put("userIdx", userIdx);
+
+        return memberDao.insertTbSocial(paramMap);
+
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    public String insertTbMember(HttpServletRequest request, String userIdx) {
+
+        MemberVO memberVO = new MemberVO();
+        Sha256 sha256 = new Sha256();
+
+        memberVO.setName(request.getParameter("name"));
+        memberVO.setCell1(request.getParameter("cell1"));
+        memberVO.setCell2(request.getParameter("cell2"));
+        memberVO.setCell3(request.getParameter("cell3"));
+        memberVO.setEmail(request.getParameter("email"));
+        memberVO.setSex("1");
+        memberVO.setLevelCode("1");
+        memberVO.setRealNameCertType("0");
+        memberVO.setBirthOp("1");
+        memberVO.setEmailState("0");
+        memberVO.setSmsState("0");
+        memberVO.setMarried("0");
+        memberVO.setVisitCnt("0");
+        memberVO.setApproval("1");
+        memberVO.setPurchasePrice("0");
+        memberVO.setPoint("0");
+        memberVO.setDeposit("0");
+        memberVO.setIp(getClientIP(request));
+        memberVO.setPwd(sha256.enc(request.getParameter("cell1")+request.getParameter("cell2")+request.getParameter("cell3")));
+
+        memberDao.insertTbMember(memberVO);
+
+        return memberVO.getUserIdx();
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    public void updateTbSocial(String userId, String email, String token, String type) {
+
+        Map param = new HashMap();
+
+        param.put("userId", userId);
+        param.put("email", email);
+        param.put("token", token);
+        param.put("type", type);
+
+        memberDao.updateTbSocial(param);
+
+    }
 
     @Transactional
     public void deleteMemberInfo(Member member) {
 
-//        Map<String, Object> params = new HashMap<String, Object>();
-//        params.put("userIdx", member.getUserIdx());
-//
-//        System.out.println("params>>>" + params.toString());
-//        HashMap<String, Object> userInfo = memberDao.selectUserInfo(params);
-//        System.out.println(userInfo.toString());
-//
-//        // 회원 탈퇴 API 호출
-//        Map<String, Object> memberParams = new HashMap<String, Object>();
-//        memberParams.put("userIdx", userInfo.get("userIdx"));
-//        memberParams.put("userName", userInfo.get("name"));
-//        memberParams.put("phone", userInfo.get("mobile1").toString() + userInfo.get("mobile2").toString() + userInfo.get("mobile3").toString());
-//        memberParams.put("bfYn", "Y");
-//
-//        try{
-//            withdrawal(memberParams);
-//        }catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("userIdx", member.getUserIdx());
+
+        System.out.println("params>>>" + params.toString());
+        HashMap<String, Object> userInfo = memberDao.selectUserInfo(params);
+        System.out.println(userInfo.toString());
+
+        // 회원 탈퇴 API 호출
+        Map<String, Object> memberParams = new HashMap<String, Object>();
+        memberParams.put("userIdx", userInfo.get("userIdx"));
+        memberParams.put("userName", userInfo.get("name"));
+        memberParams.put("phone", userInfo.get("mobile1").toString() + userInfo.get("mobile2").toString() + userInfo.get("mobile3").toString());
+        memberParams.put("bfYn", "Y");
+
+        try{
+            withdrawal(memberParams);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 

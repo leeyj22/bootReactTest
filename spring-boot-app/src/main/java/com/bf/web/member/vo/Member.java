@@ -1,4 +1,4 @@
-package com.bf.web.member.bean;
+package com.bf.web.member.vo;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -5,15 +5,13 @@ import com.bf.common.Constants;
 import com.bf.common.element.Response;
 import com.bf.common.util.Sha256;
 import com.bf.common.util.Util;
-import com.bf.web.member.bean.Member;
-import com.bf.web.member.bean.SiteInfo;
+import com.bf.web.member.vo.Member;
 import com.bf.web.member.service.MemberService;
+import com.bf.web.member.vo.SiteInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -229,7 +227,7 @@ public class MemberController {
         }else{
             resultMap = memberService.loginCheck_social(member.getUserId());
             if(resultMap.get(Constants.RESULT_CODE).equals(Constants.SUCCESS)){
-//                memberService.updateTbSocial(member.getUserId(), member.getEmail(), token, type);
+                memberService.updateTbSocial(member.getUserId(), member.getEmail(), token, type);
             }
         }
 
@@ -268,12 +266,12 @@ public class MemberController {
                 // 장바구니 업데이트
                 memberData.setSessionId(session.getId());
                 System.out.println("========== session.getId(): "+session.getId());
-//                /* 데이터베이스 세션아이디 타입이 숫자 형식이라서 비교가 안 됨.. */
-//                memberService.updateBasketUser(memberData);
-//
-//                // 최종 로그인 시간, 방문회수, ip 업데이트
-//                memberData.setIp(Util.ipaddr(request));
-//                memberService.updateMemberVisit(memberData);
+                /* 데이터베이스 세션아이디 타입이 숫자 형식이라서 비교가 안 됨.. */
+                memberService.updateBasketUser(memberData);
+
+                // 최종 로그인 시간, 방문회수, ip 업데이트
+                memberData.setIp(Util.ipaddr(request));
+                memberService.updateMemberVisit(memberData);
 
                 mav.addObject("name", memberData.getName());
 
@@ -286,9 +284,9 @@ public class MemberController {
                 }
 
             } else {
-                // 미승인회원
-//                SiteInfo siteInfo = memberService.getSiteInfo();
-//                mav.addObject("siteTel", siteInfo.getSiteTel());
+                //미승인회원
+                SiteInfo siteInfo = memberService.getSiteInfo();
+                mav.addObject("siteTel", siteInfo.getSiteTel());
                 mav.setViewName("redirect:/member/login?result=99");
             }
         } else {
@@ -306,8 +304,7 @@ public class MemberController {
     @ResponseBody
     @RequestMapping(value = "/member/socialMemberCheck.json", method = RequestMethod.POST)
     public int socialMemberCheck(@RequestParam(value = "socialId", required = true) String socialId) {
-//        return memberService.socialMemberCheck(socialId);
-        return 0;
+        return memberService.socialMemberCheck(socialId);
     }
 
 
