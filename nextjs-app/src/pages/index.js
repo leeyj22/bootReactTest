@@ -20,7 +20,12 @@ const index = () => {
             <Container>
                 <PageName />
                 <button onClick={() => plz()}>버튼</button>
+                <br />
                 <Link href="/service">서비스접수페이지 이동</Link>
+                <br />
+                <Link href="/certify/certify">
+                    서비스접수 본인인증 페이지 이동
+                </Link>
                 <h3>리스트</h3>
             </Container>
         </AppLayout>

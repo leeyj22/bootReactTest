@@ -58,4 +58,40 @@ const ModalPost = styled.section`
         }
     }
 `;
-export { Container, ModalPost };
+
+const LoginContainer = styled.section`
+    display: flex;
+    justify-content: space-around;
+    margin: 140px 30px;
+    & > div {
+        padding: 30px;
+        width: 404px;
+        border: 1px solid var(--color-black2);
+        border-radius: 10px;
+        text-align: center;
+        strong {
+            display: block;
+            margin: 30px auto;
+            font-size: 3.2rem;
+            font-weight: 700;
+        }
+        p {
+            font-size: 2rem;
+            line-height: 1.8;
+            color: var(--color-grey-9);
+        }
+        button {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 23px 36px;
+            background: ${(props) =>
+                props.costomer === "Y"
+                    ? "linear-gradient(180deg, #5C6A82 0%, #272D37 100%)"
+                    : "#bbbcc8"};
+            border-radius: 27px;
+            font-size: 2rem;
+            color: var(--color-white);
+        }
+    }
+`;
+export { Container, ModalPost, LoginContainer };

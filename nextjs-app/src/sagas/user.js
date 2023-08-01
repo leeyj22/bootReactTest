@@ -10,6 +10,9 @@ import {
     LOGIN_REQUEST,
     LOGIN_SUCCESS,
     LOGIN_FAILURE,
+    CERTIFY_PAGETYPE_SUCCESS,
+    CERTIFY_PAGETYPE_FAILURE,
+    CERTIFY_PAGETYPE_REQUEST,
 } from "../reducers/user";
 
 function getTestAPI(data) {
@@ -82,6 +85,31 @@ function* loginRequest(action) {
     }
 }
 
+//본인인증1
+
+function certifyPageTypeAPI(data) {
+    console.log("data", data);
+    return axios.post("/certify/pagetype", "AFTER_SERVICE");
+}
+
+function* certifyPageType(action) {
+    try {
+        const result = yield call(certifyPageTypeAPI, action.data);
+        console.log("certifyPageTypeAPI result", result);
+
+        yield put({
+            type: CERTIFY_PAGETYPE_SUCCESS,
+            data: result.data,
+        });
+    } catch (err) {
+        console.error(err);
+        yield put({
+            type: CERTIFY_PAGETYPE_FAILURE,
+            data: err.response.data,
+        });
+    }
+}
+
 function* watchLoadTest() {
     yield takeLatest(GET_TEST_APT_REQUEST, getTest);
 }
@@ -91,9 +119,13 @@ function* watchLoginUrl() {
 function* watchLogin() {
     yield takeLatest(LOGIN_REQUEST, loginRequest);
 }
+function* watchCertifyPageType() {
+    yield takeLatest(CERTIFY_PAGETYPE_REQUEST, certifyPageType);
+}
 
 export default function* userSaga() {
     yield all([fork(watchLoadTest)]);
     yield all([fork(watchLoginUrl)]);
     yield all([fork(watchLogin)]);
+    yield all([fork(watchCertifyPageType)]);
 }

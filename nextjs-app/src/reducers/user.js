@@ -5,6 +5,7 @@ export const initalState = {
     getTestDone: false,
     getTestError: null,
     test: null,
+    //로그인
     loginUrlLoading: true,
     loginUrlDone: false,
     loginUrlError: null,
@@ -12,6 +13,13 @@ export const initalState = {
     loginLoading: true,
     loginDone: false,
     loginError: null,
+    //본인인증
+    certifyPagetypeLoading: true,
+    certifyPagetypeDone: false,
+    certifyPagetypeError: null,
+    certifyPageType: {
+        urlCode: null,
+    },
     user: null,
 };
 
@@ -26,6 +34,10 @@ export const LOGIN_URL_FAILURE = "LOGIN_URL_FAILURE";
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_FAILURE = "LOGIN_FAILURE";
+
+export const CERTIFY_PAGETYPE_REQUEST = "CERTIFY_PAGETYPE_REQUEST";
+export const CERTIFY_PAGETYPE_SUCCESS = "CERTIFY_PAGETYPE_SUCCESS";
+export const CERTIFY_PAGETYPE_FAILURE = "CERTIFY_PAGETYPE_FAILURE";
 
 export const reducer = (state = initalState, action) => {
     return produce(state, (d) => {
@@ -73,6 +85,21 @@ export const reducer = (state = initalState, action) => {
             case LOGIN_FAILURE:
                 draft.loginLoading = false;
                 draft.loginError = action.error;
+                break;
+            //본인인증1
+            case CERTIFY_PAGETYPE_REQUEST:
+                draft.certifyPagetypeLoading = true;
+                draft.certifyPagetypeDone = false;
+                draft.certifyPagetypeError = null;
+                break;
+            case CERTIFY_PAGETYPE_SUCCESS:
+                draft.certifyPagetypeLoading = false;
+                draft.certifyPagetypeDone = true;
+                draft.certifyPageType = action.data;
+                break;
+            case CERTIFY_PAGETYPE_FAILURE:
+                draft.certifyPagetypeLoading = false;
+                draft.certifyPagetypeError = action.error;
                 break;
         }
     });
