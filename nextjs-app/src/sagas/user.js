@@ -89,7 +89,7 @@ function* loginRequest(action) {
 
 function certifyPageTypeAPI(data) {
     console.log("data", data);
-    return axios.post("/certify/pagetype", "AFTER_SERVICE");
+    return axios.post(`/certify/${data}`);
 }
 
 function* certifyPageType(action) {

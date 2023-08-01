@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AppLayout from "../../components/AppLayout";
 import { pageTypeMap } from "../../data/pageType";
@@ -11,15 +11,19 @@ const certify = () => {
     const { certifyPagetypeDone, certifyPageType } = useSelector(
         (state) => state.user
     );
+
+    const [pageType, setPageType] = useState(null);
     useEffect(() => {
-        const pageType = sessionStorage.getItem("beforeUrl");
+        setPageType(sessionStorage.getItem("beforeUrl"));
         if (pageType !== "" && pageType !== undefined) {
-            Certify.openCert(pageTypeMap[pageType]);
+            // Certify.openCert(pageTypeMap[pageType]);
             dispatch({
                 type: CERTIFY_PAGETYPE_REQUEST,
                 data: pageTypeMap[pageType],
             });
         }
+    }, []);
+    useEffect(() => {
         if (certifyPagetypeDone && pageType !== undefined && pageType !== "") {
             const params = {
                 urlCode: certifyPageType.urlCode,
@@ -30,7 +34,7 @@ const certify = () => {
                 },
             };
         }
-    }, [certifyPagetypeDone]);
+    }, [pageType, certifyPagetypeDone]);
 
     return <AppLayout>본인인증 1</AppLayout>;
 };
