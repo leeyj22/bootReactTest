@@ -14,6 +14,9 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("*")
                 .allowedOrigins(
                         "http://localhost:3000"
+                        , "http://localhost:8080"
+                        , "http://172.30.40.34:8080"
+                        , "http://172.30.40.34:3000"
                         , "http://localhost:4343"
                         , "https://t.bodyfriend.com"
                         , "https://tauth.bodyfriend.com/"

@@ -6,7 +6,7 @@
   "author": "Bodyfriend FrontDevelop",
   "proxy": "http://localhost:4343",
   "scripts": {
-    "dev": "next dev --port 8080",
+    "dev": "next",
     "build": "next build && next export",
     "start": "next start"
   },

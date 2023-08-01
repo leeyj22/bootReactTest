@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestController
+@Controller
 @Slf4j
 public class CertifyController {
 	@Autowired
@@ -34,6 +34,7 @@ public class CertifyController {
 	 * @return
 	 * @throws BFException
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/certify/requestCertification", method = RequestMethod.POST, produces="application/json")
 	public Response requestCertification(HttpSession session, HttpServletRequest request, @RequestBody Map<String, Object> params) throws BFException {
 		
@@ -74,7 +75,7 @@ public class CertifyController {
 	 * @throws 
 	 */
 	@RequestMapping(value="/certify/certifyResult")
-	public Response certifyResult(HttpSession session, HttpServletRequest request) throws BFException {
+	public String certifyResult(HttpSession session, HttpServletRequest request) throws BFException {
 		log.info("[CONTROLLER][CerfifyController][certifyResult][START]");
 
 		Response response = new BFResponse();
@@ -94,8 +95,9 @@ public class CertifyController {
 		response.setData(plusMap);
 
 		log.info("[CONTROLLER][CerfifyController][certifyResult][END]");
-		
-		return response;
+
+		return "redirect:http://localhost:8080/certify/certify_result";
+//		return response;
 	}
 	
 	/**
@@ -103,6 +105,7 @@ public class CertifyController {
 	 * @param pageType
 	 * @return
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/certify/{pageType}")
 	public Response certify(@PathVariable String pageType) {
 		log.info("[CONTROLLER][CerfifyController][certify][START]");

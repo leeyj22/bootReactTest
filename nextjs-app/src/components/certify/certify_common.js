@@ -66,15 +66,13 @@ const CertifyCommon = () => {
 
     return (
         <>
-            본인인증
-            {}
             {/* <iframe
                 id="iframeEle"
                 name="iframeEle"
                 style={{ overflow: "hidden" }}
             ></iframe> */}
             {certifyDone && cerfifyFormData !== null && (
-                <form name="reqKMCISForm">
+                <form name="reqKMCISForm" className="hdtxt">
                     <input type="hidden" name="tr_cert" />
                     <input type="hidden" name="tr_url" />
                     <input type="hidden" name="tr_add" />
