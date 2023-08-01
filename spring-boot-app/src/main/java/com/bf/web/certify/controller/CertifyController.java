@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller
+@RestController
 @Slf4j
 public class CertifyController {
 	@Autowired
@@ -34,7 +34,6 @@ public class CertifyController {
 	 * @return
 	 * @throws BFException
 	 */
-	@ResponseBody
 	@RequestMapping(value = "/certify/requestCertification", method = RequestMethod.POST, produces="application/json")
 	public Response requestCertification(HttpSession session, HttpServletRequest request, @RequestBody Map<String, Object> params) throws BFException {
 		
