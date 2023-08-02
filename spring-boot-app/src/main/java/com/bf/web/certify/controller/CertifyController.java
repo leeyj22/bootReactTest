@@ -50,27 +50,6 @@ public class CertifyController {
 	}
 	
 	/**
-	 * 본인 인증 화면 이동
-	 * @param 
-	 * @return
-	 * @throws 
-	 */
-//	@ResponseBody
-//	@RequestMapping(value="/certify/certifyCommon", method=RequestMethod.POST)
-//	public ModelAndView certifyCommon(HttpServletRequest request) throws BFException {
-//		log.info("[CONTROLLER][CerfifyController][certifyCommon][START]");
-//
-//		ModelAndView mav = new ModelAndView();
-//
-//		mav.addObject("params", request.getParameter("params"));
-//
-//		mav.setViewName("/web/certify/certify-common");
-//
-//		log.info("[CONTROLLER][CerfifyController][certifyCommon][END]");
-//		return mav;
-//	}
-	
-	/**
 	 * 본인 인증 결과
 	 * @param 
 	 * @return
@@ -95,7 +74,7 @@ public class CertifyController {
 		plusMap.put("birthDay"	, resultMap.get("birthDay"));
 
 		response.setData(plusMap);
-		redirectAttr.addAttribute("data", plusMap.toString());
+		redirectAttr.addAttribute("data", UtilManager.getJsonStringFromMap(plusMap));
 		log.info("[CONTROLLER][CerfifyController][certifyResult][END]");
 
 		return "redirect:http://localhost:3000/certify/certify_result";
