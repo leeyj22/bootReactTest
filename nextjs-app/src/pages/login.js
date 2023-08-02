@@ -15,7 +15,9 @@ const login = () => {
     const dispatch = useDispatch();
     const router = useRouter();
 
-    const { loginUrlDone, certifyInfo } = useSelector((state) => state.user);
+    const { loginUrlDone, certifyInfo, certifyState } = useSelector(
+        (state) => state.user
+    );
     const [startCertify, setStartCertify] = useState(false);
 
     useEffect(() => {
@@ -29,13 +31,6 @@ const login = () => {
     useEffect(() => {
         const getCertifyResult = (event) => {
             if (event.origin === window.location.origin) {
-                //기존 데이터 삭제
-                sessionStorage.removeItem("CertUserName");
-                sessionStorage.removeItem("CertPhoneNo");
-                sessionStorage.removeItem("CertGender");
-                sessionStorage.removeItem("CertBirthDay");
-                //기존 쿠키 삭제
-                Cookies.remove("cert_user_di");
                 //본인인증 완료 후 이벤트 동작.
                 if (
                     event.data.certifyInfoState !== undefined &&
@@ -46,37 +41,6 @@ const login = () => {
                         type: CERTIFY_SAVE_REQUEST,
                         data: event.data,
                     });
-                    //본인인증 데이터 저장
-                    sessionStorage.setItem("CertUserName", certifyInfo.name);
-                    sessionStorage.setItem("CertPhoneNo", certifyInfo.phoneNo);
-                    sessionStorage.setItem(
-                        "CertGender",
-                        certifyInfo.gender == "1" ? 0 : 1
-                    );
-                    // 본인인증시 : 여자 1, 남자0 들어옴.
-                    // 홈페이지저장은 :여자 0 남자 1
-                    sessionStorage.setItem(
-                        "CertBirthDay",
-                        certifyInfo.birthDay
-                    );
-
-                    //기존 URL 이동
-                    const beforeUrl = sessionStorage.getItem("beforeUrl");
-
-                    console.log("certifyInfo.userDI", certifyInfo.userDI);
-
-                    //쿠키저장
-                    Cookies.set("cert_user_di", certifyInfo.userDI, {
-                        expires: 0.5,
-                        path: `"${beforeUrl}"`,
-                    });
-
-                    //이전 페이지 이동
-                    if (beforeUrl == null || beforeUrl == undefined) {
-                        router.push("/");
-                    } else {
-                        router.push(beforeUrl);
-                    }
                 }
             }
         };
@@ -88,6 +52,46 @@ const login = () => {
             window.removeEventListener("message", getCertifyResult);
         };
     }, []);
+
+    useEffect(() => {
+        if (certifyInfo !== null && certifyInfo !== undefined && certifyState) {
+            //기존 데이터 삭제
+            sessionStorage.removeItem("CertUserName");
+            sessionStorage.removeItem("CertPhoneNo");
+            sessionStorage.removeItem("CertGender");
+            sessionStorage.removeItem("CertBirthDay");
+            //기존 쿠키 삭제
+            Cookies.remove("cert_user_di");
+            //본인인증 데이터 저장
+            sessionStorage.setItem("CertUserName", certifyInfo.name);
+            sessionStorage.setItem("CertPhoneNo", certifyInfo.phoneNo);
+            sessionStorage.setItem(
+                "CertGender",
+                certifyInfo.gender == "1" ? 0 : 1
+            );
+            // 본인인증시 : 여자 1, 남자0 들어옴.
+            // 홈페이지저장은 :여자 0 남자 1
+            sessionStorage.setItem("CertBirthDay", certifyInfo.birthDay);
+
+            //기존 URL 이동
+            const beforeUrl = sessionStorage.getItem("beforeUrl");
+
+            console.log("certifyInfo.userDI", certifyInfo.userDI);
+
+            //쿠키저장
+            Cookies.set("cert_user_di", certifyInfo.userDI, {
+                expires: 0.5,
+                path: `"${beforeUrl}"`,
+            });
+
+            //이전 페이지 이동
+            if (beforeUrl == null || beforeUrl == undefined) {
+                router.push("/");
+            } else {
+                router.push(beforeUrl);
+            }
+        }
+    }, [certifyInfo !== null && certifyInfo !== undefined, certifyState]);
 
     //통합 로그인 이동
     const handleLinkLogin = () => {
