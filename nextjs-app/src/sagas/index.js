@@ -5,7 +5,6 @@ import userSaga from "./user";
 
 export default function* rootSaga() {
     axios.defaults.baseURL = backUrl;
-    console.log("backUrl", backUrl);
     axios.defaults.withCredentials = true;
     yield all([fork(userSaga)]);
 }

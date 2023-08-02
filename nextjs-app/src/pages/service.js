@@ -9,17 +9,23 @@ import Button from "../components/form/button";
 import ServiceForm from "../components/service/serviceForm";
 import { useSelector } from "react-redux";
 import { useSaveBeforePathname } from "../hooks/useSaveBeforePathname";
-
+import { useRouter } from "next/router";
+import Cookies from "js-cookie";
+import { END } from "redux-saga";
+import axios from "axios";
+import wrapper from "../store/configureStore";
+import { LOAD_USER_INFO_REQUEST } from "../reducers/user";
 //서비스 접수 service1
 
 const Service = () => {
+    const router = useRouter();
     useSaveBeforePathname();
     const { loginDone } = useSelector((state) => state.user);
     const [formData, setFormData] = useState({});
 
     useEffect(() => {
         if (!loginDone) {
-            location.href = "/login";
+            // router.push("/login");
         }
     }, [loginDone]);
 
@@ -63,5 +69,24 @@ const Service = () => {
         </AppLayout>
     );
 };
+
+export const getServerSideProps = wrapper.getServerSideProps(
+    (store) =>
+        async ({ req, res, ...data }) => {
+            const cookie = req ? req.headers.cookie : "";
+
+            console.log("cookie", cookie);
+            axios.defaults.headers.Cookie = "";
+            if (req && cookie) {
+                axios.defaults.headers.Cookie = cookie;
+            }
+            store.dispatch({
+                type: LOAD_USER_INFO_REQUEST,
+            });
+            store.dispatch(END);
+
+            await store.sagaTask.toPromise();
+        }
+);
 
 export default Service;

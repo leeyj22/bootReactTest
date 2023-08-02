@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ImgUrl } from "../hooks/imgurl";
 import { useDispatch, useSelector } from "react-redux";
 import { LOGIN_URL_REQUEST } from "../reducers/user";
+import { useRouter } from "next/router";
 
 const headerUi = (otherLinkRef) => {
     const headerEl = document.querySelector("#header");
@@ -107,6 +108,7 @@ const Headers = () => {
     const dispatch = useDispatch();
     const otherLinkRef = useRef(null);
     const loginstate = false;
+    const router = useRouter();
 
     const { loginUrlDone, loginUrl } = useSelector((state) => state.user);
 

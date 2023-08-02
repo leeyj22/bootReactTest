@@ -11,7 +11,7 @@ const CertifyCommon = () => {
         certifyPagetypeDone,
         certifyPageType,
         certifyDone,
-        cerfifyFormData,
+        certifyFormData,
     } = useSelector((state) => state.user);
 
     //본인인증 1
@@ -58,11 +58,11 @@ const CertifyCommon = () => {
 
     //본인인증 3 : 인증팝업 열기
     useEffect(() => {
-        if (certifyDone && cerfifyFormData !== null) {
+        if (certifyDone && certifyFormData !== null) {
             console.log("333");
-            Certify.openKMCISWindow("reqKMCISForm", cerfifyFormData);
+            Certify.openKMCISWindow("reqKMCISForm", certifyFormData);
         }
-    }, [certifyDone, cerfifyFormData]);
+    }, [certifyDone, certifyFormData]);
 
     return (
         <>
@@ -71,7 +71,7 @@ const CertifyCommon = () => {
                 name="iframeEle"
                 style={{ overflow: "hidden" }}
             ></iframe> */}
-            {certifyDone && cerfifyFormData !== null && (
+            {certifyDone && certifyFormData !== null && (
                 <form name="reqKMCISForm" className="hdtxt">
                     <input type="hidden" name="tr_cert" />
                     <input type="hidden" name="tr_url" />

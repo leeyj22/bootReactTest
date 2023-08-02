@@ -17,6 +17,7 @@
     "axios": "^1.4.0",
     "cross-env": "^7.0.3",
     "immer": "^9.0.15",
+    "js-cookie": "^3.0.5",
     "next": "^13.4.10",
     "next-redux-wrapper": "^8.1.0",
     "prop-types": "^15.8.1",

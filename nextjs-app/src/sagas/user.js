@@ -16,6 +16,9 @@ import {
     CERTIFY_REQUEST,
     CERTIFY_SUCCESS,
     CERTIFY_FAILURE,
+    LOAD_USER_INFO_REQUEST,
+    LOAD_USER_INFO_SUCCESS,
+    LOAD_USER_INFO_FAILURE,
 } from "../reducers/user";
 
 function getTestAPI(data) {
@@ -134,6 +137,29 @@ function* certifyRequest(action) {
     }
 }
 
+//로그인, 본인인증 상태 여부 체크(ssr)
+function loadUserInfoAPI() {
+    return axios.get(`/certify/requestCertification`);
+}
+
+function* loadUserInfo() {
+    try {
+        const result = yield call(loadUserInfoAPI);
+        console.log("loadUserInfoAPI result", result);
+
+        yield put({
+            type: LOAD_USER_INFO_SUCCESS,
+            data: result.data.data,
+        });
+    } catch (err) {
+        console.error(err);
+        yield put({
+            type: LOAD_USER_INFO_FAILURE,
+            data: err.response.data,
+        });
+    }
+}
+
 function* watchLoadTest() {
     yield takeLatest(GET_TEST_APT_REQUEST, getTest);
 }
@@ -149,6 +175,9 @@ function* watchCertifyPageType() {
 function* watchCertify() {
     yield takeLatest(CERTIFY_REQUEST, certifyRequest);
 }
+function* watchLoadUserInfo() {
+    yield takeLatest(LOAD_USER_INFO_REQUEST, loadUserInfo);
+}
 
 export default function* userSaga() {
     yield all([fork(watchLoadTest)]);
@@ -156,4 +185,5 @@ export default function* userSaga() {
     yield all([fork(watchLogin)]);
     yield all([fork(watchCertifyPageType)]);
     yield all([fork(watchCertify)]);
+    yield all([fork(watchLoadUserInfo)]);
 }
