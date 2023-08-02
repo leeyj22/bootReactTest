@@ -448,7 +448,6 @@ public class CertifyService {
                         
                     // 명의 변경
                     case "CHANGE_NAME":           
-                        
                         gender = gender.equals("0") ? "1" : "2"; // ERP 설정으로 수정
                         resultMap.put("gender", gender);
                         
@@ -470,10 +469,8 @@ public class CertifyService {
                         log.info("[CERTIFY][SERVICE][CertifyService][_setPageInfo][CHANGE_NAME][plusInfoMap] : {}", plusInfoMap.toString());
                         
                         return plusInfoMap.toString();                        
-                        
                     // 고객 번호 변경
                     case "CHANGE_PHONE":
-                        
 //                        Map<String, Object> certUserInfo = new HashMap<String, Object>();
 //                        certUserInfo.put("certName", name);
 //                        certUserInfo.put("certPhoneNo", phoneNo);
@@ -484,7 +481,20 @@ public class CertifyService {
 //                        plusInfoMap.put("statusMessage", res.getStatus().get("message"));
 //
 //                        return plusInfoMap.toString();
-                }
+					case "AFTER_SERVICE":
+						session.setAttribute("name",        name);
+						session.setAttribute("phoneNo",     phoneNo);
+						session.setAttribute("gender",      gender);
+						session.setAttribute("birthDay",    birthDay);
+						session.setAttribute("plusInfo",    plusInfo);
+						session.setAttribute("userDI",      resultMap.get("DI").toString());
+						session.setAttribute("userCI",      resultMap.get("CI").toString());
+						plusInfoMap.put("userDI", session.getAttribute("userDI"));
+
+						log.info("[CERTIFY][SERVICE][CertifyService][_setPageInfo][AFTER_SERVICE][plusInfoMap] : {}", plusInfoMap.toString());
+
+						return plusInfoMap.toString();
+				}
     	    }
     	    
 	    } catch (Exception e) {
