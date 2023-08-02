@@ -167,15 +167,15 @@ function certifyUserInfoAPI() {
     return axios.get(`/certify/certifyCheck`);
 }
 
-function* certifyUserInfo() {
+function* certifyUserInfo(action) {
     try {
         const result = yield call(certifyUserInfoAPI);
         console.log("certifyUserInfoAPI result", result);
 
-        // yield put({
-        //     type: CERTIFY_USER_INFO_SUCCESS,
-        //     data: result.data,
-        // });
+         yield put({
+             type: CERTIFY_USER_INFO_SUCCESS,
+             data: result.data.data.isCertify,
+         });
     } catch (err) {
         console.error(err);
         yield put({

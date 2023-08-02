@@ -171,7 +171,7 @@ export const reducer = (state = initalState, action) => {
             case CERTIFY_USER_INFO_SUCCESS:
                 draft.certifyStateLoading = false;
                 draft.certifyStateDone = true;
-                draft.certifyState = true;
+                draft.certifyState = action.data;
                 break;
             case CERTIFY_USER_INFO_FAILURE:
                 draft.certifyStateLoading = false;
