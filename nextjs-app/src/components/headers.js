@@ -107,10 +107,11 @@ const headerUi = (otherLinkRef) => {
 const Headers = () => {
     const dispatch = useDispatch();
     const otherLinkRef = useRef(null);
-    const loginstate = false;
     const router = useRouter();
 
-    const { loginUrlDone, loginUrl } = useSelector((state) => state.user);
+    const { loginUrlDone, loginDone, loginUrl } = useSelector(
+        (state) => state.user
+    );
 
     useEffect(() => {
         if (loginUrlDone) {
@@ -307,7 +308,7 @@ const Headers = () => {
                 </nav>
 
                 <div className="util">
-                    {loginstate ? (
+                    {loginDone ? (
                         <>
                             <Link href="/" className="">
                                 마이페이지

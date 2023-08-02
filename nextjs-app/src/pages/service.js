@@ -14,20 +14,25 @@ import Cookies from "js-cookie";
 import { END } from "redux-saga";
 import axios from "axios";
 import wrapper from "../store/configureStore";
-import { LOAD_USER_INFO_REQUEST } from "../reducers/user";
+import {
+    CERTIFY_USER_INFO_REQUEST,
+    LOAD_USER_INFO_REQUEST,
+} from "../reducers/user";
 //서비스 접수 service1
 
 const Service = () => {
     const router = useRouter();
     useSaveBeforePathname();
-    const { loginDone } = useSelector((state) => state.user);
+    const { loginDone, certifyState } = useSelector((state) => state.user);
     const [formData, setFormData] = useState({});
 
     useEffect(() => {
-        if (!loginDone) {
-            // router.push("/login");
+        //회원이 아닌 본인인증의 경우 certifyState true
+        //회원일 경우 loginDone true , user 데이터 있음.
+        if (!certifyState && !loginDone) {
+            router.push("/login");
         }
-    }, [loginDone]);
+    }, [loginDone, certifyState]);
 
     const handleFormChange = (changedData) => {
         setFormData(changedData);
@@ -40,7 +45,7 @@ const Service = () => {
     return (
         <AppLayout>
             <Breadcrumb pageId="service" pageSubId="service1" />
-            {loginDone && (
+            {(loginDone || certifyState) && (
                 <Container>
                     <PageName title="서비스 접수" />
 
@@ -75,14 +80,16 @@ export const getServerSideProps = wrapper.getServerSideProps(
         async ({ req, res, ...data }) => {
             const cookie = req ? req.headers.cookie : "";
 
-            console.log("cookie", cookie);
             axios.defaults.headers.Cookie = "";
             if (req && cookie) {
                 axios.defaults.headers.Cookie = cookie;
             }
+            console.log("cookie", cookie);
+
             store.dispatch({
-                type: LOAD_USER_INFO_REQUEST,
+                type: CERTIFY_USER_INFO_REQUEST,
             });
+
             store.dispatch(END);
 
             await store.sagaTask.toPromise();

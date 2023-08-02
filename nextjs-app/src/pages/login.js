@@ -4,10 +4,7 @@ import AppLayout from "../components/AppLayout";
 import Breadcrumb from "../components/breadcrumb";
 import { Container, LoginContainer } from "../style/AppCommonStyle";
 import { useDispatch, useSelector } from "react-redux";
-import {
-    CERTIFY_SAVE_LOCALSTOREGE_REQUEST,
-    LOGIN_URL_REQUEST,
-} from "../reducers/user";
+import { CERTIFY_SAVE_REQUEST, LOGIN_URL_REQUEST } from "../reducers/user";
 import CertifyCommon from "../components/certify/certify_common";
 import { END } from "redux-saga";
 import axios from "axios";
@@ -18,9 +15,7 @@ const login = () => {
     const dispatch = useDispatch();
     const router = useRouter();
 
-    const { loginUrlDone, loginUrl, certifyInfo, loginDone } = useSelector(
-        (state) => state.user
-    );
+    const { loginUrlDone, certifyInfo } = useSelector((state) => state.user);
     const [startCertify, setStartCertify] = useState(false);
 
     useEffect(() => {
@@ -34,69 +29,65 @@ const login = () => {
     useEffect(() => {
         const getCertifyResult = (event) => {
             if (event.origin === window.location.origin) {
-                // 팝업 창으로부터 받은 데이터를 사용
+                //기존 데이터 삭제
+                sessionStorage.removeItem("CertUserName");
+                sessionStorage.removeItem("CertPhoneNo");
+                sessionStorage.removeItem("CertGender");
+                sessionStorage.removeItem("CertBirthDay");
+                //기존 쿠키 삭제
+                Cookies.remove("cert_user_di");
+                //본인인증 완료 후 이벤트 동작.
                 if (
                     event.data.certifyInfoState !== undefined &&
                     event.data.certifyInfoState
                 ) {
-                    //object 상태 다시 저장
-                    console.log("event.data", event.data);
+                    //본인인증 데이터 저장 요청
                     dispatch({
-                        type: CERTIFY_SAVE_LOCALSTOREGE_REQUEST,
+                        type: CERTIFY_SAVE_REQUEST,
                         data: event.data,
                     });
+                    //본인인증 데이터 저장
+                    sessionStorage.setItem("CertUserName", certifyInfo.name);
+                    sessionStorage.setItem("CertPhoneNo", certifyInfo.phoneNo);
+                    sessionStorage.setItem(
+                        "CertGender",
+                        certifyInfo.gender == "1" ? 0 : 1
+                    );
+                    // 본인인증시 : 여자 1, 남자0 들어옴.
+                    // 홈페이지저장은 :여자 0 남자 1
+                    sessionStorage.setItem(
+                        "CertBirthDay",
+                        certifyInfo.birthDay
+                    );
+
+                    //기존 URL 이동
+                    const beforeUrl = sessionStorage.getItem("beforeUrl");
+
+                    console.log("certifyInfo.userDI", certifyInfo.userDI);
+
+                    //쿠키저장
+                    Cookies.set("cert_user_di", certifyInfo.userDI, {
+                        expires: 0.5,
+                        path: `"${beforeUrl}"`,
+                    });
+
+                    //이전 페이지 이동
+                    if (beforeUrl == null || beforeUrl == undefined) {
+                        router.push("/");
+                    } else {
+                        router.push(beforeUrl);
+                    }
                 }
             }
         };
 
+        // 팝업 창으로부터 메시지를 받는 이벤트 리스너
         window.addEventListener("message", getCertifyResult);
 
         return () => {
             window.removeEventListener("message", getCertifyResult);
         };
     }, []);
-
-    useEffect(() => {
-        if (certifyInfo !== null && certifyInfo !== undefined && loginDone) {
-            // 팝업 창으로부터 메시지를 받는 이벤트 리스너
-            console.log("login!! certifyInfo", certifyInfo);
-            //기존 데이터 삭제
-            sessionStorage.removeItem("CertUserName");
-            sessionStorage.removeItem("CertPhoneNo");
-            sessionStorage.removeItem("CertGender");
-            sessionStorage.removeItem("CertBirthDay");
-            sessionStorage.removeItem("CertUserDI");
-
-            //본인인증 데이터 저장
-            sessionStorage.setItem("CertUserDI", certifyInfo.userDI);
-            sessionStorage.setItem("CertUserName", certifyInfo.name);
-            sessionStorage.setItem("CertPhoneNo", certifyInfo.phoneNo);
-            sessionStorage.setItem(
-                "CertGender",
-                certifyInfo.gender == "1" ? 0 : 1
-            );
-            // 본인인증시 : 여자 1, 남자0 들어옴.
-            // 신용평가,렌탈가능여부 : 여자0, 남자1 사용해서 변환.(저장)
-            sessionStorage.setItem("CertBirthDay", certifyInfo.birthDay);
-
-            //기존 URL 이동
-            const beforeUrl = sessionStorage.getItem("beforeUrl");
-
-            console.log("certifyInfo.userDI", certifyInfo.userDI);
-
-            //쿠키저장
-            Cookies.set("CertUserDI", certifyInfo.userDI, {
-                expires: 0.5,
-                path: `"${beforeUrl}"`,
-            });
-            console.log("beforeUrl", beforeUrl);
-            if (beforeUrl == null) {
-                router.push("/");
-            } else {
-                router.push(beforeUrl);
-            }
-        }
-    }, [certifyInfo !== null && certifyInfo !== undefined, loginDone == true]);
 
     //통합 로그인 이동
     const handleLinkLogin = () => {
@@ -109,6 +100,7 @@ const login = () => {
     const handleLinkCertify = () => {
         setStartCertify(true);
     };
+
     return (
         <AppLayout>
             <Breadcrumb pageId="service" pageSubId="service1" />
@@ -139,6 +131,7 @@ const login = () => {
                         </button>
                     </div>
                 </LoginContainer>
+                {/* ▼▼▼ 본인인증 컴포넌트 ▼▼▼ */}
                 {startCertify && <CertifyCommon />}
             </Container>
         </AppLayout>

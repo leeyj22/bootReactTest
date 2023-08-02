@@ -11,6 +11,7 @@ const certify_result = () => {
         if (certifyInfo !== null && certifyInfo !== undefined) {
             const certifyInfoObj = JSON.parse(certifyInfo);
             certifyInfoObj.certifyInfoState = true;
+            //부모창 login으로 event 데이터 전달.
             window.opener.postMessage(certifyInfoObj);
             const closePop = setTimeout(() => {
                 const UserAgent = navigator.userAgent;

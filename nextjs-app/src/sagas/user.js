@@ -19,8 +19,12 @@ import {
     LOAD_USER_INFO_REQUEST,
     LOAD_USER_INFO_SUCCESS,
     LOAD_USER_INFO_FAILURE,
+    CERTIFY_USER_INFO_SUCCESS,
+    CERTIFY_USER_INFO_FAILURE,
+    CERTIFY_USER_INFO_REQUEST,
 } from "../reducers/user";
 
+//test
 function getTestAPI(data) {
     console.log("data???", data);
     return axios.get(`/api/userdata?userid=${data}`);
@@ -90,7 +94,28 @@ function* loginRequest(action) {
         });
     }
 }
+//로그인 상태 여부 체크(ssr)
+function loadUserInfoAPI() {
+    return axios.get(`/certify/certifyCheck`);
+}
 
+function* loadUserInfo() {
+    try {
+        const result = yield call(loadUserInfoAPI);
+        console.log("loadUserInfoAPI result", result);
+
+        yield put({
+            type: LOAD_USER_INFO_SUCCESS,
+            data: result.data.data,
+        });
+    } catch (err) {
+        console.error(err);
+        yield put({
+            type: LOAD_USER_INFO_FAILURE,
+            data: err.response.data,
+        });
+    }
+}
 //본인인증1
 function certifyPageTypeAPI(data) {
     return axios.post(`/certify/${data}`);
@@ -137,24 +162,24 @@ function* certifyRequest(action) {
     }
 }
 
-//로그인, 본인인증 상태 여부 체크(ssr)
-function loadUserInfoAPI() {
-    return axios.get(`/certify/requestCertification`);
+//본인인증 상태 여부 체크(ssr)
+function certifyUserInfoAPI() {
+    return axios.get(`/certify/certifyCheck`);
 }
 
-function* loadUserInfo() {
+function* certifyUserInfo() {
     try {
-        const result = yield call(loadUserInfoAPI);
-        console.log("loadUserInfoAPI result", result);
+        const result = yield call(certifyUserInfoAPI);
+        console.log("certifyUserInfoAPI result", result);
 
-        yield put({
-            type: LOAD_USER_INFO_SUCCESS,
-            data: result.data.data,
-        });
+        // yield put({
+        //     type: CERTIFY_USER_INFO_SUCCESS,
+        //     data: result.data,
+        // });
     } catch (err) {
         console.error(err);
         yield put({
-            type: LOAD_USER_INFO_FAILURE,
+            type: CERTIFY_USER_INFO_FAILURE,
             data: err.response.data,
         });
     }
@@ -175,6 +200,9 @@ function* watchCertifyPageType() {
 function* watchCertify() {
     yield takeLatest(CERTIFY_REQUEST, certifyRequest);
 }
+function* watchCertifyUserInfo() {
+    yield takeLatest(CERTIFY_USER_INFO_REQUEST, certifyUserInfo);
+}
 function* watchLoadUserInfo() {
     yield takeLatest(LOAD_USER_INFO_REQUEST, loadUserInfo);
 }
@@ -185,5 +213,6 @@ export default function* userSaga() {
     yield all([fork(watchLogin)]);
     yield all([fork(watchCertifyPageType)]);
     yield all([fork(watchCertify)]);
+    yield all([fork(watchCertifyUserInfo)]);
     yield all([fork(watchLoadUserInfo)]);
 }
