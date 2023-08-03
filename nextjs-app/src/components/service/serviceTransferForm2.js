@@ -132,9 +132,9 @@ const ServiceTransferForm2 = ({ onFormChange }) => {
                         zipcode="zipCode1"
                         addr1="orderAddr1"
                         addr2="orderAddr2"
-                        handleChange={handleChange}
                         formData={formData}
                         setFormData={setFormData}
+                        onFormChange={onFormChange}
                     />
                 </div>
 
@@ -243,9 +243,9 @@ const ServiceTransferForm2 = ({ onFormChange }) => {
                         zipcode="zipCode2"
                         addr1="receiveAddr1"
                         addr2="receiverAddr2"
-                        handleChange={handleChange}
                         formData={formData}
                         setFormData={setFormData}
+                        onFormChange={onFormChange}
                     />
                 </div>
 

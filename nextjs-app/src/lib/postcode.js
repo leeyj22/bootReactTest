@@ -1,71 +1,58 @@
-import React, { useEffect, useState } from "react";
+export const PostCode = {
+    currentOS: null,
+    callback: null,
+    _popOpt: null,
+    init: (callback) => {
+        window.addEventListener("message", PostCode.handleMessage);
 
-export const PostCode = () => {
-    let _popOpt = "";
-    const [postData, setPostData] = useState({});
-    const [currentOS, setCurrentOS] = useState(null);
-
-    const jusoCallBack = (data) => {
-        console.log("data", data);
-        setPostData({
-            ...data,
-        });
-    };
-    const handleMessage = (e) => {
-        console.log("e.origin", e.origin);
-        if (e.origin === "https://api.bodyfriend.co.kr") {
-            jusoCallBack(e.data);
+        PostCode.getCurrentOs();
+        if (PostCode.currentOS === "nomobile") {
+            // pc
+            PostCode._popOpt =
+                "width=570,height=420, scrollbars=yes, resizable=yes";
+        } else {
+            // mobile
+            PostCode._popOpt = "scrollbars=yes, resizable=yes";
         }
-    };
-
-    const searchPostcode = (visibleState) => {
-        visibleState &&
-            window.open(
-                "https://api.bodyfriend.co.kr/address/v2/juso?currentOS=" +
-                    currentOS,
-                "pop",
-                _popOpt
-            );
-    };
-
-    useEffect(() => {
-        // OS 판별
-        const broswerInfo = navigator.userAgent;
-        const userAgent = broswerInfo.toLowerCase();
-        const mobile = /iphone|ipad|ipod|android/i.test(userAgent);
+        PostCode.callback = callback;
+        PostCode.searchPostcode();
+    },
+    handleMessage: (e) => {
+        if (e.origin == "https://api.bodyfriend.co.kr") {
+            PostCode.jusoCallBack(e.data);
+        }
+    },
+    searchPostcode: () => {
+        window.open(
+            "https://api.bodyfriend.co.kr/address/v2/juso?currentOS=" +
+                PostCode.currentOS,
+            "pop",
+            PostCode._popOpt
+        );
+    },
+    jusoCallBack: (data) => {
+        if (PostCode.callback != void 0) {
+            PostCode.callback != void 0 && PostCode.callback(data);
+        }
+    },
+    getCurrentOs: () => {
+        const broswerInfo = navigator.userAgent,
+            userAgent = broswerInfo.toLowerCase(),
+            mobile = /iphone|ipad|ipod|android/i.test(userAgent);
 
         if (mobile) {
-            if (userAgent.search("android") > -1) setCurrentOS("android");
+            // 유저에이전트를 불러와서 OS를 구분합니다.
+            if (userAgent.search("android") > -1) this.currentOS = "android";
             else if (
                 userAgent.search("iphone") > -1 ||
                 userAgent.search("ipod") > -1 ||
                 userAgent.search("ipad") > -1
             )
-                setCurrentOS("ios");
-            else setCurrentOS("else");
+                PostCode.currentOS = "ios";
+            else PostCode.currentOS = "else";
         } else {
-            setCurrentOS("nomobile");
+            // 모바일이 아닐 때
+            PostCode.currentOS = "nomobile";
         }
-
-        // 팝업 옵션 설정
-        if (currentOS === "nomobile") {
-            // pc
-            _popOpt = "width=570,height=420, scrollbars=yes, resizable=yes";
-        } else {
-            // mobile
-            _popOpt = "scrollbars=yes, resizable=yes";
-        }
-
-        // 이벤트 리스너 등록
-        window.addEventListener("message", handleMessage);
-
-        searchPostcode();
-
-        // 컴포넌트 언마운트 시 이벤트 리스너 해제
-        return () => {
-            window.removeEventListener("message", handleMessage);
-        };
-    }, [currentOS]); // currentOS가 변경될 때마다 useEffect가 호출되도록 설정
-
-    return { postData, searchPostcode };
+    },
 };
