@@ -5,6 +5,7 @@ import wrapper from "../../store/configureStore";
 import { CERTIFY_SAVE_SSR_REQUEST } from "../../reducers/user";
 import { useSelector } from "react-redux";
 
+//본인인증 결과 화면
 const certify_result = () => {
     const { certifyInfo } = useSelector((state) => state.user);
     useEffect(() => {

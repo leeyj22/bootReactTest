@@ -2,17 +2,20 @@
 
 .form-write-basic{
     *{
-        color:$color-black2;
+        color:$color-black-2;
     }
     .necessary{
         &:after{
             content: '*';
             display: inline-block;
             margin-left: 3px;
-            color: $color-redf0;
+            color: $color-redf-0;
             vertical-align: text-top;
             font-weight: 700;
         }
+    }
+    .txt{
+        font-size:1.6rem;
     }
     input[type=text],
     select,
@@ -23,6 +26,28 @@
         border-color: $color-border1;
         border-style: solid;
         font-size:1.6rem;
+    }
+    .col-1,
+    .col-2,
+    .col-3{
+        display:flex;
+        justify-content: space-between;
+        margin-bottom:10px;
+    }
+    .col-1{
+        & > .col{
+            width:100%;
+        }
+    }
+    .col-2{
+        & > .col{
+            width:calc(50% - 5px);
+        }
+    }
+    .col-3{
+        & > .col{
+            width:calc(33.33% - 5px);
+        }
     }
     .form-item{
         input[type=text],
@@ -50,11 +75,71 @@
             max-width: 440px;
         }
         .btn-zip{
-            @include btn(15px,190px,66px,2rem,10px,$color-white,$color-black2);
+            @include btn(15px,190px,66px,2rem,10px,$color-white,$color-black-2);
         }
     }
 }
 
+// 폼 작성란
+.form-write-item{
+    margin-bottom:20px;
+    //title
+    .form-title{
+        margin-bottom:15px;
+        font-size:2rem;
+        font-weight: 700;
+    }
+    //selectbox
+    .form-selectbox{
+        label{
+            position: absolute;
+            opacity: 0;
+            text-indent: -9999px;
+            width: 0;
+            height: 0;
+        }
+    }   
+    //radio-btn
+    .form-radio-btns{
+        .radio-btn{
+            span{
+                display: block;
+                margin-bottom: 10px;
+                padding:20px;
+                border:1px solid $color-border1;
+                border-radius: 10px;
+                cursor: pointer;
+                &:first-child{
+                    font-size:2rem;
+                    padding-left:50px;
+                    background-image: url($icon-radio-off);
+                    background-position: 20px center;
+                    background-repeat: no-repeat;
+                }
+            }
+            input:checked + label{
+                span{
+                    border-color:$color-primary;
+                }
+                span:first-child{
+                    background-image: url($icon-radio-on);
+                    
+                }
+            }
+        }
+    }
+    // 정보 동일 체크
+    .form-write-same-chk{
+        display: flex;
+        justify-content: end;
+        font-size:2rem;
+        label{
+            
+        }
+    }
+}
+
+// 폼 타이틀
 .form-write-title{
     display: flex;
     justify-content: space-between;
@@ -75,46 +160,6 @@
         font-size:1.6rem;
     }
 }
-
-.form-write-item{
-    margin-bottom:20px;
-    .form-item{
-        display:flex;
-        justify-content: space-between;
-        margin-bottom:10px;
-        &.col-1{
-            & > .col{
-                width:100%;
-            }
-        }
-        &.col-2{
-            & > .col{
-                width:calc(50% - 5px);
-            }
-        }
-        &.col-3{
-            & > .col{
-                width:calc(33.33% - 5px);
-            }
-        }
-    }
-    .form-title{
-        margin-bottom:15px;
-        font-size:2rem;
-        font-weight: 700;
-    }
-
-    .form-selectbox{
-        label{
-            position: absolute;
-            opacity: 0;
-            text-indent: -9999px;
-            width: 0;
-            height: 0;
-        }
-    }   
-}
-
 
 // 이용약관
 .term-agree-wrap{

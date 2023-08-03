@@ -19,12 +19,22 @@ const index = () => {
         <AppLayout>
             <Container>
                 <PageName />
-                <button onClick={() => plz()}>버튼</button>
+                <button onClick={() => plz()}> API연결확인 테스트 버튼</button>
                 <br />
-                <Link href="/service">서비스접수페이지 이동</Link>
+                <br />
+                <br />
+                <Link href="/service">서비스접수이동</Link>
+                <br />
+                <br />
+                <br />
+                <Link href="/service_transfer">이전/설치 접수 이동</Link>
+                <br />
+                <br />
                 <br />
                 <Link href="/qna">자주 묻는 질문 qna</Link>
-                <h3>리스트</h3>
+                <br />
+                <br />
+                <br />
             </Container>
         </AppLayout>
     );

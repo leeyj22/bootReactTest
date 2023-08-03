@@ -1,5 +1,5 @@
 export const pageTypeMap = {
     "/service": "AFTER_SERVICE",
-    "/test": "TEST",
+    "/service_transfer": "TRANSFER",
     "/": "CERTIFY",
 };

@@ -21,7 +21,7 @@ export const menu = {
     ],
     service: [
         { id: "service1", link: "/service", name: "서비스 접수" },
-        { id: "service2", link: "/service", name: "이전/설치 접수" },
+        { id: "service2", link: "/service_transfer", name: "이전/설치 접수" },
         { id: "service3", link: "/service", name: "분해/조립 접수" },
         { id: "service4", link: "/service", name: "서비스 요금 안내" },
         { id: "service5", link: "/service", name: "서비스 진행 현황" },
