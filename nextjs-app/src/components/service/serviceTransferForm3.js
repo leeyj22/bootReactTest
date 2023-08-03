@@ -1,18 +1,26 @@
 import React, { useCallback, useState } from "react";
 import FormWriteTitle from "../form/formWriteTitle";
+import AddrForm from "../form/addrForm";
+import Calendar from "../form/calendar";
 
-const ServiceTransferForm3 = ({ onFormChange }) => {
+const ServiceTransferForm2 = ({ onFormChange }) => {
     const [formData, setFormData] = useState({
-        //이전설치접수1 초기값 설정
-        bodyNo: "", //ERP CUSTCODE(서비스배송 bodyNo)
-        modelCode: "", //제품코드
-        goodsName: "", //주문 상품명
-        goodsIdx: "", //상품 Index,
-        goodsQty: "", //상품 수량
-        grpcode: "", // 안마의자 M, 라클라우드 L, 정수기 W
-        // goodsPrice: "", //상품 가격
-        orderType: "", //주문타입(구매/렌탈 여부)
-        orderTypeSub: "", //주문타입 sub(구매/렌탈 여부 서브)
+        //이전설치접수2 초기값 설정 : 회수 정보, 설치 정보
+        orderPerson: "", // 회수자 이름
+        telNumb01: "", //회수자 연락처1
+        telNumb01_01: "", //회수자 연락처2
+        telNumb01_02: "", //회수자 연락처3
+        zipCode1: "", //회수 우편번호
+        orderAddr1: "", //회수 주소
+        orderAddr2: "", //회수 상세 주소
+        unInsDate: "", //회수 희망일
+        receiver: "", //설치자 이름
+        telNumb02: "", //설치자 연락처1
+        telNumb02_01: "", //설치자 연락처2
+        telNumb02_02: "", //설치자 연락처3
+        zipCode2: "", //설치 우편번호
+        receiveAddr1: "", //설치 주소
+        receiverAddr2: "", //설치 상세 주소
     });
 
     const handleChange = useCallback(
@@ -37,191 +45,113 @@ const ServiceTransferForm3 = ({ onFormChange }) => {
         <>
             <article className="form-write-basic">
                 <FormWriteTitle
-                    title="1. 제품 선택"
+                    title="2. 설치 정보"
                     service="serviceTransfer"
                 />
 
-                {/* 제품 */}
+                <div className="form-write-item">
+                    <div className="form-write-same-chk">
+                        <input type="checkbox" name="" id="sameInfo" />
+                        <label htmlFor="sameInfo">회수자 정보와 동일</label>
+                    </div>
+                </div>
+
+                {/* 설치자 이름 */}
                 <div className="form-write-item">
                     <div className="form-title">
-                        <p className="necessary">제품</p>
+                        <p className="necessary">이름</p>
                     </div>
                     <div className="form-item col-1">
                         <div className="col">
-                            <div className="form-selectbox">
-                                <label htmlFor="productSelector">
-                                    사용 제품 선택
-                                </label>
-                                <select
-                                    name="productSelector"
-                                    value={formData.productSelector}
+                            <div className="form-input">
+                                <input
+                                    type="text"
+                                    placeholder="이름을 입력하세요"
+                                    name="receiver"
+                                    value={formData.receiver}
                                     onChange={handleChange}
-                                >
-                                    <option value="none">
-                                        신청하실 제품을 선택하세요.
-                                    </option>
-                                    <option value="">직접입력</option>
-                                    <option value="test" modelCode="" bodyNo="">
-                                        ordGoods
-                                    </option>
-                                </select>
+                                />
                             </div>
-                            <p className="txt color-grey-b4">
-                                ※ 라클라우드의 경우 모션베드(전동침대)만
-                                이전/설치 가능합니다.
-                            </p>
                         </div>
                     </div>
+                </div>
 
-                    {/* 제품이 없는 경우 노출 : 직접입력 */}
-                    {(formData.productSelector == "" ||
-                        formData.productSelector == "DI") && (
-                        <div className="form-item col-2">
-                            <div className="col">
-                                <div className="form-selectbox">
-                                    <label htmlFor="prdtCate">
-                                        제품 카테고리
-                                    </label>
+                {/* 설치 연락처 */}
+                <div className="form-write-item">
+                    <div className="form-title">
+                        <p className="necessary">연락처</p>
+                    </div>
+                    <div className="form-item col-1">
+                        <div className="col">
+                            <div className="form-selectbox form-call">
+                                <div>
+                                    <label htmlFor="telNumb01">010</label>
                                     <select
-                                        name="prdtCate"
-                                        value={formData.prdtCate}
+                                        name="telNumb02"
+                                        value={formData.telNumb02}
                                         onChange={handleChange}
                                     >
-                                        <option value="0">
-                                            제품카테고리 선택
-                                        </option>
-                                        <option value="M">안마의자</option>
-                                        <option value="L">라클라우드</option>
-                                        <option value="W">W정수기</option>
-                                        <option value="E">기타</option>
+                                        <option value="010">010</option>
+                                        <option value="011">011</option>
+                                        <option value="016">016</option>
+                                        <option value="017">017</option>
+                                        <option value="018">018</option>
+                                        <option value="019">019</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div className="col">
-                                <div className="form-input">
+                                <span className="call-txt">-</span>
+                                <div>
                                     <input
                                         type="text"
-                                        placeholder="제품명을 입력하세요."
-                                        name="ordGoods"
-                                        value={formData.ordGoods}
+                                        className="call-num-box"
+                                        maxLength="4"
+                                        name="telNumb02_01"
+                                        value={formData.telNumb02_01}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                                <span className="call-txt">-</span>
+                                <div>
+                                    <input
+                                        type="text"
+                                        className="call-num-box"
+                                        maxLength="4"
+                                        name="telNumb02_02"
+                                        value={formData.telNumb02_02}
                                         onChange={handleChange}
                                     />
                                 </div>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
 
-                <FormWriteTitle
-                    title="2. 접수 유형 선택"
-                    service="serviceTransfer"
-                />
-
+                {/* 설치 주소 */}
                 <div className="form-write-item">
                     <div className="form-title">
-                        <p className="necessary">접수 유형</p>
+                        <p className="necessary">설치 주소</p>
+                    </div>
+                    <AddrForm
+                        zipcode="zipCode2"
+                        addr1="receiveAddr1"
+                        addr2="receiverAddr2"
+                        formData={formData}
+                        setFormData={setFormData}
+                        handleChange={handleChange}
+                        onFormChange={onFormChange}
+                    />
+                </div>
+
+                {/* 설치 희망일 */}
+                <div className="form-write-item">
+                    <div className="form-title">
+                        <p className="necessary">설치 희망일</p>
                     </div>
                     <div className="form-item col-1">
                         <div className="col">
-                            {/* 접수 유형 (안마의자, 라클라우드) : 포장운반, 다른층이동, 같은층 이동*/}
-                            {formData.grpcode != "W" && (
-                                <div className="form-radio-btns col-3">
-                                    <div className="radio-btn col">
-                                        <input
-                                            type="radio"
-                                            id="option1"
-                                            name="option"
-                                        />
-                                        <label htmlFor="option1">
-                                            <span>지역 이동(포장 운반)</span>
-                                            <span>
-                                                제품을 분해+포장+이동 재설치하는
-                                                서비스
-                                            </span>
-                                        </label>
-                                    </div>
-                                    <div className="radio-btn col">
-                                        <input
-                                            type="radio"
-                                            id="option2"
-                                            name="option"
-                                        />
-                                        <label htmlFor="option2">
-                                            <span>건물 내 층간 이동</span>
-                                            <span>
-                                                동일한 건물 내에서 다른 층으로
-                                                이동하는 서비스
-                                            </span>
-                                        </label>
-                                    </div>
-                                    <div className="radio-btn col">
-                                        <input
-                                            type="radio"
-                                            id="option3"
-                                            name="option"
-                                        />
-                                        <label htmlFor="option3">
-                                            <span>건물 내 층간 이동</span>
-                                            <span>
-                                                집안 내에서 이동하는 서비스
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* 접수 유형 (정수기) : 철거+재설치, 철거, 재설치 */}
-                            {formData.grpcode == "W" && (
-                                <div className="form-radio-btns col-3">
-                                    <div className="radio-btn col">
-                                        <input
-                                            type="radio"
-                                            id="option4"
-                                            name="option"
-                                        />
-                                        <label htmlFor="option4">
-                                            <span>철거+재설치</span>
-                                            <span>
-                                                제품 철거 + 재설치
-                                                서비스(포장+운반 미포함)
-                                            </span>
-                                        </label>
-                                    </div>
-                                    <div className="radio-btn col">
-                                        <input
-                                            type="radio"
-                                            id="option5"
-                                            name="option"
-                                        />
-                                        <label htmlFor="option5">
-                                            <span>철거</span>
-                                            <span>
-                                                제품 철거 서비스(포장+운반
-                                                미포함)
-                                            </span>
-                                        </label>
-                                    </div>
-                                    <div className="radio-btn col">
-                                        <input
-                                            type="radio"
-                                            id="option6"
-                                            name="option"
-                                        />
-                                        <label htmlFor="option6">
-                                            <span>재설치</span>
-                                            <span>
-                                                제품 재설치 서비스(포장+운반
-                                                미포함)
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
-                            )}
-
-                            <p className="txt color-redf-0">
-                                ※ 제품 분해/조립만 필요한 경우 분해/조립 접수
-                                메뉴를 이용해 주세요. (포장/이동 제외)
-                            </p>
+                            <div className="form-input">
+                                <Calendar />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -230,4 +160,4 @@ const ServiceTransferForm3 = ({ onFormChange }) => {
     );
 };
 
-export default ServiceTransferForm3;
+export default ServiceTransferForm2;

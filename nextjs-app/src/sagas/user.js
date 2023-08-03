@@ -163,19 +163,20 @@ function* certifyRequest(action) {
 }
 
 //본인인증 상태 여부 체크(ssr)
-function certifyUserInfoAPI() {
-    return axios.get(`/certify/certifyCheck`);
+function certifyUserInfoAPI(data) {
+    console.log("send data======================", data);
+    return axios.get(`/certify/certifyCheck/${data}`);
 }
 
 function* certifyUserInfo(action) {
     try {
-        const result = yield call(certifyUserInfoAPI);
+        const result = yield call(certifyUserInfoAPI, action.data);
         console.log("certifyUserInfoAPI result", result);
 
-         yield put({
-             type: CERTIFY_USER_INFO_SUCCESS,
-             data: result.data.data.isCertify,
-         });
+        yield put({
+            type: CERTIFY_USER_INFO_SUCCESS,
+            data: result.data.data.isCertify,
+        });
     } catch (err) {
         console.error(err);
         yield put({

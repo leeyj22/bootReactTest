@@ -35,17 +35,27 @@ const ServiceTransfer = () => {
     ];
     const CurrentForm = serviceTransferForm[progress - 1];
     const [formData, setFormData] = useState({
-        // //본인인증 데이터
-        // tr_cert: "",
-        // tr_url: "",
-        // tr_add: "",
-        // plusInfo: "",
-        // noListUser: "", //본인인증 사용자 여부 Y,N
-        // name: "", //고객명
-        // phoneNo: "", //핸드폰 번호
-        // certYn: "", //인증여부
+        //본인인증 데이터
+        tr_cert: "",
+        tr_url: "",
+        tr_add: "",
+        plusInfo: "",
+        noListUser: "", //본인인증 사용자 여부 Y,N
+        name: "", //고객명
+        phoneNo: "", //핸드폰 번호
+        certYn: "", //인증여부
     });
 
+    useEffect(() => {
+        // 스크립트를 동적으로 생성하여 <head> 태그의 자식으로 추가
+        const script = document.createElement("script");
+        script.src = "https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js";
+        document.head.appendChild(script);
+        return () => {
+            // 컴포넌트가 언마운트될 때 스크립트 요소를 제거하여 메모리 누수 방지
+            document.head.removeChild(script);
+        };
+    }, []);
     useEffect(() => {
         //회원이 아닌 본인인증의 경우 certifyState true
         //회원일 경우 loginDone true , user 데이터 있음.
@@ -62,6 +72,8 @@ const ServiceTransfer = () => {
         return data;
     };
 
+    console.log("formData", formData);
+
     return (
         <AppLayout>
             <Breadcrumb pageId="service" pageSubId="service2" />
@@ -72,12 +84,7 @@ const ServiceTransfer = () => {
                 <ServiceTransferProgress step="3" progress={progress} />
 
                 {/* 이전설치접수1 */}
-                {CurrentForm && (
-                    <CurrentForm
-                        onFormChange={handleFormChange}
-                        formData2={formData}
-                    />
-                )}
+                {CurrentForm && <CurrentForm onFormChange={handleFormChange} />}
 
                 {/* 약관동의 */}
                 {/* <Term
