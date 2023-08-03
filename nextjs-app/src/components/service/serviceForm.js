@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import FormWriteTitle from "../form/formWriteTitle";
 import FileMulti from "../form/fileMulti";
-// import Post from "../post";
-import usePopup from "../../hooks/usePopup";
 import { PostCode } from "../../lib/postcode";
+import AddrForm from "../form/addrForm";
 
 const ServiceForm = ({ onFormChange }) => {
     const { postData, searchPostcode } = PostCode();
@@ -35,6 +34,12 @@ const ServiceForm = ({ onFormChange }) => {
 
         if (Object.keys(postData).length !== 0) {
             onFormChange({
+                ...formData,
+                zip: postData.zipNo, //우편번호
+                addr1: postData.roadAddrPart1, //주소
+                addr2: postData.addrDetail, //상세 주소
+            });
+            setFormData({
                 ...formData,
                 zip: postData.zipNo, //우편번호
                 addr1: postData.roadAddrPart1, //주소
@@ -100,8 +105,8 @@ const ServiceForm = ({ onFormChange }) => {
                                     value={formData.productSelector}
                                     onChange={handleChange}
                                 >
-                                    <option value="O20170500727">
-                                        NEW팬텀블랙에디션(와인)
+                                    <option value="none">
+                                        신청하실 제품을 선택하세요.
                                     </option>
                                     <option value="">직접입력</option>
                                 </select>
@@ -110,35 +115,42 @@ const ServiceForm = ({ onFormChange }) => {
                     </div>
 
                     {/* 제품이 없는 경우 노출 : 직접입력 */}
-                    <div className="form-item col-2">
-                        <div className="col">
-                            <div className="form-selectbox">
-                                <label htmlFor="prdtCate">제품 카테고리</label>
-                                <select
-                                    name="prdtCate"
-                                    value={formData.prdtCate}
-                                    onChange={handleChange}
-                                >
-                                    <option value="0">제품카테고리 선택</option>
-                                    <option value="M">안마의자</option>
-                                    <option value="L">라클라우드</option>
-                                    <option value="W">W정수기</option>
-                                    <option value="E">기타</option>
-                                </select>
+                    {(formData.productSelector == "" ||
+                        formData.productSelector == "DI") && (
+                        <div className="form-item col-2">
+                            <div className="col">
+                                <div className="form-selectbox">
+                                    <label htmlFor="prdtCate">
+                                        제품 카테고리
+                                    </label>
+                                    <select
+                                        name="prdtCate"
+                                        value={formData.prdtCate}
+                                        onChange={handleChange}
+                                    >
+                                        <option value="0">
+                                            제품카테고리 선택
+                                        </option>
+                                        <option value="M">안마의자</option>
+                                        <option value="L">라클라우드</option>
+                                        <option value="W">W정수기</option>
+                                        <option value="E">기타</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="col">
+                                <div className="form-input">
+                                    <input
+                                        type="text"
+                                        placeholder="제품명을 입력하세요."
+                                        name="prdtName"
+                                        value={formData.prdtName}
+                                        onChange={handleChange}
+                                    />
+                                </div>
                             </div>
                         </div>
-                        <div className="col">
-                            <div className="form-input">
-                                <input
-                                    type="text"
-                                    placeholder="제품명을 입력하세요."
-                                    name="prdtName"
-                                    value={formData.prdtName}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* 서비스 유형 */}
@@ -344,58 +356,17 @@ const ServiceForm = ({ onFormChange }) => {
                     <div className="form-title">
                         <p className="necessary">주소</p>
                     </div>
-                    <div className="form-item form-addr col-1">
-                        <div className="col">
-                            <input
-                                type="text"
-                                readOnly="readOnly"
-                                className="zipcode"
-                                name="zip"
-                                id="zip"
-                                value={formData.zip}
-                            />
-                            <button
-                                id="searchAddr"
-                                className="btn-zip"
-                                onClick={getPostcode}
-                            >
-                                우편번호찾기
-                            </button>
-                        </div>
-                    </div>
-                    <div className="form-item form-addr col-1">
-                        <div className="col">
-                            <input
-                                type="text"
-                                readOnly="readOnly"
-                                maxLength="100"
-                                name="addr1"
-                                id="addr"
-                                value={formData.addr1}
-                            />
-                        </div>
-                    </div>
-                    <div className="form-item form-addr col-1">
-                        <div className="col">
-                            <input
-                                type="text"
-                                maxLength="100"
-                                name="addr2"
-                                id="addr2"
-                                value={formData.addr2}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
+                    <AddrForm
+                        zipcode="zip"
+                        addr1="addr1"
+                        addr2="addr2"
+                        handleChange={handleChange}
+                        onFormChange={onFormChange}
+                        formData={formData}
+                        setFormData={setFormData}
+                    />
                 </div>
             </article>
-            {/* {isPopupVisible && (
-                <Post
-                    hidePopup={hidePopup}
-                    formData={formData}
-                    setFormData={setFormData}
-                />
-            )} */}
         </>
     );
 };

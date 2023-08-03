@@ -1,6 +1,6 @@
 #header{
     position: relative;
-    background-color: $color-black0;
+    background-color: $color-black-0;
     *{
         color:$color-white;
     }
@@ -79,7 +79,7 @@
             & > a{
                 display: block;
                 padding:30px 35px;
-                background-color: $color-black0;
+                background-color: $color-black-0;
                 height: 100%;
                 font-size:1.5rem;
             }
@@ -98,7 +98,7 @@
             display: block;
             margin-bottom:20px;
             font-size:1.8rem;
-            color:$color-black0;
+            color:$color-black-0;
         }
         & > label{
             display: block;
@@ -108,7 +108,7 @@
         }
         &.active,
         &:hover{
-            background-color:$color-black0;
+            background-color:$color-black-0;
             a{
                 color:$color-white;
             }
@@ -136,7 +136,7 @@
         a{
             display: block;
             padding:16px;
-            color:$color-black0;
+            color:$color-black-0;
             font-size:1.6rem;
         }
     }

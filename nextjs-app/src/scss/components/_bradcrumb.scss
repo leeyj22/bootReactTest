@@ -22,8 +22,11 @@
             right:0;
             transform: translateY(-50%);
         }
+        span,
         a{
             display: block;
+            cursor: pointer;
+            color:$color-grey-a4;
         }
         &:last-child{
             &::after{

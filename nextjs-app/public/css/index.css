@@ -170,8 +170,68 @@ font-family: 'Noto Sans KR', sans-serif;
 
 /*layout*/
 /*color*/
+.color-black0 {
+  color: #000 !important;
+}
+
+.color-black2 {
+  color: #272D37 !important;
+}
+
+.color-white {
+  color: #fff !important;
+}
+
+.color-primary {
+  color: #437EF7 !important;
+}
+
+.color-secondary {
+  color: #F5FAFF !important;
+}
+
+.color-redf-0 {
+  color: #f00 !important;
+}
+
+.color-grey-9 {
+  color: #999 !important;
+}
+
 .color-grey-b0 {
-  color: #B0B0B0;
+  color: #B0B0B0 !important;
+}
+
+.color-grey-b4 {
+  color: #B4B4B4 !important;
+}
+
+.color-grey-7b {
+  color: #7B7B7B !important;
+}
+
+.color-grey-c5 {
+  color: #C5C5C5 !important;
+}
+
+.color-grey-c9 {
+  color: #C9C9C9 !important;
+}
+
+.color-grey-a4 {
+  color: #A4A4A4 !important;
+}
+
+.color-grey-db {
+  color: #dbdbdb !important;
+}
+
+.color-grey-f3 {
+  color: #f3f3f3 !important;
+}
+
+.color-grey-f5f5f7 {
+  color: #F5F5F7 !important;
 }
 
 #header {
@@ -438,8 +498,11 @@ footer .bottom .app a img {
   right: 0;
   transform: translateY(-50%);
 }
+.bradbrumb_wrap li span,
 .bradbrumb_wrap li a {
   display: block;
+  cursor: pointer;
+  color: #A4A4A4;
 }
 .bradbrumb_wrap li:last-child::after {
   display: none;
@@ -491,6 +554,9 @@ footer .bottom .app a img {
   vertical-align: text-top;
   font-weight: 700;
 }
+.form-write-basic .txt {
+  font-size: 1.6rem;
+}
 .form-write-basic input[type=text],
 .form-write-basic select,
 .form-write-basic textarea {
@@ -500,6 +566,22 @@ footer .bottom .app a img {
   border-color: #DAE0E6;
   border-style: solid;
   font-size: 1.6rem;
+}
+.form-write-basic .col-1,
+.form-write-basic .col-2,
+.form-write-basic .col-3 {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.form-write-basic .col-1 > .col {
+  width: 100%;
+}
+.form-write-basic .col-2 > .col {
+  width: calc(50% - 5px);
+}
+.form-write-basic .col-3 > .col {
+  width: calc(33.33% - 5px);
 }
 .form-write-basic .form-item input[type=text],
 .form-write-basic .form-item select,
@@ -537,6 +619,47 @@ footer .bottom .app a img {
   cursor: pointer;
 }
 
+.form-write-item {
+  margin-bottom: 20px;
+}
+.form-write-item .form-title {
+  margin-bottom: 15px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+.form-write-item .form-selectbox label {
+  position: absolute;
+  opacity: 0;
+  text-indent: -9999px;
+  width: 0;
+  height: 0;
+}
+.form-write-item .form-radio-btns .radio-btn span {
+  display: block;
+  margin-bottom: 10px;
+  padding: 20px;
+  border: 1px solid #DAE0E6;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.form-write-item .form-radio-btns .radio-btn span:first-child {
+  font-size: 2rem;
+  padding-left: 50px;
+  background-image: url("https://bodyfriend.speedgabia.com/img/cs/icon/icon_radio_off.svg");
+  background-position: 20px center;
+  background-repeat: no-repeat;
+}
+.form-write-item .form-radio-btns .radio-btn input:checked + label span {
+  border-color: #437EF7;
+}
+.form-write-item .form-radio-btns .radio-btn input:checked + label span:first-child {
+  background-image: url("https://bodyfriend.speedgabia.com/img/cs/icon/icon_radio_on.svg");
+}
+.form-write-item .form-write-same-chk {
+  display: flex;
+  justify-content: end;
+  font-size: 2rem;
+}
 .form-write-title {
   display: flex;
   justify-content: space-between;
@@ -556,36 +679,6 @@ footer .bottom .app a img {
   background-color: transparent;
   color: #C9C9C9;
   font-size: 1.6rem;
-}
-
-.form-write-item {
-  margin-bottom: 20px;
-}
-.form-write-item .form-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.form-write-item .form-item.col-1 > .col {
-  width: 100%;
-}
-.form-write-item .form-item.col-2 > .col {
-  width: calc(50% - 5px);
-}
-.form-write-item .form-item.col-3 > .col {
-  width: calc(33.33% - 5px);
-}
-.form-write-item .form-title {
-  margin-bottom: 15px;
-  font-size: 2rem;
-  font-weight: 700;
-}
-.form-write-item .form-selectbox label {
-  position: absolute;
-  opacity: 0;
-  text-indent: -9999px;
-  width: 0;
-  height: 0;
 }
 
 .term-agree-wrap {
@@ -689,4 +782,60 @@ footer .bottom .app a img {
 }
 .form-file .notice p {
   color: #dbdbdb;
+}
+
+.input-form-datepicker {
+  background-image: url("https://bodyfriend.speedgabia.com/img/cs/icon/icon_calendar.svg");
+  background-position: calc(100% - 20px) center;
+  background-repeat: no-repeat;
+}
+
+.react-datepicker-wrapper {
+  width: 432px;
+}
+
+.react-datepicker * {
+  color: #fff;
+}
+.react-datepicker select {
+  padding: 4px 20px 4px 10px;
+  background-size: 15px;
+  background-position: calc(100% - 4px) center;
+  background-image: url("https://bodyfriend.speedgabia.com/img/cs/icon/arrow_white_down.svg");
+}
+.react-datepicker option {
+  color: #272D37;
+}
+.react-datepicker .react-datepicker__triangle::after {
+  border-bottom-color: #437EF7 !important;
+}
+.react-datepicker .react-datepicker__day--selected, .react-datepicker .react-datepicker__day--in-selecting-range, .react-datepicker .react-datepicker__day--in-range, .react-datepicker .react-datepicker__month-text--selected, .react-datepicker .react-datepicker__month-text--in-selecting-range, .react-datepicker .react-datepicker__month-text--in-range, .react-datepicker .react-datepicker__quarter-text--selected, .react-datepicker .react-datepicker__quarter-text--in-selecting-range, .react-datepicker .react-datepicker__quarter-text--in-range, .react-datepicker .react-datepicker__year-text--selected, .react-datepicker .react-datepicker__year-text--in-selecting-range, .react-datepicker .react-datepicker__year-text--in-range,
+.react-datepicker .react-datepicker__header,
+.react-datepicker .react-datepicker__day--keyboard-selected, .react-datepicker .react-datepicker__month-text--keyboard-selected, .react-datepicker .react-datepicker__quarter-text--keyboard-selected, .react-datepicker .react-datepicker__year-text--keyboard-selected {
+  background-color: #437EF7 !important;
+}
+.react-datepicker .react-datepicker__day-name,
+.react-datepicker .react-datepicker__current-month, .react-datepicker .react-datepicker-time__header, .react-datepicker .react-datepicker-year-header, .react-datepicker .react-datepicker__day--keyboard-selected, .react-datepicker .react-datepicker__month-text--keyboard-selected, .react-datepicker .react-datepicker__quarter-text--keyboard-selected, .react-datepicker .react-datepicker__year-text--keyboard-selected {
+  color: #fff;
+}
+.react-datepicker .react-datepicker__year-read-view--down-arrow, .react-datepicker .react-datepicker__month-read-view--down-arrow, .react-datepicker .react-datepicker__month-year-read-view--down-arrow, .react-datepicker .react-datepicker__navigation-icon::before {
+  border-color: #fff;
+}
+.react-datepicker .react-datepicker__navigation {
+  top: 10px;
+}
+.react-datepicker .react-datepicker__current-month, .react-datepicker .react-datepicker-time__header, .react-datepicker .react-datepicker-year-header {
+  font-size: 1.7rem;
+}
+.react-datepicker .react-datepicker__header__dropdown {
+  margin: 10px 0 5px 0;
+}
+.react-datepicker .react-datepicker__header__dropdown .react-datepicker__month-dropdown-container,
+.react-datepicker .react-datepicker__header__dropdown .react-datepicker__year-dropdown-container {
+  margin: 0 5px;
+}
+.react-datepicker .react-datepicker__day-name, .react-datepicker .react-datepicker__day, .react-datepicker .react-datepicker__time-name {
+  width: 4rem;
+  line-height: 4rem;
+  font-size: 1.4rem !important;
 }/*# sourceMappingURL=index.css.map */

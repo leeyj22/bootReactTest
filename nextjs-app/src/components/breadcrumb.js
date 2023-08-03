@@ -56,7 +56,7 @@ const Breadcrumb = ({ pageId, pageSubId }) => {
                     return (
                         menu1.id === pageId && (
                             <li key={menu1.id}>
-                                <Link href={menu1.link}>{menu1.name}</Link>
+                                <span>{menu1.name}</span>
                                 <div className="pop">
                                     {menu.depth1.map(({ id, link, name }) => {
                                         return (
