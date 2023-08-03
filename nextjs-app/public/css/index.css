@@ -660,6 +660,18 @@ footer .bottom .app a img {
   justify-content: end;
   font-size: 2rem;
 }
+.form-write-item .form-write-same-chk label {
+  cursor: pointer;
+  padding-left: 40px;
+  height: 30px;
+  background-image: url("https://bodyfriend.speedgabia.com/img/cs/icon/icon_check_off.svg");
+  background-position: left center;
+  background-repeat: no-repeat;
+}
+.form-write-item .form-write-same-chk input:checked + label {
+  background-image: url("https://bodyfriend.speedgabia.com/img/cs/icon/icon_check_on.svg");
+}
+
 .form-write-title {
   display: flex;
   justify-content: space-between;

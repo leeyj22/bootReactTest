@@ -12,7 +12,6 @@ const ServiceTransferProgress = ({ step, progress }) => {
         <ServiceProgressStyle step={step} progress={progress}>
             <ul>
                 {progressStep.map((item) => {
-                    console.log(item.step === progress);
                     return (
                         <li
                             key={item.id}

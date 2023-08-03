@@ -1,41 +1,35 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { PostCode } from "../../lib/postcode";
 
 const AddrForm = ({
     zipcode,
     addr1,
     addr2,
-    handleChange,
-    onFormChange,
     formData,
     setFormData,
+    handleChange,
 }) => {
     const { postData, searchPostcode } = PostCode();
-    useEffect(() => {
-        // 스크립트를 동적으로 생성하여 <head> 태그의 자식으로 추가
-        const script = document.createElement("script");
-        script.src = "https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js";
-        document.head.appendChild(script);
 
+    useEffect(() => {
+        console.log(zipcode, addr1, addr2);
+        console.log("postData", postData);
         if (Object.keys(postData).length !== 0) {
-            onFormChange({
-                ...formData,
-                [zipcode]: postData.zipNo, //우편번호
-                [addr1]: postData.roadAddrPart1, //주소
-                [addr2]: postData.addrDetail, //상세 주소
-            });
-            setFormData({
-                ...formData,
-                [zipcode]: postData.zipNo, //우편번호
-                [addr1]: postData.roadAddrPart1, //주소
-                [addr2]: postData.addrDetail, //상세 주소
-            });
+            // onFormChange({
+            //     ...formData,
+            //     formData[zipcode]: postData.zipNo, //우편번호
+            //     formData[addr1]: postData.roadAddrPart1, //주소
+            //     formData[addr2]: postData.addrDetail, //상세 주소
+            // });
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                [zipcode]: postData.zipNo,
+                [addr1]: postData.roadAddrPart1,
+                [addr2]: postData.addrDetail,
+            }));
         }
-        return () => {
-            // 컴포넌트가 언마운트될 때 스크립트 요소를 제거하여 메모리 누수 방지
-            document.head.removeChild(script);
-        };
     }, [postData]);
+    console.log("formData", formData);
 
     const getPostcode = () => {
         searchPostcode(true);
@@ -50,7 +44,7 @@ const AddrForm = ({
                         className="zipcode"
                         name={zipcode}
                         id={zipcode}
-                        value={formData[zipcode]}
+                        value={formData[zipcode] || ""}
                     />
                     <button
                         id="searchAddr"
@@ -69,7 +63,7 @@ const AddrForm = ({
                         maxLength="100"
                         name={addr1}
                         id={addr1}
-                        value={formData[addr1]}
+                        value={formData[addr1] || ""}
                     />
                 </div>
             </div>
@@ -80,7 +74,7 @@ const AddrForm = ({
                         maxLength="100"
                         name={addr2}
                         id={addr2}
-                        value={formData[addr2]}
+                        value={formData[addr2] || ""}
                         onChange={handleChange}
                     />
                 </div>

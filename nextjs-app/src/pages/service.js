@@ -14,10 +14,7 @@ import Cookies from "js-cookie";
 import { END } from "redux-saga";
 import axios from "axios";
 import wrapper from "../store/configureStore";
-import {
-    CERTIFY_USER_INFO_REQUEST,
-    LOAD_USER_INFO_REQUEST,
-} from "../reducers/user";
+import { CERTIFY_USER_INFO_REQUEST } from "../reducers/user";
 //서비스 접수 service1
 
 const Service = () => {
@@ -84,8 +81,26 @@ export const getServerSideProps = wrapper.getServerSideProps(
             if (req && cookie) {
                 axios.defaults.headers.Cookie = cookie;
             }
-            console.log("cookie", cookie);
+            console.log("cookie=======================", cookie);
 
+            function getCookieValue(cookieName) {
+                const cookies = cookie.split("; ");
+                for (const cookie of cookies) {
+                    const [name, value] = cookie.split("=");
+                    if (name === cookieName) {
+                        return decodeURIComponent(value);
+                    }
+                }
+                return null; // 해당 쿠키 이름에 해당하는 값이 없는 경우
+            }
+
+            // 특정 쿠키 값을 가져옵니다.
+            const certUserDi = getCookieValue("cert_user_di");
+
+            console.log(
+                "cert_user_di:=============================",
+                certUserDi
+            );
             store.dispatch({
                 type: CERTIFY_USER_INFO_REQUEST,
             });

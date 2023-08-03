@@ -6,7 +6,10 @@ export const PostCode = () => {
     const [currentOS, setCurrentOS] = useState(null);
 
     const jusoCallBack = (data) => {
-        setPostData(data);
+        console.log("data", data);
+        setPostData({
+            ...data,
+        });
     };
     const handleMessage = (e) => {
         console.log("e.origin", e.origin);
