@@ -18,7 +18,8 @@ public final class Constants {
     /** COMPONENT SCAN 대상 PACKAGE **/
     public static final String COMMON_PACKAGE = "com.bf.common";
     public static final String WEB_PACKAGE = "com.bf.web";
-    public static final String ERP_PACKAGE = "com.bf.erp";
+    public static final String UNIERP_PACKAGE = "com.bf.unierp";
+    public static final String SVC_PACKAGE = "com.bf.svc";
     public static final String CONFIG_PACKAGE = "com.bf.config";
     public static final String SCHEDULER_PACKAGE = "com.bf.scheduler";
 

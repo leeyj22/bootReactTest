@@ -432,7 +432,6 @@ public class CertifyService {
                 String birthDay = resultMap.get("birthDay").toString();
                 
     	        switch (pageType) {
-    	            
     	            // 전자계약
                     case "RENTAL":                    
 //                        Map<String, Object> params = new HashMap<String, Object>();

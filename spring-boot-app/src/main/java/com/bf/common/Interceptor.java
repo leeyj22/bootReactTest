@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import java.util.Date;
 import java.util.Enumeration;
 
 @Slf4j
+@Component
 public class Interceptor extends HandlerInterceptorAdapter {
 
 //	@Autowired
@@ -33,7 +35,6 @@ public class Interceptor extends HandlerInterceptorAdapter {
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
 		final HttpSession session = request.getSession(false);
 		final String requestURI = request.getRequestURI();
 		
@@ -46,7 +47,6 @@ public class Interceptor extends HandlerInterceptorAdapter {
 				requestURI.contains(".gif") ||
 				requestURI.contains(".woff2") ||
 				requestURI.contains(".ico") ||
-				requestURI.contains(".gif") ||
 				requestURI.contains(".mp4")) {
 			return true; // API요청이 아니면 넘긴다.
 		}

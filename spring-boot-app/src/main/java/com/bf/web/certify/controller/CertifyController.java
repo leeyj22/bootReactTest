@@ -1,20 +1,26 @@
 package com.bf.web.certify.controller;
 
 import com.bf.common.BFException;
+import com.bf.common.RedisService;
 import com.bf.common.element.BFResponse;
 import com.bf.common.element.Response;
+import com.bf.common.util.Util;
 import com.bf.common.util.UtilManager;
 import com.bf.web.certify.service.CertifyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +30,9 @@ import java.util.Map;
 public class CertifyController {
 	@Autowired
 	CertifyService certifyService;
+
+	@Autowired
+	RedisService redisService;
 
 	@Value(value = "${system.kmcert.urlcode.common}")
 	String kmcertUrlcode;
@@ -37,7 +46,7 @@ public class CertifyController {
 	 * @throws BFException
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/certify/requestCertification", method = RequestMethod.POST, produces="application/json")
+	@PostMapping(value = "/certify/requestCertification", produces="application/json")
 	public Response requestCertification(HttpSession session, HttpServletRequest request, @RequestBody Map<String, Object> params) throws BFException {
 		
 		log.info("[CONTROLLER][CerfifyController][requestCertification][START]");
@@ -56,7 +65,7 @@ public class CertifyController {
 	 * @throws 
 	 */
 	@RequestMapping(value="/certify/certifyResult")
-	public String certifyResult(HttpSession session, HttpServletRequest request, RedirectAttributes redirectAttr) throws BFException {
+	public String certifyResult(HttpSession session, HttpServletRequest request, RedirectAttributes redirectAttr, HttpServletResponse httpResponse) throws BFException {
 		log.info("[CONTROLLER][CerfifyController][certifyResult][START]");
 
 		Response response = new BFResponse();
@@ -77,11 +86,16 @@ public class CertifyController {
 		redirectAttr.addAttribute("data", UtilManager.getJsonStringFromMap(plusMap));
 		log.info("[CONTROLLER][CerfifyController][certifyResult][END]");
 
-		return "redirect:http://localhost:3000/certify/certify_result";
+		redisService.setValues("certDi", String.valueOf(session.getAttribute("userDI")));
+
+//		ValueOperations<String, Object> vop = redisTemplate.opsForValue();
+//		vop.set("certiDi", session.getAttribute("Di"));
+
+		return "redirect:http://172.30.40.39:3000/certify/certify_result";
 	}
 	
 	/**
-	 * 본인인증
+	 * 본인인증 url
 	 * @param pageType
 	 * @return
 	 */
@@ -100,5 +114,30 @@ public class CertifyController {
 	    
 	    log.info("[CONTROLLER][CerfifyController][certify][END]");
 	    return response;
+	}
+
+
+	/** 본인인증 */
+	@ResponseBody
+	@GetMapping(value = "/certify/certifyCheck")
+	public Response certifyCheck ( HttpServletRequest request , @RequestParam(value="cert_user_di", required = false) String userDi){
+		String serverUserDi = "";
+
+		Response response = new BFResponse();
+		Map<String, Object> result = new HashMap<>();
+		result.put("isCertify", false);
+
+		serverUserDi = redisService.getValues("certDi");
+
+		userDi = request.getParameter("cert_user_di");
+
+		if(!Util.isEmptyOrNull(serverUserDi) && !Util.isEmptyOrNull(userDi)){
+			if(userDi.equals(serverUserDi)){
+				result.put("isCertify", true);
+			}
+		}
+
+		response.setData(result);
+		return response;
 	}
 }

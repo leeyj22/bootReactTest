@@ -3,7 +3,6 @@ package com.bf.config;
 import com.bf.common.Constants;
 import com.bf.common.util.ConfigUtil;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.io.DefaultVFS;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -21,18 +20,18 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableTransactionManagement
-@MapperScan(sqlSessionTemplateRef = "erpSqlSessionTemplate"
-        ,basePackages = { Constants.ERP_PACKAGE }
+@MapperScan(sqlSessionTemplateRef = "uniErpSqlSessionTemplate"
+        ,basePackages = { Constants.UNIERP_PACKAGE }
 )
-public class ErpDataBaseConfig {
+public class UniErpDataBaseConfig {
 
-    @Value(value="${spring.datasource.erp.driver-class-name}") private String jdbc_driver;
-    @Value(value="${spring.datasource.erp.jdbc-url}") private String jdbc_url;
-    @Value(value="${spring.datasource.erp.username}") private String jdbc_username;
-    @Value(value="${spring.datasource.erp.password}") private String jdbc_password;
+    @Value(value="${spring.datasource.unierp.driver-class-name}") private String jdbc_driver;
+    @Value(value="${spring.datasource.unierp.jdbc-url}") private String jdbc_url;
+    @Value(value="${spring.datasource.unierp.username}") private String jdbc_username;
+    @Value(value="${spring.datasource.unierp.password}") private String jdbc_password;
 
-    @Bean(name = "erpDatasource")
-    @ConfigurationProperties(prefix = "spring.datasource.erp")
+    @Bean(name = "uniErpDatasource")
+    @ConfigurationProperties(prefix = "spring.datasource.unierp")
     public BasicDataSource erpDataSource(){
     BasicDataSource dataSource = new BasicDataSource();
     dataSource.setDriverClassName(this.jdbc_driver);
@@ -43,11 +42,11 @@ public class ErpDataBaseConfig {
     return dataSource;
     }
 
-    @Bean(name = "erpSqlSessionTemplate")
-    public SqlSessionTemplate sqlSessionFactory(@Qualifier("erpDatasource") DataSource erpDatasource) throws Exception{
+    @Bean(name = "uniErpSqlSessionTemplate")
+    public SqlSessionTemplate sqlSessionFactory(@Qualifier("uniErpDatasource") DataSource uniErpDatasource) throws Exception{
     /** SESSION FACTORY 생성 **/
     SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
-    sqlSessionFactoryBean.setDataSource( erpDatasource );
+    sqlSessionFactoryBean.setDataSource( uniErpDatasource );
     sqlSessionFactoryBean.setConfigLocation( ConfigUtil.getResource( Constants.MYBATIS_CONFIG_LOCATION  ) );
     sqlSessionFactoryBean.setMapperLocations( ConfigUtil.getResources( Constants.MYBATIS_MAPPER_LOCATIONS ) );
     sqlSessionFactoryBean.setVfs( DefaultVFS.class );
@@ -56,10 +55,10 @@ public class ErpDataBaseConfig {
     return new SqlSessionTemplate( sqlSessionFactoryBean.getObject() );
     }
 
-    @Bean(name = "erpTransactionManager")
-    public PlatformTransactionManager transactionManager(@Qualifier("erpDatasource") DataSource erpDatasource ) {
+    @Bean(name = "uniErpTransactionManager")
+    public PlatformTransactionManager transactionManager(@Qualifier("uniErpDatasource") DataSource uniErpDatasource ) {
     /** ERP TRANSACTION MANAGER **/
-    DataSourceTransactionManager transaction = new DataSourceTransactionManager( erpDatasource );
+    DataSourceTransactionManager transaction = new DataSourceTransactionManager( uniErpDatasource );
     return transaction;
     }
 

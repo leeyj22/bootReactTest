@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bf.svc.customer.mapper.SvcCustomerMapper">
+
+	<!-- 간편 서비스 인증 -->
+	<select id="selectServiceAuth" parameterType="hashmap" resultType="int">
+		/****************[svc_customer.selectServiceAuth]****************/
+		SELECT
+		COUNT(*)
+		FROM bfsvc.dbo.TB_MRECEIVE_INFO info WITH (NOLOCK)
+		<where>
+			<trim prefix="(" prefixOverrides="OR" suffix=")">
+				(user_name = #{custNumber} OR in_user_name = #{custNumber})
+			</trim>
+			AND
+			<trim prefix="(" prefixOverrides="OR" suffix=")">
+				(IN_TEL = #{telNumber} OR IN_HANDPHONE = #{telNumber})
+			</trim>
+			AND
+			<trim prefix="(" prefixOverrides="OR" suffix=")">
+				info.RECEIVE_SEQ = #{receiveSeq}
+			</trim>
+		</where>
+	</select>
+
+	<!-- SERVICE DB 접수상태 내역 조회, [FN_DECRYPT_AES256]복호키는 운영에만 존재함 -->
+	<select id="selectServiceInfo" parameterType="HashMap" resultType="HashMap">
+		/**************** [svc_customer.selectServiceInfo] ****************/
+		SELECT
+		replace(info2.HP,'-','')	AS HP
+		, info.USER_NAME AS CUST_NAME
+		, info.RECEIVE_SEQ
+		, convert(varchar(10), info.RECEIVE_DATE, 120) AS RECEIVE_DATE
+		, info.REPAIR_HISTORY AS REPAIR_HISTORY
+		, info.IN_USER_NUMBER
+		, info.PROGRESS_NO
+		, info.TEL_NO
+		, info.HPHONE_NO
+		, info.CALL_TYPE
+		, info.PURCHASING_OFFICE
+		, info.ADDR AS INSADDR
+		, info.AREA
+		, convert(varchar, info.IN_PRODUCT_DATE, 102) AS IN_PRODUCT_DATE
+		, info.OLD_PRODUCT_NAME AS PRODUCT_NAME
+		, info.OPTIONDATA
+		, info.COMPONENT
+		, info.SERVICE_MONTH
+		, info.ACCESS_ID
+		, info.SYMPTOM
+		, info.ENGINEER_CHARGE AS GISA_NAME
+		, convert(varchar, info.VISIT_DATE, 102) AS DUE_DATE
+		FROM bfsvc.dbo.TB_MRECEIVE_INFO info WITH (NOLOCK)
+		left join ( select RECEIVE_SEQ, HP = bfsvc.dbo.[FN_DECRYPT_AES256](HPHONE_NO, 'bfservicekey!@12')
+		from bfsvc.dbo.TB_MRECEIVE_INFO
+		) info2 on info.RECEIVE_SEQ = info2.RECEIVE_SEQ
+		WHERE
+		info.RECEIVE_SEQ = #{receiveSeq}
+	</select>
+
+</mapper>
