@@ -218,7 +218,7 @@ const ServiceTransferForm1 = ({ onFormChange }) => {
                                 </div>
                             )}
 
-                            <p className="txt color-redf-0">
+                            <p className="txt color-red-f0">
                                 ※ 제품 분해/조립만 필요한 경우 분해/조립 접수
                                 메뉴를 이용해 주세요. (포장/이동 제외)
                             </p>

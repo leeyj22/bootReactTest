@@ -8,7 +8,7 @@ import Button from "../components/form/button";
 import ServiceTransferForm1 from "../components/service/serviceTransferForm1";
 import ServiceTransferForm2 from "../components/service/serviceTransferForm2";
 import ServiceTransferForm3 from "../components/service/serviceTransferForm3";
-import serviceProgress from "../components/service/serviceProgress";
+import ServiceProgress from "../components/service/serviceProgress";
 import { useSelector } from "react-redux";
 import { useSaveBeforePathname } from "../hooks/useSaveBeforePathname";
 import { useRouter } from "next/router";
@@ -24,12 +24,12 @@ const ServiceTransfer = () => {
     useSaveBeforePathname();
     const { loginDone, certifyState } = useSelector((state) => state.user);
     const [progress, setProgress] = useState(1);
-    const serviceTransferForm = [
+    const serviceForms = [
         ServiceTransferForm1,
         ServiceTransferForm2,
         ServiceTransferForm3,
     ];
-    const CurrentForm = serviceTransferForm[progress - 1];
+    const CurrentForm = serviceForms[progress - 1];
     const [formData, setFormData] = useState({
         //본인인증 데이터
         tr_cert: "",
@@ -108,7 +108,7 @@ const ServiceTransfer = () => {
             <Container>
                 <PageName title="이전/설치 접수" />
 
-                <serviceProgress step="3" progress={progress} />
+                <ServiceProgress step="3" progress={progress} />
 
                 {/* 이전설치접수 */}
                 {CurrentForm && <CurrentForm onFormChange={handleFormChange} />}
