@@ -1,16 +1,21 @@
 package com.bf.web.customer.controller;
 
 import com.bf.common.util.AES256Util;
+import com.bf.common.util.RequestUtil;
 import com.bf.common.util.Util;
+import com.bf.common.util.UtilManager;
 import com.bf.web.customer.service.CustomerService;
 import com.bf.web.customer.vo.FaqVO;
 import com.bf.web.customer.vo.NoticeVO;
+import com.bf.web.member.vo.Orders;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +39,94 @@ public class CustomerController {
 
         List<NoticeVO> getNoticeList = customerService.selectNoticeList();
         return getNoticeList;
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/customer/selectNoticeList.json", method = RequestMethod.POST)
+    public Map selectNoticeList(HttpServletRequest request, NoticeVO noticeVO) throws Exception {
+
+        Map params = RequestUtil.getParameterMap(request);
+
+        int startPageNum = Integer.parseInt(request.getParameter("curPage"));
+        int pageSize = Integer.parseInt(request.getParameter("pageSize"));
+        int curPage = (startPageNum-1)*pageSize;
+        noticeVO.setPageSize(startPageNum*pageSize);
+        noticeVO.setCurPage(curPage);
+
+        noticeVO.setFirstLimitIndex(curPage);
+        noticeVO.setLastLimitIndex(pageSize);
+        noticeVO.setSearchStr(params.get("searchStr").toString());
+
+        List<NoticeVO> noticeMap = customerService.selectNoticeList();
+        List<NoticeVO> noticeNormalMap = customerService.selectNoticeNormalList(noticeVO);
+
+        Map rMap = new HashMap<String, Object>();
+
+        rMap.put("noticeList", noticeMap);
+        rMap.put("noticeNormalList", noticeNormalMap);
+
+        return rMap;
+    }
+
+    @RequestMapping(value="/customer/noticeDetail")
+    public ModelAndView noticeDetail(HttpServletRequest request, @RequestParam(value = "idx", required = true) String idx,
+                                     HttpSession session){
+        ModelAndView mav = new ModelAndView();
+        // 조회수 증가
+        customerService.updateHitCountForNotice(idx);
+        mav.addObject("idx", idx);
+        mav.setViewName("/web/customer/noticeDetail");
+
+        return mav;
+    }
+
+    /**
+     * Q&A 리스트 조회
+     *
+     * @param request
+     * @param noticeVO
+     * @return
+     * @throws Exception
+     */
+    @ResponseBody
+    @RequestMapping(value="/customer/selectQnaList.json", method = {RequestMethod.GET, RequestMethod.POST})
+    public List<NoticeVO> selectQnaList( HttpServletRequest request, NoticeVO noticeVO) throws Exception {
+        //페이징 세팅
+        int startPageNum = Integer.parseInt(request.getParameter("curPage"));
+        int pageSize = Integer.parseInt(request.getParameter("pageSize"));
+        int curPage = (startPageNum-1)*pageSize;
+        noticeVO.setPageSize(startPageNum*pageSize);
+        noticeVO.setCurPage(curPage);
+
+        noticeVO.setFirstLimitIndex(curPage);
+        noticeVO.setLastLimitIndex(pageSize);
+
+        //검색 파라미터 세팅
+        noticeVO.setTab(request.getParameter("tab"));
+        noticeVO.setSearchStr(request.getParameter("searchStr"));
+        noticeVO.setSearchTxtType(request.getParameter("searchTxtType"));
+
+        //조회
+        List<NoticeVO> result = customerService.selectQnaList(noticeVO);
+        Util util = new Util();
+        for(NoticeVO temp : result) {
+            temp.setContents(util.unescape(temp.getContents()));
+        }
+
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/customer/noticeDetailInfo.json", method = {RequestMethod.GET, RequestMethod.POST})
+    public NoticeVO noticeDetailInfo(HttpServletRequest request, @RequestParam(value = "idx", required = true) String idx){
+        NoticeVO info = customerService.selectNoticeDetail(idx);
+        Util util = new Util();
+
+        if (info.getContents() != null && info.getContents() != "") {
+            info.setContents(util.unescape(info.getContents()));
+        }
+
+        return info;
     }
 
     @ResponseBody
@@ -187,5 +280,18 @@ public class CustomerController {
 
         return returnUrl;
     }
+
+    /**
+     * 제품 및 이전/설치 서비스
+     */
+    //erp 구매&렌탈 이력
+    @ResponseBody
+    @RequestMapping(value ="/customerHelp/selectMyRentalList_Inst")
+    public String selectMyRentalList_Inst(HttpServletRequest request) throws Exception{
+        JSONArray jsonArray = UtilManager.getJsonArrayFromList(customerService.selectMyRentalList_Inst(request));
+        return String.valueOf(jsonArray);
+    }
+
+
 
 }

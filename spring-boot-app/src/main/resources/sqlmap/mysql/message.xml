@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.bf.web.message.mapper.MessageMapper">
+	<!-- 알림톡 템플릿 조회 -->
+	<select id="selectTemplate" parameterType="String" resultType="HashMap">
+		SELECT
+			  TEMPLATE_TITLE as templateTitle
+			, TEMPLATE_MSG as templateMsg
+			, tran_button AS tranButton
+		FROM
+			BIZ_MSG_TEMPLATE
+		WHERE
+			TEMPLATE_CODE = #{templateCode}
+	</select>
+</mapper>

@@ -14,7 +14,7 @@ public class UniErpCustomerDao {
     @Autowired
     UniErpCustomerMapper uniErpCustomerMapper;
 
-    public List<HashMap<String, String>> selectMyRentalListUNIERP_info(Map map){
+    public List<Map<String, Object>> selectMyRentalListUNIERP_info(Map map){
         return uniErpCustomerMapper.selectMyRentalListUNIERP_info(map);
     }
 

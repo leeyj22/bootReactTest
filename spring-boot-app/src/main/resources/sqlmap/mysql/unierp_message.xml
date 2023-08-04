@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bf.unierp.message.mapper.UniErpMessageMapper">
+
+    <!-- sms 개별 발송 -->
+    <insert id="sendSms" parameterType="HashMap">
+        INSERT INTO body_message.dbo.SDK_SMS_SEND (
+        /******************** message.sendSms ********************/
+        USER_ID
+        , SCHEDULE_TYPE
+        , SMS_MSG
+        , SEND_DATE
+        , CALLBACK
+        , DEST_TYPE
+        , DEST_COUNT
+        , DEST_INFO
+        , SEND_STATUS
+        , SEND_COUNT
+        , SEND_PROC_TIME
+        ) VALUES (
+        #{userId}
+        , 0
+        , #{msg}
+        <choose>
+            <when test="date != null and date != ''">
+                , FORMAT(CONVERT(datetime, #{date}) , 'yyyyMMddHHmmss')
+                <!--
+                , FORMAT(CONVERT(datetime, '2021-04-01 14:00') , 'yyyyMMddHHmmss')
+                , FORMAT(CONVERT(datetime, #{date}) , 'yyyyMMddHHmmss')
+                -->
+            </when>
+            <otherwise>
+                , FORMAT(GETDATE(), 'yyyyMMddHHmmss')
+            </otherwise>
+        </choose>
+        , '0234618981'
+        , 0
+        , 1
+        , CONCAT(#{userId}, '^', #{phone})
+        , 0
+        , 0
+        , 0
+        )
+    </insert>
+
+    <!-- 알림톡 개별 발송 -->
+    <insert id="sendAlimTalk" parameterType="com.bf.web.message.vo.AlimTalkVo">
+        INSERT INTO body_message.dbo.MTS_ATALK_MSG
+        /******************** message.sendAlimTalk ********************/
+        (
+        TRAN_ID,
+        TRAN_SENDER_KEY,
+        TRAN_TMPL_CD,
+        TRAN_CALLBACK,
+        TRAN_PHONE,
+        TRAN_SUBJECT,
+        TRAN_MSG,
+        TRAN_DATE,
+        TRAN_TYPE,
+        TRAN_STATUS,
+        <if test="tranButton != null and tranButton != ''">
+            TRAN_BUTTON,
+        </if>
+        TRAN_REPLACE_TYPE,
+        TRAN_REPLACE_MSG
+        )
+        VALUES
+        (
+        'homepage',
+        #{SENDERKEY},
+        #{tmplCd},
+        #{callback},
+        CONCAT('^', #{phone}),
+        #{subject},
+        #{msg},
+        <choose>
+            <when test="date != null and date != ''">
+                CONVERT(datetime, #{date}),
+            </when>
+            <otherwise>
+                GETDATE(),
+            </otherwise>
+        </choose>
+        5,
+        '1',
+        <if test="tranButton != null and tranButton != ''">
+            #{tranButton},
+        </if>
+        #{replaceType},
+        #{replaceMsg}
+        )
+    </insert>
+
+</mapper>
+
