@@ -160,29 +160,10 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>jedis</groupId>-->
-<!--            <artifactId>jedis</artifactId>-->
-<!--            <version>3.0.1</version>-->
-<!--            <scope>system</scope>-->
-<!--            <systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/jedis-3.0.1.jar</systemPath>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>omcat-cluster-redis-session-manager</groupId>-->
-<!--            <artifactId>omcat-cluster-redis-session-manager</artifactId>-->
-<!--            <version>4.0.0</version>-->
-<!--            <scope>system</scope>-->
-<!--            <systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/tomcat-cluster-redis-session-manager-4.0.jar</systemPath>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>commons-pool</groupId>-->
-<!--            <artifactId>commons-pool</artifactId>-->
-<!--            <version>2.6.2</version>-->
-<!--            <scope>system</scope>-->
-<!--            <systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/commons-pool2-2.6.2.jar</systemPath>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
 
     </dependencies>
     <build>

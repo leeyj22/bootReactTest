@@ -36,7 +36,10 @@ public class CertifyController {
 
 	@Value(value = "${system.kmcert.urlcode.common}")
 	String kmcertUrlcode;
-	
+
+	@Value(value = "${system.front.host.name}")
+	String frontHostName;
+
 	/**
 	 * 본인인증 정보 생성
 	 * @param session
@@ -86,12 +89,8 @@ public class CertifyController {
 		redirectAttr.addAttribute("data", UtilManager.getJsonStringFromMap(plusMap));
 		log.info("[CONTROLLER][CerfifyController][certifyResult][END]");
 
-		redisService.setValues("certDi", String.valueOf(session.getAttribute("userDI")));
-
-//		ValueOperations<String, Object> vop = redisTemplate.opsForValue();
-//		vop.set("certiDi", session.getAttribute("Di"));
-
-		return "redirect:http://172.30.40.39:3000/certify/certify_result";
+//		return "redirect:http://172.30.40.39:3000/certify/certify_result";
+		return "redirect:" + frontHostName + "/certify/certify_result";
 	}
 	
 	/**
@@ -127,9 +126,20 @@ public class CertifyController {
 		Map<String, Object> result = new HashMap<>();
 		result.put("isCertify", false);
 
-		serverUserDi = redisService.getValues("certDi");
+		HttpSession session = request.getSession(false);
+		if(!Util.isEmptyOrNull(session)){
+			serverUserDi = String.valueOf(session.getAttribute("userDI"));
+		}
 
-		userDi = request.getParameter("cert_user_di");
+		Cookie[] cookies = request.getCookies();
+		if(!Util.isEmptyOrNull(cookies)){
+			for (Cookie c : cookies) {
+				String name = c.getName();
+				if("cert_user_di".equals(name)){
+					userDi = c.getValue();
+				}
+			}
+		}
 
 		if(!Util.isEmptyOrNull(serverUserDi) && !Util.isEmptyOrNull(userDi)){
 			if(userDi.equals(serverUserDi)){
