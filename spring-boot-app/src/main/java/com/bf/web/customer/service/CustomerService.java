@@ -10,6 +10,8 @@ import com.bf.unierp.customer.dao.UniErpCustomerDao;
 import com.bf.web.customer.dao.CustomerDao;
 import com.bf.web.customer.vo.FaqVO;
 import com.bf.web.customer.vo.NoticeVO;
+import com.bf.web.message.service.MessageService;
+import com.bf.web.myinfo.vo.Myinfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.Charset;
@@ -35,6 +38,9 @@ public class CustomerService{
     @Autowired
     private SvcCustomerDao svcCustomerDao;
 
+    @Autowired
+    private MessageService messageService;
+
     @Value(value = "system.unierp.serviceCode")
     private String uniErpServiceCode;
     @Value(value = "system.unierp.secretKey")
@@ -44,8 +50,9 @@ public class CustomerService{
 
     private final int LIST_SIZE = 15;
     private final static String aes_key = "bfservicekey!@12";
-    private static final String baseUrl = "https://erp.bodyfriend.co.kr";
-    private static final String secretKey = "34587180942444ee9e21180e6a12e941";
+
+//    private static final String baseUrl = "https://erp.bodyfriend.co.kr";
+//    private static final String secretKey = "34587180942444ee9e21180e6a12e941";
 
     public List<NoticeVO> selectNoticeList() {
         return customerDao.selectNoticeList();
@@ -55,8 +62,119 @@ public class CustomerService{
         return customerDao.selectNoticeNormalList(noticeVO);
     }
 
+    public NoticeVO selectNoticeDetail(String idx) {
+        return customerDao.selectNoticeDetail(idx);
+    }
+
+    public void updateHitCountForNotice(String idx) {
+        customerDao.updateHitCountForNotice(idx);
+    }
+
     public List<FaqVO> selectFaqList(FaqVO paramVO) {
         return customerDao.selectFaqList(paramVO);
+    }
+
+
+    // Q&A 게시글 비밀번호 체크
+    public Map qnaPwdCheck(Myinfo myinfo) {
+        return customerDao.qnaPwdCheck(myinfo);
+    }
+
+    // Q&A 게시글 작성자 체크
+    public String selectUserIdx(String bbsIdx) {
+        return customerDao.selectUserIdx(bbsIdx);
+    }
+
+    // Q&A 게시글 삭제 체크
+    public Map qnaDelete(String groups) {
+
+        Map resultMap = new HashMap();
+        int result = customerDao.qnaDelete(groups);
+
+        resultMap.put(Constants.RESULT_DATA, result);
+        resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
+
+        return resultMap;
+
+    }
+
+    // Q&A 리스트 조회
+    public List<NoticeVO> selectQnaList(NoticeVO noticeVO) {
+        return customerDao.selectQnaList(noticeVO);
+    }
+
+    // Q&A 상세 데이터 조회
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Transactional
+    public Map selectQnaDetail(Map<String, String> params) {
+
+        Map resultMap = new HashMap();
+
+        List<HashMap<String, String>> list = customerDao.selectQnaDetail(params);
+
+        for(HashMap<String, String> map : list){
+            map.put("contents",map.get("contents").replace("\n", "<br>"));
+        }
+
+        resultMap.put(Constants.RESULT_DATA, list);
+        resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
+
+        return resultMap;
+    }
+
+    // Q&A 수정 페이지 기존 데이터 조회
+    public Map<String, String> serviceQnaWriteData(Map<String, String> params) {
+        return customerDao.serviceQnaWriteData(params);
+    }
+
+    // 1:1문의 등록
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Transactional
+    public Map insertQna(Myinfo myinfo) throws Exception {
+        Map resultMap = new HashMap();
+
+        int groups = customerDao.getQnaGroups();
+        myinfo.setGroups(groups);
+
+        int result = customerDao.insertQna(myinfo);
+
+        if (result == 1) {
+
+            /****************************
+             * AlimTalk Message Send API
+             ****************************/
+            // 알림톡 파라미터
+            org.json.JSONObject params = new org.json.JSONObject();
+            String phone = myinfo.getCell1() + myinfo.getCell2() + myinfo.getCell3();
+            params.put("#{고객명}"	, myinfo.getWriter());	// 알림톡 발송 고객명
+            params.put("celNo"		, phone);				// 알림톡 발송 연락처
+            params.put("templateCode"		, "body_receipt_01");	// 알림톡 발송 템플릿 코드
+            params.put("#{서비스명}", "1:1문의하기");			// 알림톡 발송 템플릿 코드
+
+            // 고객 알림톡 API 호출
+            if (!"".equals(phone)) {
+                messageService.sendAlimTalk(params);
+            }
+        }
+
+        resultMap.put(Constants.RESULT_DATA, result);
+        resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
+
+        return resultMap;
+    }
+
+    // 1:1문의 수정
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Transactional
+    public Map updateQna(Myinfo myinfo) {
+        Map resultMap = new HashMap();
+
+        int result = customerDao.updateQna(myinfo);
+
+        resultMap.put(Constants.RESULT_DATA, result);
+        resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
+
+        return resultMap;
     }
 
     /**
@@ -67,19 +185,19 @@ public class CustomerService{
      * @throws Exception
      */
     // erp 구매&렌탈 이력
-    public List<HashMap<String, String>> selectMyRentalList_Inst(HttpServletRequest request) throws Exception {
+    public List<Map<String, Object>> selectMyRentalList_Inst(HttpServletRequest request) throws Exception {
         Map params = new HashMap();
 
         params.put("name", request.getParameter("name"));
         params.put("phone", request.getParameter("phone"));
-        params.put("startDate", request.getParameter("startDate"));
-        params.put("endDate", request.getParameter("endDate"));
-        params.put("type", request.getParameter("type"));
+//        params.put("startDate", request.getParameter("startDate"));
+//        params.put("endDate", request.getParameter("endDate"));
+//        params.put("type", request.getParameter("type"));
 
-        List<HashMap<String, String>> list = uniErpCustomerDao.selectMyRentalListUNIERP_info(params);
+        List<Map<String, Object>> list = uniErpCustomerDao.selectMyRentalListUNIERP_info(params);
         if(list.size() > 0){
             for(int i=0; i<list.size(); i++){
-                list.get(i).put("imgPath", customerDao.getGoodsImgPath(list.get(i).get("modelCode")));
+                list.get(i).put("imgPath", customerDao.getGoodsImgPath(String.valueOf(list.get(i).get("modelCode"))));
             }
         }
 

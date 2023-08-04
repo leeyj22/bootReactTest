@@ -10,7 +10,7 @@ import java.util.Map;
 public interface UniErpCustomerMapper {
 
     // UNIERP 구매&렌탈 이력
-    public List<HashMap<String, String>> selectMyRentalListUNIERP_info(Map map);
+    public List<Map<String, Object>> selectMyRentalListUNIERP_info(Map map);
 
     // 간편배송 상세
     public Map<String, Object> selectDeliveryInfoUNIERP(Map<String, Object> map);
