@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback } from "react";
 import { PostCode } from "../../lib/postcode";
 
 const AddrForm = ({
@@ -7,33 +7,43 @@ const AddrForm = ({
     addr2,
     formData,
     setFormData,
-    handleChange,
+    onFormChange,
 }) => {
-    const { postData, searchPostcode } = PostCode();
-
-    useEffect(() => {
-        console.log(zipcode, addr1, addr2);
-        console.log("postData", postData);
-        if (Object.keys(postData).length !== 0) {
-            // onFormChange({
-            //     ...formData,
-            //     formData[zipcode]: postData.zipNo, //우편번호
-            //     formData[addr1]: postData.roadAddrPart1, //주소
-            //     formData[addr2]: postData.addrDetail, //상세 주소
-            // });
-            setFormData((prevFormData) => ({
-                ...prevFormData,
-                [zipcode]: postData.zipNo,
-                [addr1]: postData.roadAddrPart1,
-                [addr2]: postData.addrDetail,
-            }));
-        }
-    }, [postData]);
-    console.log("formData", formData);
-
-    const getPostcode = () => {
-        searchPostcode(true);
+    const handleGetPostCode = () => {
+        PostCode.init((data) => {
+            setFormData({
+                ...formData,
+                [zipcode]: data.zipNo,
+                [addr1]: data.roadAddrPart1,
+                [addr2]: data.addrDetail,
+            });
+            onFormChange({
+                ...formData,
+                [zipcode]: data.zipNo,
+                [addr1]: data.roadAddrPart1,
+                [addr2]: data.addrDetail,
+            });
+        });
     };
+
+    const handleChange = useCallback(
+        (e) => {
+            const { name, value, type, checked } = e.target;
+            const newValue = type === "checkbox" ? checked : value;
+
+            setFormData({
+                ...formData,
+                [name]: newValue,
+            });
+
+            onFormChange({
+                ...formData,
+                [name]: newValue,
+            });
+        },
+        [onFormChange, formData]
+    );
+
     return (
         <>
             <div className="form-item form-addr col-1">
@@ -49,7 +59,7 @@ const AddrForm = ({
                     <button
                         id="searchAddr"
                         className="btn-zip"
-                        onClick={getPostcode}
+                        onClick={handleGetPostCode}
                     >
                         우편번호찾기
                     </button>

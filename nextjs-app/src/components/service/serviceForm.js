@@ -1,11 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import FormWriteTitle from "../form/formWriteTitle";
 import FileMulti from "../form/fileMulti";
-import { PostCode } from "../../lib/postcode";
 import AddrForm from "../form/addrForm";
 
 const ServiceForm = ({ onFormChange }) => {
-    const { postData, searchPostcode } = PostCode();
     const [formData, setFormData] = useState({
         //서비스접수 초기값 설정
         productSelector: "", //제품
@@ -25,36 +23,6 @@ const ServiceForm = ({ onFormChange }) => {
         addr1: "", //주소
         addr2: "", //상세 주소
     });
-
-    useEffect(() => {
-        // 스크립트를 동적으로 생성하여 <head> 태그의 자식으로 추가
-        const script = document.createElement("script");
-        script.src = "https://ssl.daumcdn.net/dmaps/map_js_init/postcode.v2.js";
-        document.head.appendChild(script);
-
-        if (Object.keys(postData).length !== 0) {
-            onFormChange({
-                ...formData,
-                zip: postData.zipNo, //우편번호
-                addr1: postData.roadAddrPart1, //주소
-                addr2: postData.addrDetail, //상세 주소
-            });
-            setFormData({
-                ...formData,
-                zip: postData.zipNo, //우편번호
-                addr1: postData.roadAddrPart1, //주소
-                addr2: postData.addrDetail, //상세 주소
-            });
-        }
-        return () => {
-            // 컴포넌트가 언마운트될 때 스크립트 요소를 제거하여 메모리 누수 방지
-            document.head.removeChild(script);
-        };
-    }, [postData]);
-
-    const getPostcode = () => {
-        searchPostcode(true);
-    };
 
     const handleChange = useCallback(
         (e) => {
@@ -360,10 +328,9 @@ const ServiceForm = ({ onFormChange }) => {
                         zipcode="zip"
                         addr1="addr1"
                         addr2="addr2"
-                        handleChange={handleChange}
-                        onFormChange={onFormChange}
                         formData={formData}
                         setFormData={setFormData}
+                        onFormChange={onFormChange}
                     />
                 </div>
             </article>
