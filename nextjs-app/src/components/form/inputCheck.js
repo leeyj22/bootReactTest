@@ -11,7 +11,10 @@ const InputCheck = ({ id, name, checked, onChange }) => {
                 checked={checked}
                 onChange={onChange}
             />
-            <label htmlFor={id}>{name}</label>
+            <label
+                htmlFor={id}
+                dangerouslySetInnerHTML={{ __html: name }}
+            ></label>
         </InputChkbox>
     );
 };

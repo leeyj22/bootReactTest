@@ -543,9 +543,40 @@ footer .bottom .app a img {
   padding: 5px 0;
 }
 
-.form-write-basic * {
-  color: #272D37;
+.form-viewer-basic .col-1,
+.form-viewer-basic .col-2,
+.form-viewer-basic .col-3,
+.form-write-basic .col-1,
+.form-write-basic .col-2,
+.form-write-basic .col-3 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
+.form-viewer-basic .col-1 > .col,
+.form-write-basic .col-1 > .col {
+  width: 100%;
+}
+.form-viewer-basic .col-2 > .col,
+.form-write-basic .col-2 > .col {
+  width: calc(50% - 5px);
+}
+.form-viewer-basic .col-3 > .col,
+.form-write-basic .col-3 > .col {
+  width: calc(33.33% - 5px);
+}
+.form-viewer-basic .txt,
+.form-write-basic .txt {
+  font-size: 1.6rem;
+}
+.form-viewer-basic .form-title,
+.form-write-basic .form-title {
+  margin-bottom: 15px;
+  font-size: 2rem;
+  font-weight: 700;
+}
+.form-viewer-basic .necessary:after,
 .form-write-basic .necessary:after {
   content: "*";
   display: inline-block;
@@ -554,8 +585,27 @@ footer .bottom .app a img {
   vertical-align: text-top;
   font-weight: 700;
 }
-.form-write-basic .txt {
-  font-size: 1.6rem;
+
+.form-viewer-basic .form-title {
+  display: block;
+  color: var(--color-grey-bbbcc8);
+}
+.form-viewer-basic .form-item {
+  margin-bottom: 40px;
+}
+.form-viewer-basic .form-item:last-child {
+  margin-bottom: 0;
+}
+.form-viewer-basic .form-info p {
+  font-size: 2rem;
+  line-height: 1.6;
+}
+.form-viewer-basic .form-info p em {
+  margin-right: 10px;
+}
+
+.form-write-basic * {
+  color: #272D37;
 }
 .form-write-basic input[type=text],
 .form-write-basic select,
@@ -566,22 +616,6 @@ footer .bottom .app a img {
   border-color: #DAE0E6;
   border-style: solid;
   font-size: 1.6rem;
-}
-.form-write-basic .col-1,
-.form-write-basic .col-2,
-.form-write-basic .col-3 {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.form-write-basic .col-1 > .col {
-  width: 100%;
-}
-.form-write-basic .col-2 > .col {
-  width: calc(50% - 5px);
-}
-.form-write-basic .col-3 > .col {
-  width: calc(33.33% - 5px);
 }
 .form-write-basic .form-item input[type=text],
 .form-write-basic .form-item select,
@@ -608,7 +642,7 @@ footer .bottom .app a img {
 .form-write-basic .form-addr .btn-zip {
   display: inline-block;
   padding: 15px;
-  width: 190px;
+  min-width: 190px;
   height: 66px;
   background: #fff;
   color: #272D37;
@@ -622,38 +656,12 @@ footer .bottom .app a img {
 .form-write-item {
   margin-bottom: 20px;
 }
-.form-write-item .form-title {
-  margin-bottom: 15px;
-  font-size: 2rem;
-  font-weight: 700;
-}
 .form-write-item .form-selectbox label {
   position: absolute;
   opacity: 0;
   text-indent: -9999px;
   width: 0;
   height: 0;
-}
-.form-write-item .form-radio-btns .radio-btn span {
-  display: block;
-  margin-bottom: 10px;
-  padding: 20px;
-  border: 1px solid #DAE0E6;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.form-write-item .form-radio-btns .radio-btn span:first-child {
-  font-size: 2rem;
-  padding-left: 50px;
-  background-image: url("https://bodyfriend.speedgabia.com/img/cs/icon/icon_radio_off.svg");
-  background-position: 20px center;
-  background-repeat: no-repeat;
-}
-.form-write-item .form-radio-btns .radio-btn input:checked + label span {
-  border-color: #437EF7;
-}
-.form-write-item .form-radio-btns .radio-btn input:checked + label span:first-child {
-  background-image: url("https://bodyfriend.speedgabia.com/img/cs/icon/icon_radio_on.svg");
 }
 .form-write-item .form-write-same-chk {
   display: flex;
@@ -693,6 +701,53 @@ footer .bottom .app a img {
   font-size: 1.6rem;
 }
 
+.form-view-title {
+  margin-top: 100px;
+  margin-bottom: 40px;
+}
+.form-view-title p {
+  display: inline-block;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.form-radio-btns .radio-btn span {
+  display: block;
+  margin-bottom: 10px;
+  padding: 20px;
+  border: 1px solid #DAE0E6;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.form-radio-btns .radio-btn span:first-child {
+  font-size: 2rem;
+  padding-left: 50px;
+  background-image: url("https://bodyfriend.speedgabia.com/img/cs/icon/icon_radio_off.svg");
+  background-position: 20px center;
+  background-repeat: no-repeat;
+}
+.form-radio-btns .radio-btn input:checked + label span {
+  border-color: #437EF7;
+}
+.form-radio-btns .radio-btn input:checked + label span:first-child {
+  background-image: url("https://bodyfriend.speedgabia.com/img/cs/icon/icon_radio_on.svg");
+}
+
+.form-viewer-price {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 44px;
+  padding: 0 77px;
+  font-size: 2rem;
+}
+.form-viewer-price span {
+  color: #bbbcc8;
+}
+.form-viewer-price strong em {
+  color: #f00;
+  font-size: 2.4rem;
+}
+
 .term-agree-wrap {
   padding: 0 20px;
 }
@@ -718,18 +773,65 @@ footer .bottom .app a img {
   border-right: 2px solid #DAE0E6;
   transform: translateY(-50%) rotate(45deg);
 }
+.term-agree-wrap .terms-list.allChkDiv {
+  margin-bottom: 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #DAE0E6;
+}
 
 .btn-wrap {
   margin-top: 100px;
 }
-.btn-wrap.service button {
+.btn-wrap.type1 button {
   display: inline-block;
   padding: 22px;
-  width: 496px;
+  min-width: 496px;
   height: 80px;
   background: #437EF7;
   color: #fff;
-  border: 1px solid #DAE0E6;
+  border: 1px solid #437EF7;
+  border-radius: 10px;
+  font-size: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+.btn-wrap.type2 button {
+  margin: 0 4px;
+}
+.btn-wrap .btn-white {
+  display: inline-block;
+  padding: 22px;
+  min-width: 248px;
+  height: 80px;
+  background: #fff;
+  color: #437EF7;
+  border: 1px solid #437EF7;
+  border-radius: 10px;
+  font-size: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+.btn-wrap .btn-primary {
+  display: inline-block;
+  padding: 22px;
+  min-width: 248px;
+  height: 80px;
+  background: #437EF7;
+  color: #fff;
+  border: 1px solid #437EF7;
+  border-radius: 10px;
+  font-size: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+.btn-wrap .btn-pay {
+  display: inline-block;
+  padding: 22px 120px;
+  min-width: 248px;
+  height: 80px;
+  background: #437EF7;
+  color: #fff;
+  border: 1px solid #437EF7;
   border-radius: 10px;
   font-size: 20px;
   text-align: center;
@@ -778,7 +880,7 @@ footer .bottom .app a img {
 .form-file .btn-file {
   display: inline-block;
   padding: 15px;
-  width: 190px;
+  min-width: 190px;
   height: 66px;
   background: #fff;
   color: #272D37;

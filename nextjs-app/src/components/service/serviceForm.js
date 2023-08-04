@@ -24,6 +24,12 @@ const ServiceForm = ({ onFormChange }) => {
         addr2: "", //상세 주소
     });
 
+    useEffect(() => {
+        onFormChange({
+            formData,
+        });
+    }, [formData]);
+
     const handleChange = useCallback(
         (e) => {
             const { name, value, type, checked } = e.target;
@@ -34,20 +40,20 @@ const ServiceForm = ({ onFormChange }) => {
                 [name]: newValue,
             }));
 
-            onFormChange({
-                ...formData,
-                [name]: newValue,
-            });
+            // onFormChange({
+            //     ...formData,
+            //     [name]: newValue,
+            // });
         },
-        [onFormChange, formData]
+        [formData]
     );
 
-    const handleFileChange = (files) => {
-        onFormChange({
-            ...formData,
-            ex_filename: files,
-        });
-    };
+    // const handleFileChange = (files) => {
+    //     setFormData({
+    //         ...formData,
+    //         ex_filename: files,
+    //     });
+    // };
 
     return (
         <>
@@ -206,7 +212,8 @@ const ServiceForm = ({ onFormChange }) => {
                                 maxSize="300MB"
                                 id="ex_filename"
                                 fileList="Y"
-                                onFormChange={handleFileChange}
+                                formData={formData}
+                                setFormData={setFormData}
                             />
                         </div>
                     </div>
@@ -330,7 +337,7 @@ const ServiceForm = ({ onFormChange }) => {
                         addr2="addr2"
                         formData={formData}
                         setFormData={setFormData}
-                        onFormChange={onFormChange}
+                        // onFormChange={onFormChange}
                     />
                 </div>
             </article>

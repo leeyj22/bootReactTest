@@ -47,25 +47,45 @@ const certify_result = () => {
     );
 };
 
-export const getServerSideProps = wrapper.getServerSideProps(
-    (store) =>
-        async ({ req, res, ...data }) => {
-            store.dispatch(END);
-            console.log(
-                "data==================",
-                data.query.data,
-                typeof data.query.data
-            );
-            // console.log("req=========================", req);
-            // console.log("res=========================", res);
+// export const getServerSideProps = wrapper.getServerSideProps(
+//     (store) =>
+//         async ({ req, res, ...data }) => {
+//             store.dispatch(END);
+//             console.log(
+//                 "data==================",
+//                 data.query.data,
+//                 typeof data.query.data
+//             );
+//             // console.log("req=========================", req);
+//             // console.log("res=========================", res);
 
-            const certifyData = data.query.data;
-            store.dispatch({
-                type: CERTIFY_SAVE_SSR_REQUEST,
-                data: certifyData,
-            });
-            await store.sagaTask.toPromise();
+//             const certifyData = data.query.data;
+//             store.dispatch({
+//                 type: CERTIFY_SAVE_SSR_REQUEST,
+//                 data: certifyData,
+//             });
+//             await store.sagaTask.toPromise();
+//         }
+// );
+
+export const getServerSideProps = wrapper.getServerSideProps(
+    async (context) => {
+        const cookie = context.req ? context.req.headers.cookie : "";
+
+        axios.defaults.headers.Cookie = "";
+        if (context.req && cookie) {
+            axios.defaults.headers.Cookie = cookie;
         }
+
+        const certifyData = context.query.data;
+        context.store.dispatch({
+            type: CERTIFY_SAVE_SSR_REQUEST,
+            data: certifyData,
+        });
+
+        context.store.dispatch(END);
+        await context.store.sagaTask.toPromise();
+    }
 );
 
 export default certify_result;

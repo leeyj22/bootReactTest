@@ -3,6 +3,10 @@ import FormWriteTitle from "../form/formWriteTitle";
 import AddrForm from "../form/addrForm";
 import Calendar from "../form/calendar";
 
+import FormViewTitle from "../form/formViewTitle";
+import { FormInfoViewStyle } from "../../style/FormStyle";
+import NoticeService from "./noticeService";
+
 const ServiceTransferForm2 = ({ onFormChange }) => {
     const [formData, setFormData] = useState({
         //이전설치접수2 초기값 설정 : 회수 정보, 설치 정보
@@ -43,118 +47,115 @@ const ServiceTransferForm2 = ({ onFormChange }) => {
 
     return (
         <>
-            <article className="form-write-basic">
-                <FormWriteTitle
-                    title="2. 설치 정보"
-                    service="serviceTransfer"
-                />
-
-                <div className="form-write-item">
-                    <div className="form-write-same-chk">
-                        <input type="checkbox" name="" id="sameInfo" />
-                        <label htmlFor="sameInfo">회수자 정보와 동일</label>
-                    </div>
-                </div>
-
-                {/* 설치자 이름 */}
-                <div className="form-write-item">
-                    <div className="form-title">
-                        <p className="necessary">이름</p>
-                    </div>
-                    <div className="form-item col-1">
-                        <div className="col">
-                            <div className="form-input">
-                                <input
-                                    type="text"
-                                    placeholder="이름을 입력하세요"
-                                    name="receiver"
-                                    value={formData.receiver}
-                                    onChange={handleChange}
-                                />
+            <article className="form-viewer-basic">
+                {/* 이전/설치 신청 정보 */}
+                <FormViewTitle title="이전/설치 신청 정보" />
+                <FormInfoViewStyle>
+                    <div className="form-viewer-item form-info">
+                        <div className="form-item col-2">
+                            <div className="col">
+                                <span className="form-title">제품</span>
+                                <p>더 파라오</p>
+                            </div>
+                            <div className="col">
+                                <span className="form-title">접수 유형</span>
+                                <p>지역 이동(포장 운반)</p>
+                            </div>
+                        </div>
+                        <div className="form-item col-1">
+                            <div className="col">
+                                <span className="form-title">회수 정보</span>
+                                <p>
+                                    <em>김바디</em> <em>010-1234-5678</em>
+                                </p>
+                                <p>
+                                    <em>(06302)</em>{" "}
+                                    <em>부산 부산진구 가야대로 772 6층</em>
+                                </p>
+                                <p>
+                                    <em>희망일</em> <em>2022-01-07(월)</em>
+                                </p>
+                                <p>
+                                    <em>이사예정일</em> <em>2022-01-06(일)</em>
+                                </p>
+                            </div>
+                        </div>
+                        <div className="form-item col-1">
+                            <div className="col">
+                                <span className="form-title">설치 정보</span>
+                                <p>
+                                    <em>김바디</em> <em>010-1234-5678</em>
+                                </p>
+                                <p>
+                                    <em>(06302)</em>{" "}
+                                    <em>부산 부산진구 가야대로 772 6층</em>
+                                </p>
+                                <p>
+                                    <em>희망일</em> <em>2022-01-07(월)</em>
+                                </p>
+                                <p>
+                                    <em>이사예정일</em> <em>2022-01-06(일)</em>
+                                </p>
                             </div>
                         </div>
                     </div>
+                </FormInfoViewStyle>
+                {/* 이전/설치 비용 */}
+                <div class="form-viewer-price">
+                    <span>이전/설치 비용</span>
+                    <strong>
+                        <em>300,000</em>원
+                    </strong>
                 </div>
 
-                {/* 설치 연락처 */}
-                <div className="form-write-item">
-                    <div className="form-title">
-                        <p className="necessary">연락처</p>
-                    </div>
-                    <div className="form-item col-1">
-                        <div className="col">
-                            <div className="form-selectbox form-call">
-                                <div>
-                                    <label htmlFor="telNumb01">010</label>
-                                    <select
-                                        name="telNumb02"
-                                        value={formData.telNumb02}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="010">010</option>
-                                        <option value="011">011</option>
-                                        <option value="016">016</option>
-                                        <option value="017">017</option>
-                                        <option value="018">018</option>
-                                        <option value="019">019</option>
-                                    </select>
+                <FormViewTitle title="결제 방법 선택" />
+
+                <FormInfoViewStyle type="pay">
+                    <div className="form-viewer-item">
+                        <div className="form-title">
+                            <p className="necessary">결제 방법</p>
+                        </div>
+                        <div className="form-item col-1">
+                            <div className="col">
+                                <div className="form-radio-btns col-3">
+                                    <div className="radio-btn col">
+                                        <input
+                                            type="radio"
+                                            id="option1"
+                                            name="option"
+                                        />
+                                        <label htmlFor="option1">
+                                            <span>신용카드</span>
+                                        </label>
+                                    </div>
+                                    <div className="radio-btn col">
+                                        <input
+                                            type="radio"
+                                            id="option1"
+                                            name="option"
+                                        />
+                                        <label htmlFor="option1">
+                                            <span>계좌이체</span>
+                                        </label>
+                                    </div>
+                                    <div className="radio-btn col">
+                                        <input
+                                            type="radio"
+                                            id="option1"
+                                            name="option"
+                                        />
+                                        <label htmlFor="option1">
+                                            <span>가상계좌</span>
+                                        </label>
+                                    </div>
                                 </div>
-                                <span className="call-txt">-</span>
-                                <div>
-                                    <input
-                                        type="text"
-                                        className="call-num-box"
-                                        maxLength="4"
-                                        name="telNumb02_01"
-                                        value={formData.telNumb02_01}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                                <span className="call-txt">-</span>
-                                <div>
-                                    <input
-                                        type="text"
-                                        className="call-num-box"
-                                        maxLength="4"
-                                        name="telNumb02_02"
-                                        value={formData.telNumb02_02}
-                                        onChange={handleChange}
-                                    />
-                                </div>
+                                <p className="txt color-redf-0">
+                                    ※ 50,000원 이상 결제 시 할부 가능합니다.
+                                </p>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                {/* 설치 주소 */}
-                <div className="form-write-item">
-                    <div className="form-title">
-                        <p className="necessary">설치 주소</p>
-                    </div>
-                    <AddrForm
-                        zipcode="zipCode2"
-                        addr1="receiveAddr1"
-                        addr2="receiverAddr2"
-                        formData={formData}
-                        setFormData={setFormData}
-                        handleChange={handleChange}
-                        onFormChange={onFormChange}
-                    />
-                </div>
-
-                {/* 설치 희망일 */}
-                <div className="form-write-item">
-                    <div className="form-title">
-                        <p className="necessary">설치 희망일</p>
-                    </div>
-                    <div className="form-item col-1">
-                        <div className="col">
-                            <div className="form-input">
-                                <Calendar />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </FormInfoViewStyle>
             </article>
         </>
     );

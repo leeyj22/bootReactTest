@@ -1,12 +1,12 @@
 	
-@mixin btn($padding,$width,$height,$font,$borderRadius,$bgColor,$color) {
+@mixin btn($padding,$width,$height,$font,$borderRadius,$borderColor,$bgColor,$color) {
     display: inline-block;
     padding:$padding;
-    width:$width;
+    min-width:$width;
     height:$height;
     background: $bgColor;
     color:$color;
-    border:1px solid $color-border1;
+    border:1px solid $borderColor;
     border-radius:$borderRadius;
     font-size:$font;
     text-align: center;

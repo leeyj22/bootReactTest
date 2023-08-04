@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { ImgUrl } from "../hooks/imgurl";
 import { useDispatch, useSelector } from "react-redux";
 import { LOGIN_URL_REQUEST } from "../reducers/user";
-import { useRouter } from "next/router";
 
 const headerUi = (otherLinkRef) => {
     const headerEl = document.querySelector("#header");
@@ -107,7 +106,6 @@ const headerUi = (otherLinkRef) => {
 const Headers = () => {
     const dispatch = useDispatch();
     const otherLinkRef = useRef(null);
-    const router = useRouter();
 
     const { loginUrlDone, loginDone, loginUrl } = useSelector(
         (state) => state.user

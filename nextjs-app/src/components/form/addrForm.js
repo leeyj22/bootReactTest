@@ -7,7 +7,7 @@ const AddrForm = ({
     addr2,
     formData,
     setFormData,
-    onFormChange,
+    // onFormChange,
 }) => {
     const handleGetPostCode = () => {
         PostCode.init((data) => {
@@ -17,12 +17,12 @@ const AddrForm = ({
                 [addr1]: data.roadAddrPart1,
                 [addr2]: data.addrDetail,
             });
-            onFormChange({
-                ...formData,
-                [zipcode]: data.zipNo,
-                [addr1]: data.roadAddrPart1,
-                [addr2]: data.addrDetail,
-            });
+            // onFormChange({
+            //     ...formData,
+            //     [zipcode]: data.zipNo,
+            //     [addr1]: data.roadAddrPart1,
+            //     [addr2]: data.addrDetail,
+            // });
         });
     };
 
@@ -36,12 +36,12 @@ const AddrForm = ({
                 [name]: newValue,
             });
 
-            onFormChange({
-                ...formData,
-                [name]: newValue,
-            });
+            // onFormChange({
+            //     ...formData,
+            //     [name]: newValue,
+            // });
         },
-        [onFormChange, formData]
+        [formData]
     );
 
     return (

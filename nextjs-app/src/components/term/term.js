@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { terms } from "../../data/terms";
 import InputCheck from "../form/inputCheck";
 
 // const termslist = ['policy','mareting'];
 
-const Term = ({ allChk, termslist, onFormChange }) => {
+const Term = ({ allChk, termslist, onFormChange, type }) => {
     //termslist 에 따라 formData 초기화.
     const initialFormData = termslist.reduce((acc, termId) => {
         return {
@@ -14,6 +14,10 @@ const Term = ({ allChk, termslist, onFormChange }) => {
     }, {});
 
     const [formData, setFormData] = useState(initialFormData);
+
+    useEffect(() => {
+        onFormChange(formData);
+    }, [formData]);
 
     const handleChange = (e) => {
         const { id, checked } = e.target;
@@ -51,8 +55,6 @@ const Term = ({ allChk, termslist, onFormChange }) => {
                 updatedFormData.chkAll = isAllChecked;
             }
 
-            onFormChange(updatedFormData);
-
             return updatedFormData;
         });
     };
@@ -60,7 +62,7 @@ const Term = ({ allChk, termslist, onFormChange }) => {
     return (
         <article className="term-agree-wrap" data-allchk={allChk}>
             {allChk == "Y" && (
-                <dl className="terms-list">
+                <dl className={`${type} terms-list`}>
                     <dt className="temp-title">
                         <InputCheck
                             id="chkAll"
@@ -82,11 +84,13 @@ const Term = ({ allChk, termslist, onFormChange }) => {
                                     checked={formData[term.id] || false}
                                     onChange={handleChange}
                                 />
-                                <button className="btn-temp-pop">
-                                    <span className="hdtxt">
-                                        {term.name} 팝업 열기
-                                    </span>
-                                </button>
+                                {term.pop == "Y" && (
+                                    <button className="btn-temp-pop">
+                                        <span className="hdtxt">
+                                            {term.name} 팝업 열기
+                                        </span>
+                                    </button>
+                                )}
                             </dt>
                         </dl>
                     );

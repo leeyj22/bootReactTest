@@ -39,7 +39,7 @@
         }
     }
     .btn-file{
-        @include btn(15px,190px,66px,2rem,10px,$color-white,$color-black-2);
+        @include btn(15px,190px,66px,2rem,10px,$color-border1, $color-white,$color-black-2);
     }
     .notice{
         margin:5px 0;

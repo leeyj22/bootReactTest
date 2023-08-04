@@ -37,6 +37,7 @@ const login = () => {
                     event.data.certifyInfoState
                 ) {
                     //본인인증 데이터 저장 요청
+                    console.log("???", event.data);
                     dispatch({
                         type: CERTIFY_SAVE_REQUEST,
                         data: event.data,
@@ -102,12 +103,12 @@ const login = () => {
 
     //본인인증 이동
     const handleLinkCertify = () => {
+        console.log("startCertify", startCertify);
         setStartCertify(true);
     };
 
     return (
         <AppLayout>
-            <Breadcrumb pageId="service" pageSubId="service1" />
             <Container>
                 <LoginContainer>
                     <div>

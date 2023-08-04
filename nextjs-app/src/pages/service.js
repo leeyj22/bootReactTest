@@ -10,7 +10,6 @@ import ServiceForm from "../components/service/serviceForm";
 import { useSelector } from "react-redux";
 import { useSaveBeforePathname } from "../hooks/useSaveBeforePathname";
 import { useRouter } from "next/router";
-import Cookies from "js-cookie";
 import { END } from "redux-saga";
 import axios from "axios";
 import wrapper from "../store/configureStore";
@@ -27,7 +26,7 @@ const Service = () => {
         //회원이 아닌 본인인증의 경우 certifyState true
         //회원일 경우 loginDone true , user 데이터 있음.
         if (!certifyState && !loginDone) {
-            router.push("/login");
+            // router.push("/login"s);
         }
     }, [loginDone, certifyState]);
 
@@ -54,6 +53,7 @@ const Service = () => {
                         allChk="Y"
                         termslist={["policy", "marketing"]}
                         onFormChange={handleFormChange}
+                        type=""
                     />
 
                     {/* 유의사항 */}
@@ -61,7 +61,8 @@ const Service = () => {
 
                     {/* 버튼 */}
                     <Button
-                        btnName="service"
+                        btnType="type1"
+                        name="접수하기"
                         pos="center"
                         formData={formData}
                         checkValidation={checkValidation}
@@ -73,42 +74,39 @@ const Service = () => {
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(
-    (store) =>
-        async ({ req, res, ...data }) => {
-            const cookie = req ? req.headers.cookie : "";
+    async (context) => {
+        const cookie = context.req ? context.req.headers.cookie : "";
 
-            axios.defaults.headers.Cookie = "";
-            if (req && cookie) {
-                axios.defaults.headers.Cookie = cookie;
-            }
-            console.log("cookie=======================", cookie);
-
-            function getCookieValue(cookieName) {
-                const cookies = cookie.split("; ");
-                for (const cookie of cookies) {
-                    const [name, value] = cookie.split("=");
-                    if (name === cookieName) {
-                        return decodeURIComponent(value);
-                    }
-                }
-                return null; // 해당 쿠키 이름에 해당하는 값이 없는 경우
-            }
-
-            // 특정 쿠키 값을 가져옵니다.
-            const certUserDi = getCookieValue("cert_user_di");
-
-            console.log(
-                "cert_user_di:=============================",
-                certUserDi
-            );
-            store.dispatch({
-                type: CERTIFY_USER_INFO_REQUEST,
-            });
-
-            store.dispatch(END);
-
-            await store.sagaTask.toPromise();
+        axios.defaults.headers.Cookie = "";
+        if (context.req && cookie) {
+            axios.defaults.headers.Cookie = cookie;
         }
+
+        // function getCookieValue(cookieName) {
+        //     const cookies = cookie.split("; ");
+        //     for (const cookie of cookies) {
+        //         const [name, value] = cookie.split("=");
+        //         if (name === cookieName) {
+        //             return decodeURIComponent(value);
+        //         }
+        //     }
+        //     return null; // 해당 쿠키 이름에 해당하는 값이 없는 경우
+        // }
+
+        // // 특정 쿠키 값을 가져옵니다.
+        // const certUserDi = getCookieValue("cert_user_di");
+
+        // console.log(
+        //     "cert_user_di:=============================",
+        //     certUserDi
+        // );
+        context.store.dispatch({
+            type: CERTIFY_USER_INFO_REQUEST,
+        });
+
+        context.store.dispatch(END);
+        await context.store.sagaTask.toPromise();
+    }
 );
 
 export default Service;

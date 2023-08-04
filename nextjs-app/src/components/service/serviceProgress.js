@@ -7,7 +7,7 @@ const progressStep = [
     { id: 3, step: "3", name: "결제 정보 입력", now: false, finish: false },
 ];
 
-const ServiceTransferProgress = ({ step, progress }) => {
+const serviceProgress = ({ step, progress }) => {
     return (
         <ServiceProgressStyle step={step} progress={progress}>
             <ul>
@@ -27,4 +27,4 @@ const ServiceTransferProgress = ({ step, progress }) => {
     );
 };
 
-export default ServiceTransferProgress;
+export default serviceProgress;

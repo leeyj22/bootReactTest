@@ -2,7 +2,15 @@ import React, { useEffect, useState } from "react";
 import useFileInput from "../../hooks/useFileInput";
 import { fileToSize } from "../../hooks/fileToSize";
 
-const FileMulti = ({ name, maxSize, maxLen, fileList, onFormChange }) => {
+const FileMulti = ({
+    name,
+    id,
+    maxSize,
+    maxLen,
+    fileList,
+    formData,
+    setFormData,
+}) => {
     const {
         inputRef,
         selectedFiles,
@@ -14,7 +22,10 @@ const FileMulti = ({ name, maxSize, maxLen, fileList, onFormChange }) => {
 
     useEffect(() => {
         if (selectedFiles.length > 1) {
-            onFormChange(selectedFiles); // 상위 컴포넌트로 선택한 파일들 전달
+            setFormData({
+                ...formData,
+                [name]: selectedFiles,
+            }); // 상위 컴포넌트로 선택한 파일들 전달
         }
     }, [selectedFiles]);
 

@@ -53,4 +53,11 @@ const TabStyle1 = styled.div`
         }
     }
 `;
-export { InputChkbox, SearchInputStyle, TabStyle1 };
+
+const FormInfoViewStyle = styled.section`
+    padding: 44px 77px;
+    border: 1px solid var(--color-border1);
+    border-radius: 10px;
+    margin-bottom: ${(props) => (props.type == "pay" ? "100px" : "0px")};
+`;
+export { InputChkbox, SearchInputStyle, TabStyle1, FormInfoViewStyle };

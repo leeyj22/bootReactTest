@@ -1,36 +1,12 @@
+//.form-viewer-basic
 // form-write-basic
-
+.form-viewer-basic,
 .form-write-basic{
-    *{
-        color:$color-black-2;
-    }
-    .necessary{
-        &:after{
-            content: '*';
-            display: inline-block;
-            margin-left: 3px;
-            color: $color-redf-0;
-            vertical-align: text-top;
-            font-weight: 700;
-        }
-    }
-    .txt{
-        font-size:1.6rem;
-    }
-    input[type=text],
-    select,
-    textarea{
-        padding:20px;
-        border-width:1px 1px 1px 1px;
-        border-radius: 10px;
-        border-color: $color-border1;
-        border-style: solid;
-        font-size:1.6rem;
-    }
     .col-1,
     .col-2,
     .col-3{
         display:flex;
+        flex-wrap:wrap;
         justify-content: space-between;
         margin-bottom:10px;
     }
@@ -49,6 +25,68 @@
             width:calc(33.33% - 5px);
         }
     }
+    .txt{
+        font-size:1.6rem;
+    }
+    //title
+    .form-title{
+        margin-bottom:15px;
+        font-size:2rem;
+        font-weight: 700;
+    }
+    .necessary{
+        &:after{
+            content: '*';
+            display: inline-block;
+            margin-left: 3px;
+            color: $color-redf-0;
+            vertical-align: text-top;
+            font-weight: 700;
+        }
+    }
+}
+
+.form-viewer-basic{
+    //title
+    .form-title{
+        display:block;
+       color:var(--color-grey-bbbcc8);
+    }
+    .form-item{
+        margin-bottom:40px;
+        &:last-child{
+            margin-bottom:0;
+        }
+       
+    }
+    .form-info{
+        p{
+            font-size:2rem;
+            line-height: 1.6;
+            em{
+                margin-right:10px;
+            }
+        }
+    }
+}
+
+.form-write-basic{
+    *{
+        color:$color-black-2;
+    }
+    
+
+    input[type=text],
+    select,
+    textarea{
+        padding:20px;
+        border-width:1px 1px 1px 1px;
+        border-radius: 10px;
+        border-color: $color-border1;
+        border-style: solid;
+        font-size:1.6rem;
+    }
+    
     .form-item{
         input[type=text],
         select,
@@ -75,7 +113,7 @@
             max-width: 440px;
         }
         .btn-zip{
-            @include btn(15px,190px,66px,2rem,10px,$color-white,$color-black-2);
+            @include btn(15px,190px,66px,2rem,10px,$color-border1,$color-white,$color-black-2);
         }
     }
 }
@@ -83,12 +121,6 @@
 // 폼 작성란
 .form-write-item{
     margin-bottom:20px;
-    //title
-    .form-title{
-        margin-bottom:15px;
-        font-size:2rem;
-        font-weight: 700;
-    }
     //selectbox
     .form-selectbox{
         label{
@@ -99,35 +131,6 @@
             height: 0;
         }
     }   
-    //radio-btn
-    .form-radio-btns{
-        .radio-btn{
-            span{
-                display: block;
-                margin-bottom: 10px;
-                padding:20px;
-                border:1px solid $color-border1;
-                border-radius: 10px;
-                cursor: pointer;
-                &:first-child{
-                    font-size:2rem;
-                    padding-left:50px;
-                    background-image: url($icon-radio-off);
-                    background-position: 20px center;
-                    background-repeat: no-repeat;
-                }
-            }
-            input:checked + label{
-                span{
-                    border-color:$color-primary;
-                }
-                span:first-child{
-                    background-image: url($icon-radio-on);
-                    
-                }
-            }
-        }
-    }
     // 정보 동일 체크
     .form-write-same-chk{
         display: flex;
@@ -168,6 +171,60 @@
         font-size:1.6rem;
     }
 }
+.form-view-title{
+    margin-top:100px;
+    margin-bottom:40px;
+    p{
+        display: inline-block;
+        font-size:2rem;
+        font-weight:700;
+    }
+}
+//radio-btn
+.form-radio-btns{
+    .radio-btn{
+        span{
+            display: block;
+            margin-bottom: 10px;
+            padding:20px;
+            border:1px solid $color-border1;
+            border-radius: 10px;
+            cursor: pointer;
+            &:first-child{
+                font-size:2rem;
+                padding-left:50px;
+                background-image: url($icon-radio-off);
+                background-position: 20px center;
+                background-repeat: no-repeat;
+            }
+        }
+        input:checked + label{
+            span{
+                border-color:$color-primary;
+            }
+            span:first-child{
+                background-image: url($icon-radio-on);
+                
+            }
+        }
+    }
+}
+.form-viewer-price{
+    display: flex;
+    justify-content: space-between;
+    margin-top:44px;
+    padding:0 77px;
+    font-size:2rem;
+    span{
+        color:$color-grey-bbbcc8;
+    }
+    strong{
+        em{
+            color:$color-redf-0;
+            font-size:2.4rem;
+        }
+    }
+}
 
 // 이용약관
 .term-agree-wrap{
@@ -180,15 +237,34 @@
             background:$color-white;
             @include contentArrowRight(30px,30px);
         }
+        &.allChkDiv{
+            margin-bottom: 22px;
+            padding-bottom: 22px;
+            border-bottom:1px solid $color-border1;
+        }
     }
 }
 
 // button
 .btn-wrap{
     margin-top: 100px;
-    &.service{
+    &.type1{
         button{
-            @include btn(22px,496px,80px,20px,10px,$color-primary,$color-white);
+            @include btn(22px,496px,80px,20px,10px,$color-primary,$color-primary,$color-white);
         }
+    }
+    &.type2{
+        button{
+            margin:0 4px;
+        }
+    }
+    .btn-white{
+        @include btn(22px,248px,80px,20px,10px,$color-primary,$color-white,$color-primary);
+    }
+    .btn-primary{
+        @include btn(22px,248px,80px,20px,10px,$color-primary,$color-primary,$color-white);
+    }
+    .btn-pay{
+        @include btn(22px 120px,248px,80px,20px,10px,$color-primary,$color-primary,$color-white);
     }
 }

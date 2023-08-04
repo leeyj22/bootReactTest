@@ -1,6 +1,6 @@
 import React from "react";
 
-const Button = ({ btnName, pos, formData, checkValidation }) => {
+const Button = ({ btnType, name, pos, formData, checkValidation }) => {
     const handleSubmit = () => {
         const resultFormData = checkValidation({
             ...formData,
@@ -9,8 +9,8 @@ const Button = ({ btnName, pos, formData, checkValidation }) => {
         console.log("Button 클릭! resultFormData 전달 : ", resultFormData);
     };
     return (
-        <div className={`${btnName} btn-wrap`} style={{ textAlign: pos }}>
-            <button onClick={handleSubmit}>접수하기</button>
+        <div className={`${btnType} btn-wrap`} style={{ textAlign: pos }}>
+            <button onClick={handleSubmit}>{name}</button>
         </div>
     );
 };

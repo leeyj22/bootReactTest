@@ -259,6 +259,39 @@ const ServiceTransferForm2 = ({ onFormChange }) => {
                             <div className="form-input">
                                 <Calendar />
                             </div>
+                            <p className="txt color-grey-b4">
+                                ※ 희망일은 접수일 기준 7일 이후로 선택해 주세요.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {/* 이사 예정일 */}
+                <div className="form-write-item">
+                    <div className="form-title">
+                        <p className="">이사 예정일</p>
+                    </div>
+                    <div className="form-item col-1">
+                        <div className="col">
+                            <div className="form-input">
+                                <Calendar />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/* 요청사항 */}
+                <div className="form-write-item">
+                    <div className="form-title">
+                        <p className="necessary">요청 사항</p>
+                    </div>
+                    <div className="form-item col-1">
+                        <div className="col">
+                            <div className="form-input">
+                                <textarea
+                                    name="comment"
+                                    placeholder="요청 사항을 입력하세요.(최대 100자)"
+                                    maxLength="100"
+                                ></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>

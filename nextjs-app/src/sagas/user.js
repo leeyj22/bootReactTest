@@ -95,27 +95,27 @@ function* loginRequest(action) {
     }
 }
 //로그인 상태 여부 체크(ssr)
-function loadUserInfoAPI() {
-    return axios.get(`/certify/certifyCheck`);
-}
+// function loadUserInfoAPI() {
+//     return axios.get(`/certify/certifyCheck`);
+// }
 
-function* loadUserInfo() {
-    try {
-        const result = yield call(loadUserInfoAPI);
-        console.log("loadUserInfoAPI result", result);
+// function* loadUserInfo() {
+//     try {
+//         const result = yield call(loadUserInfoAPI);
+//         console.log("loadUserInfoAPI result", result);
 
-        yield put({
-            type: LOAD_USER_INFO_SUCCESS,
-            data: result.data.data,
-        });
-    } catch (err) {
-        console.error(err);
-        yield put({
-            type: LOAD_USER_INFO_FAILURE,
-            data: err.response.data,
-        });
-    }
-}
+//         yield put({
+//             type: LOAD_USER_INFO_SUCCESS,
+//             data: result.data.data,
+//         });
+//     } catch (err) {
+//         console.error(err);
+//         yield put({
+//             type: LOAD_USER_INFO_FAILURE,
+//             data: err.response.data,
+//         });
+//     }
+// }
 //본인인증1
 function certifyPageTypeAPI(data) {
     return axios.post(`/certify/${data}`);
@@ -163,14 +163,13 @@ function* certifyRequest(action) {
 }
 
 //본인인증 상태 여부 체크(ssr)
-function certifyUserInfoAPI(data) {
-    console.log("send data======================", data);
-    return axios.get(`/certify/certifyCheck/${data}`);
+function certifyUserInfoAPI() {
+    return axios.get(`/certify/certifyCheck`);
 }
 
-function* certifyUserInfo(action) {
+function* certifyUserInfo() {
     try {
-        const result = yield call(certifyUserInfoAPI, action.data);
+        const result = yield call(certifyUserInfoAPI);
         console.log("certifyUserInfoAPI result", result);
 
         yield put({
@@ -204,9 +203,9 @@ function* watchCertify() {
 function* watchCertifyUserInfo() {
     yield takeLatest(CERTIFY_USER_INFO_REQUEST, certifyUserInfo);
 }
-function* watchLoadUserInfo() {
-    yield takeLatest(LOAD_USER_INFO_REQUEST, loadUserInfo);
-}
+// function* watchLoadUserInfo() {
+//     yield takeLatest(LOAD_USER_INFO_REQUEST, loadUserInfo);
+// }
 
 export default function* userSaga() {
     yield all([fork(watchLoadTest)]);
@@ -215,5 +214,5 @@ export default function* userSaga() {
     yield all([fork(watchCertifyPageType)]);
     yield all([fork(watchCertify)]);
     yield all([fork(watchCertifyUserInfo)]);
-    yield all([fork(watchLoadUserInfo)]);
+    // yield all([fork(watchLoadUserInfo)]);
 }

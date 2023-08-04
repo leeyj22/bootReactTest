@@ -31,7 +31,17 @@ const index = () => {
                 <br />
                 <br />
                 <br />
+                <Link href="/service_assemble_disassemble">
+                    분해/조립 접수 이동
+                </Link>
+                <br />
+                <br />
+                <br />
                 <Link href="/qna">자주 묻는 질문 qna</Link>
+                <br />
+                <br />
+                <br />
+                <Link href="/login">로그인,회원가입</Link>
                 <br />
                 <br />
                 <br />

@@ -59,7 +59,6 @@ const CertifyCommon = () => {
     //본인인증 3 : 인증팝업 열기
     useEffect(() => {
         if (certifyDone && certifyFormData !== null) {
-            console.log("333");
             Certify.openKMCISWindow("reqKMCISForm", certifyFormData);
         }
     }, [certifyDone, certifyFormData]);

@@ -3,17 +3,9 @@ import { HYDRATE } from "next-redux-wrapper";
 import { combineReducers } from "redux";
 import user from "./user";
 import page from "./page";
-const initalState = {
-    user: {
-        isLoggedIn: false,
-        user: null,
-        signUpdata: {},
-        loginData: {},
-    },
-};
 
 //reducer
-const rootReducer = (state = initalState, action) => {
+const rootReducer = (state, action) => {
     switch (action.type) {
         case HYDRATE:
             console.log("HYDRATE", HYDRATE);
