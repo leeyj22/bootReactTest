@@ -19,7 +19,7 @@ import { CERTIFY_USER_INFO_REQUEST } from "../reducers/user";
 
 const Service = () => {
     const router = useRouter();
-    useSaveBeforePathname();
+    // useSaveBeforePathname();
     const { loginDone, certifyState } = useSelector((state) => state.user);
     const [formData, setFormData] = useState({});
 
@@ -27,7 +27,7 @@ const Service = () => {
         //회원이 아닌 본인인증의 경우 certifyState true
         //회원일 경우 loginDone true , user 데이터 있음.
         if (!certifyState && !loginDone) {
-            router.push("/login");
+            // router.push("/login");
         }
     }, [loginDone, certifyState]);
 
@@ -42,32 +42,32 @@ const Service = () => {
     return (
         <AppLayout>
             <Breadcrumb pageId="service" pageSubId="service1" />
-            {(loginDone || certifyState) && (
-                <Container>
-                    <PageName title="서비스 접수" />
+            {/* {(loginDone || certifyState) && ( */}
+            <Container>
+                <PageName title="서비스 접수" />
 
-                    {/* 서비스 작성 */}
-                    <ServiceForm onFormChange={handleFormChange} />
+                {/* 서비스 작성 */}
+                <ServiceForm onFormChange={handleFormChange} />
 
-                    {/* 약관동의 */}
-                    <Term
-                        allChk="Y"
-                        termslist={["policy", "marketing"]}
-                        onFormChange={handleFormChange}
-                    />
+                {/* 약관동의 */}
+                <Term
+                    allChk="Y"
+                    termslist={["policy", "marketing"]}
+                    onFormChange={handleFormChange}
+                />
 
-                    {/* 유의사항 */}
-                    <NoticeService noticeName="service" />
+                {/* 유의사항 */}
+                <NoticeService noticeName="service" />
 
-                    {/* 버튼 */}
-                    <Button
-                        btnName="service"
-                        pos="center"
-                        formData={formData}
-                        checkValidation={checkValidation}
-                    />
-                </Container>
-            )}
+                {/* 버튼 */}
+                <Button
+                    btnName="service"
+                    pos="center"
+                    formData={formData}
+                    checkValidation={checkValidation}
+                />
+            </Container>
+            {/* )} */}
         </AppLayout>
     );
 };

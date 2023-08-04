@@ -14,14 +14,18 @@ import { CERTIFY_USER_INFO_REQUEST } from "../reducers/user";
 import NoticeService from "../components/service/noticeService";
 import ServiceProgress from "../components/service/serviceProgress";
 import ServiceAssembleDisassemble1 from "../components/service/serviceAssembleDisassemble1";
+import ServiceAssembleDisassemble2 from "../components/service/serviceAssembleDisassemble2";
 //이전설치 service2
 
 const ServiceAssembleDisassemble = () => {
     const router = useRouter();
     useSaveBeforePathname();
     const { loginDone, certifyState } = useSelector((state) => state.user);
-    const [progress, setProgress] = useState(1);
-    const serviceForms = [ServiceAssembleDisassemble1];
+    const [progress, setProgress] = useState(2);
+    const serviceForms = [
+        ServiceAssembleDisassemble1,
+        ServiceAssembleDisassemble2,
+    ];
     const CurrentForm = serviceForms[progress - 1];
     const [formData, setFormData] = useState({
         //본인인증 데이터
@@ -30,8 +34,8 @@ const ServiceAssembleDisassemble = () => {
         tr_add: "",
         plusInfo: "",
         noListUser: "", //본인인증 사용자 여부 Y,N
-        name: "", //고객명
-        phoneNo: "", //핸드폰 번호
+        userName: "", //고객명
+        userTelNo: "", //핸드폰 번호
         certYn: "", //인증여부
     });
 

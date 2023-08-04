@@ -61,9 +61,9 @@ const ServiceTransferForm1 = ({ onFormChange }) => {
                                         신청하실 제품을 선택하세요.
                                     </option>
                                     <option value="">직접입력</option>
-                                    <option value="test" modelCode="" bodyNo="">
+                                    {/* <option value="test" modelCode="" bodyNo="">
                                         ordGoods
-                                    </option>
+                                    </option> */}
                                 </select>
                             </div>
                             <p className="txt color-grey-b4">
