@@ -480,6 +480,7 @@ public class CertifyService {
 //                        plusInfoMap.put("statusMessage", res.getStatus().get("message"));
 //
 //                        return plusInfoMap.toString();
+					// 서비스 접수
 					case "AFTER_SERVICE":
 						session.setAttribute("name",        name);
 						session.setAttribute("phoneNo",     phoneNo);
@@ -491,7 +492,32 @@ public class CertifyService {
 						plusInfoMap.put("userDI", session.getAttribute("userDI"));
 
 						log.info("[CERTIFY][SERVICE][CertifyService][_setPageInfo][AFTER_SERVICE][plusInfoMap] : {}", plusInfoMap.toString());
+						return plusInfoMap.toString();
+					// 이전/설치 접수
+					case "TRANSFER":
+						session.setAttribute("name",        name);
+						session.setAttribute("phoneNo",     phoneNo);
+						session.setAttribute("gender",      gender);
+						session.setAttribute("birthDay",    birthDay);
+						session.setAttribute("plusInfo",    plusInfo);
+						session.setAttribute("userDI",      resultMap.get("DI").toString());
+						session.setAttribute("userCI",      resultMap.get("CI").toString());
+						plusInfoMap.put("userDI", session.getAttribute("userDI"));
 
+						log.info("[CERTIFY][SERVICE][CertifyService][_setPageInfo][TRANSFER][plusInfoMap] : {}", plusInfoMap.toString());
+						return plusInfoMap.toString();
+					// 분해/조립 접수
+					case "ASSEMBLE":
+						session.setAttribute("name",        name);
+						session.setAttribute("phoneNo",     phoneNo);
+						session.setAttribute("gender",      gender);
+						session.setAttribute("birthDay",    birthDay);
+						session.setAttribute("plusInfo",    plusInfo);
+						session.setAttribute("userDI",      resultMap.get("DI").toString());
+						session.setAttribute("userCI",      resultMap.get("CI").toString());
+						plusInfoMap.put("userDI", session.getAttribute("userDI"));
+
+						log.info("[CERTIFY][SERVICE][CertifyService][_setPageInfo][ASSEMBLE][plusInfoMap] : {}", plusInfoMap.toString());
 						return plusInfoMap.toString();
 				}
     	    }
