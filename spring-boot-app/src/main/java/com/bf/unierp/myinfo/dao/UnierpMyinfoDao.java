@@ -25,4 +25,8 @@ public class UnierpMyinfoDao {
         return unierpMyinfoMapper.getCardInfoUnierp(cardNm);
     }
 
+    public List<HashMap<String, String>> getGoodsList(String type){
+        return unierpMyinfoMapper.getGoodsList(type);
+    }
+
 }

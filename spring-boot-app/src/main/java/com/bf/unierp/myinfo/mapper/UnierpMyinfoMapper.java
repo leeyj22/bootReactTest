@@ -18,4 +18,7 @@ public interface UnierpMyinfoMapper {
     //ERP 카드사 코드 확인
     public Map<String, Object> getCardInfoUnierp (String cardNm);
 
+    //제품리스트 (erp)
+    public List<HashMap<String, String>> getGoodsList(String type);
+
 }
