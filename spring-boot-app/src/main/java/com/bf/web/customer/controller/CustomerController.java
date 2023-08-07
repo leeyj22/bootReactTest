@@ -291,12 +291,14 @@ public class CustomerController {
         return resultMap;
     }
 
+    /**
+    * 로그인 / 본인인증 확인
+    * */
     @ResponseBody
     @RequestMapping(value = "/customer/certCheck")
     public Response certCheck(HttpServletRequest request) throws UnsupportedEncodingException {
 
         HttpSession session = request.getSession(false);
-
         Response response = new BFResponse();
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> certMap = UtilManager.checkCertOrLogin(session);
@@ -316,6 +318,9 @@ public class CustomerController {
         return response;
     }
 
+    /**
+     * 약관 조회
+     * */
     @ResponseBody
     @GetMapping(value = "/customer/getTerms")
     public BFResponse getTerms(@RequestParam(value = "term_index") int termsIndex){
@@ -326,49 +331,9 @@ public class CustomerController {
         return response;
     }
 
-    // 서비스 접수
-    /*@RequestMapping(value="/customer/after-service")
-    public ModelAndView afterServiceCert(HttpServletRequest request, HttpSession session){
-        ModelAndView mav = new ModelAndView();
-
-        int cert = 0;
-        String userName = "";
-        String phoneNo = "";
-
-        // 본인인증 확인
-        Map paramsCheck = UtilManager.checkMandantoryWithReturn(session, new String[] {Constants.SESSION_CERT, Constants.SESSION_CERT_NAME, Constants.SESSION_CERT_PHONE});
-        if ((boolean) paramsCheck.get(Consts.CHECK) && session.getAttribute(Constants.SESSION_CERT).equals("Y")) {
-            cert += 1;
-            userName = session.getAttribute(Constants.SESSION_CERT_NAME).toString();
-            phoneNo = session.getAttribute(Constants.SESSION_CERT_PHONE).toString();
-        }
-
-        // 로그인
-        paramsCheck = UtilManager.checkMandantoryWithReturn(session, new String[] {Constants.SESSION_USER_IDX, Constants.SESSION_NAME, Constants.SESSION_PHONE});
-        if ((boolean) paramsCheck.get(Consts.CHECK)) {
-            cert += 1;
-            userName = session.getAttribute(Constants.SESSION_NAME).toString();
-            phoneNo = session.getAttribute(Constants.SESSION_PHONE).toString();
-        }
-
-        if (cert > 0) {
-            mav.addObject("userName", userName);
-            mav.addObject("phoneNo", phoneNo);
-
-            // 개인정보수집 · 이용 동의 약관
-            mav.addObject("serviceTerms34", termsService.getContent(34));
-
-            // 마케팅 활용 동의 약관
-            mav.addObject("serviceTerms33", termsService.getContent(33));
-            mav.setViewName("/web/customer/afterService");
-        } else {
-            mav.setViewName("redirect:/customer/after-service/intro");
-        }
-
-        return mav;
-    }*/
-
-    // 서비스 접수 확인 - 내역
+    /**
+     * 서비스 접수 확인 - 내역
+     * */
     @RequestMapping(value="/customer/afterService/{encSeq}", method = RequestMethod.POST)
     public ModelAndView getMyAfterService(HttpServletRequest request, @PathVariable Map<String, String> pathVariables, RedirectAttributes attr) throws BFException {
 
@@ -387,9 +352,28 @@ public class CustomerController {
         return mav;
     }
 
-    // 서비스 접수 등록 API
+    /**
+     * 서비스 접수 등록 API
+     * */
     @ResponseBody
-    @RequestMapping(value="/customer/saveAfterService.json", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value="/api/customer/saveAfterService", method = {RequestMethod.POST})
+    public Response saveAfterService (HttpServletRequest request, OnlineVO vo, HttpSession session) throws BFException {
+
+        log.info("[CUSTOMER][CONTROLLER][CustomerApiController][saveAfterService][START]");
+
+        vo.setUserIdx((String)session.getAttribute(Constants.SESSION_USER_IDX));
+        Response res = customerService.insertOnlineService(request, vo);
+
+        log.info("[CUSTOMER][CONTROLLER][CustomerApiController][saveAfterService][END]");
+
+        return res;
+    }
+    
+   /* /** 안쓰는듯
+     * 서비스 접수 등록 API
+     * *//*
+    @ResponseBody
+    @RequestMapping(value="/customer/saveAfterService", method = {RequestMethod.GET, RequestMethod.POST})
     public String onlineService (HttpServletRequest request, OnlineVO vo, HttpSession session) throws Exception {
 
         vo.setUserIdx((String)session.getAttribute(Constants.SESSION_USER_IDX));
@@ -398,7 +382,7 @@ public class CustomerController {
 
         String result = customerService.insertOnlineService(vo);
         return result;
-    }
+    }*/
 
     // FAQ List 안마의자 전용 API
     @ResponseBody

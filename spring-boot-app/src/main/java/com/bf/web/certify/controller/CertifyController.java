@@ -114,40 +114,4 @@ public class CertifyController {
 	    log.info("[CONTROLLER][CerfifyController][certify][END]");
 	    return response;
 	}
-
-
-	/** 본인인증 */
-	@ResponseBody
-	@GetMapping(value = "/certify/certifyCheck")
-	public Response certifyCheck ( HttpServletRequest request , @RequestParam(value="cert_user_di", required = false) String userDi){
-		String serverUserDi = "";
-
-		Response response = new BFResponse();
-		Map<String, Object> result = new HashMap<>();
-		result.put("isCertify", false);
-
-		HttpSession session = request.getSession(false);
-		if(!Util.isEmptyOrNull(session)){
-			serverUserDi = String.valueOf(session.getAttribute("userDI"));
-		}
-
-		Cookie[] cookies = request.getCookies();
-		if(!Util.isEmptyOrNull(cookies)){
-			for (Cookie c : cookies) {
-				String name = c.getName();
-				if("cert_user_di".equals(name)){
-					userDi = c.getValue();
-				}
-			}
-		}
-
-		if(!Util.isEmptyOrNull(serverUserDi) && !Util.isEmptyOrNull(userDi)){
-			if(userDi.equals(serverUserDi)){
-				result.put("isCertify", true);
-			}
-		}
-
-		response.setData(result);
-		return response;
-	}
 }
