@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bf.web.terms.mapper.TermsMapper">
+
+	<!-- 서비스 약관 조회 -->
+	<select id="getServiceTerms" parameterType="int" resultType="com.bf.web.terms.vo.ServiceTermsVO">
+		SELECT
+			terms_idx AS termsIdx,
+			title,
+			content
+		FROM service_terms
+		WHERE terms_idx = #{termsIdx}
+	</select>
+</mapper>
