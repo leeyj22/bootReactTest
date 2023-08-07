@@ -7,6 +7,8 @@ import com.bf.common.util.AES256Util;
 import com.bf.common.util.UtilManager;
 import com.bf.svc.customer.dao.SvcCustomerDao;
 import com.bf.unierp.customer.dao.UniErpCustomerDao;
+import com.bf.unierp.marketing.dao.UniErpMarketingDao;
+import com.bf.unierp.marketing.mapper.UniErpMarketingMapper;
 import com.bf.unierp.myinfo.dao.UnierpMyinfoDao;
 import com.bf.web.api.service.ApiService;
 import com.bf.web.api.vo.ApiResponseVO;
@@ -14,6 +16,7 @@ import com.bf.web.customer.dao.CustomerDao;
 import com.bf.web.customer.vo.FaqVO;
 import com.bf.web.customer.vo.NoticeVO;
 import com.bf.web.customer.vo.OnlineVO;
+import com.bf.web.marketing.service.MarketingService;
 import com.bf.web.marketing.vo.MarketingAgreeVO;
 import com.bf.web.message.service.MessageService;
 import com.bf.web.myinfo.dao.MyinfoDao;
@@ -57,6 +60,8 @@ public class CustomerService{
     private UnierpMyinfoDao unierpMyinfoDao;
     @Autowired
     private MyinfoDao myinfoDao;
+    @Autowired
+    private MarketingService marketingService;
 
     @Value(value = "system.unierp.serviceCode")
     private String uniErpServiceCode;
@@ -682,7 +687,7 @@ public class CustomerService{
                 mvo.setPhone(params.get("contact").toString().replace("-", ""));
                 mvo.setAgreeStatus(params.get("marketingYn").equals("Y") ? 1 : 0);
                 mvo.setRefPageIdx(Constants.MarketingPage.SERVICE);
-//                marketingService.insertMarketingAgree(request.getSession(), mvo);
+                marketingService.insertMarketingAgree(request.getSession(), mvo);
             }
 
             // 파일업로드
@@ -781,7 +786,6 @@ public class CustomerService{
 
             // 로직 실패 시 접수 취소 요청
             if (!isSuccess && !UtilManager.isEmptyOrNull(serviceIdx)) {
-
                 log.error("[CUSTOMER][SERVICE][customerService][insertOnlineService][서비스 접수 실패] : {}", serviceIdx);
                 String callUrl = "/api/v1/service/cancel?serviceIdx=" + serviceIdx;
                 try {
