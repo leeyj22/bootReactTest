@@ -18,30 +18,31 @@ import { Validation } from "../hooks/validation";
 import { SUBMIT_SERVICE_REQUEST } from "../reducers/service";
 //서비스 접수 service1
 
+const formInit = {
+    userIdx: "",
+    userId: "",
+    name: "",
+    custCode: "", //제품 코드
+    prdtName: "", // 제품명
+    prdtCate: "0", //제품 카테고리
+    zip: "",
+    addr1: "",
+    addr2: "",
+    contact: "",
+    serviceGroup: "", //서비스 유형
+    title: "",
+    content: "",
+    prdtShop: "", //제품 구매처
+    ex_filename: [],
+};
+
 const Service = () => {
     const router = useRouter();
     const dispatch = useDispatch();
     useSaveBeforePathname();
-    const { loginDone, certifyState, certifyStateError } = useSelector(
-        (state) => state.user
-    );
-    const [formData, setFormData] = useState({
-        userIdx: "",
-        userId: "",
-        name: "",
-        custCode: "", //제품 코드
-        prdtName: "", // 제품명
-        prdtCate: "0", //제품 카테고리
-        zip: "",
-        addr1: "",
-        addr2: "",
-        contact: "",
-        serviceGroup: "", //서비스 유형
-        title: "",
-        content: "",
-        prdtShop: "", //제품 구매처
-        ex_filename: [],
-    });
+    const { loginDone, certifyState, certifyStateError, submitServiceDone } =
+        useSelector((state) => state.user);
+    const [formData, setFormData] = useState(formInit);
 
     useEffect(() => {
         //회원이 아닌 본인인증의 경우 certifyState true
@@ -62,6 +63,13 @@ const Service = () => {
         };
     }, [loginDone, certifyState, certifyStateError]);
 
+    useEffect(() => {
+        if (submitServiceDone) {
+            alert("접수가 완료되었습니다.");
+            setFormData(formInit);
+        }
+    }, [submitServiceDone]);
+
     const handleFormChange = useCallback((changedData) => {
         setFormData(changedData);
     }, []);
@@ -69,10 +77,6 @@ const Service = () => {
     //입력 값 체크
     const checkValidation = useCallback(
         (data) => {
-            // setFormData({
-            //     ...formData,
-            //     contact: data.cell1 + data.cell2 + data.cell3,
-            // });
             if (Validation.isEmptyObject(data)) {
                 alert("서비스접수 작성을 해주세요.");
                 return false;
@@ -152,8 +156,6 @@ const Service = () => {
                 return false;
             }
 
-            formData.contact = data.cell1 + data.cell2 + data.cell3;
-
             return true;
         },
         [formData]
@@ -162,20 +164,30 @@ const Service = () => {
     //접수하기
     const handleSubmit = useCallback(() => {
         if (checkValidation(formData)) {
-            console.log(
-                "Button 클릭! checkValidation완료 FormData 전달 : ",
-                formData
+            const serviceData = new FormData();
+            serviceData.append("userIdx", formData.userIdx);
+            serviceData.append("userId", formData.userId);
+            serviceData.append("name", formData.name);
+            serviceData.append("prdtName", formData.prdtName);
+            serviceData.append("prdtCate", formData.prdtCate);
+            serviceData.append("zip", formData.zip);
+            serviceData.append("addr1", formData.addr1);
+            serviceData.append("addr2", formData.addr2);
+            serviceData.append(
+                "contact",
+                formData.cell1 + formData.cell2 + formData.cell3
             );
-            //제외 데이터
-            delete formData.productSelector;
-            delete formData.cell1;
-            delete formData.cell2;
-            delete formData.cell3;
+            serviceData.append("serviceGroup", formData.serviceGroup);
+            serviceData.append("title", formData.title);
+            serviceData.append("content", formData.content);
+            serviceData.append("custCode", formData.custCode);
+            serviceData.append("prdtShop", formData.prdtShop);
+            serviceData.append("ex_filename", formData.ex_filename);
 
             //데이터 전달
             dispatch({
                 type: SUBMIT_SERVICE_REQUEST,
-                data: formData,
+                data: serviceData,
             });
         }
     }, [formData]);
@@ -193,9 +205,13 @@ const Service = () => {
                 />
 
                 {/* 약관동의 */}
+                {/* 마케팅 동의 했을 경우 ?
+                 allChk="N"
+                termslist={["policy", "marketing"]}
+                 */}
                 <Term
                     allChk="N"
-                    termslist={["policy"]}
+                    termslist={["policy", "marketing"]}
                     formData={formData}
                     onFormChange={handleFormChange}
                 />

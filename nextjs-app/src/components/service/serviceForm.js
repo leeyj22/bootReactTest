@@ -75,24 +75,21 @@ const ServiceForm = ({ formData, onFormChange }) => {
     const handleChange = useCallback(
         (e) => {
             const { name, value, type, checked } = e.target;
-            const newValue = type === "checkbox" ? checked : value;
+            let newValue = type === "checkbox" ? checked : value;
 
             switch (name) {
                 case "cell2":
                 case "cell3":
-                    if (
-                        !Validation.onlyNumber(newValue) ||
-                        !Validation.onlyNumber(newValue)
-                    ) {
-                        alert("연락처는 숫자만 입력해주세요.");
-                        return false;
-                    }
+                    newValue = Validation.inputOnlyNum(newValue);
                     break;
                 case "productSelector":
                     const selectedOption = e.target.selectedOptions[0];
                     const grpCode = selectedOption.getAttribute("data-grpcode");
+                    const modelname =
+                        selectedOption.getAttribute("data-modelname");
                     serviceData.prdtCate = grpCode;
-                    serviceData.prdtName = newValue;
+                    serviceData.prdtName = modelname;
+                    serviceData.custCode = newValue;
                     break;
                 default:
                     break;
@@ -135,8 +132,9 @@ const ServiceForm = ({ formData, onFormChange }) => {
                                     </option>
                                     {myLentalList?.map((list) => (
                                         <option
-                                            key={list.orderNo}
+                                            key={list.custCode}
                                             value={list.custCode}
+                                            data-modelname={list.erpModelName}
                                             data-grpcode={list.grpCode}
                                         >
                                             {list.erpModelName}
@@ -149,8 +147,7 @@ const ServiceForm = ({ formData, onFormChange }) => {
                     </div>
 
                     {/* 제품이 없는 경우 노출 : 직접입력 */}
-                    {serviceData.productSelector == "" ||
-                    serviceData.productSelector == "DI" ? (
+                    {serviceData.productSelector == "" ? (
                         <div className="form-item col-2">
                             <div className="col">
                                 <div className="form-selectbox">
