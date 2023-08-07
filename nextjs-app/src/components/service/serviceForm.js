@@ -10,13 +10,13 @@ import { Validation } from "../../hooks/validation";
 
 const ServiceForm = ({ formData, onFormChange }) => {
     const dispatch = useDispatch();
+    const { certifyState } = useSelector((state) => state.user);
     const { myLentalList } = useSelector((state) => state.service);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [serviceData, setServiceData] = useState({
         //서비스접수 초기값 설정
         productSelector: "none", //제품
         prdtCate: "0", // 제품없는경우 - 제품 카테고리
-        grpCode: "", //제품코드
         prdtName: "", // 제품없는경우 - 제품명
         serviceGroup: "", //서비스 유형
         title: "", //제목
@@ -41,15 +41,17 @@ const ServiceForm = ({ formData, onFormChange }) => {
     }, [serviceData]);
 
     useEffect(() => {
-        const userCertData = common.getSesstionStorageCertUser();
-        dispatch({
-            type: GET_MY_RENTAL_LIST_REQUEST,
-            data: {
-                name: userCertData.CertUserName,
-                phone: userCertData.CertPhoneNo,
-            },
-        });
-    }, []);
+        if (certifyState) {
+            const userCertData = common.getSesstionStorageCertUser();
+            dispatch({
+                type: GET_MY_RENTAL_LIST_REQUEST,
+                data: {
+                    name: userCertData.CertUserName,
+                    phone: userCertData.CertPhoneNo,
+                },
+            });
+        }
+    }, [certifyState]);
 
     useEffect(() => {
         if (
@@ -87,10 +89,10 @@ const ServiceForm = ({ formData, onFormChange }) => {
                     }
                     break;
                 case "productSelector":
-                    console.log("e.target", e.target);
                     const selectedOption = e.target.selectedOptions[0];
                     const grpCode = selectedOption.getAttribute("data-grpcode");
-                    serviceData.grpCode = grpCode;
+                    serviceData.prdtCate = grpCode;
+                    serviceData.prdtName = newValue;
                     break;
                 default:
                     break;
@@ -135,7 +137,7 @@ const ServiceForm = ({ formData, onFormChange }) => {
                                         <option
                                             key={list.orderNo}
                                             value={list.custCode}
-                                            data-grpCode={list.grpCode}
+                                            data-grpcode={list.grpCode}
                                         >
                                             {list.erpModelName}
                                         </option>

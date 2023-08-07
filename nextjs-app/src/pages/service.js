@@ -29,37 +29,42 @@ const Service = () => {
         userIdx: "",
         userId: "",
         name: "",
-        custCode: "",
-        prdtName: "",
-        prdtCate: "0",
+        custCode: "", //제품 코드
+        prdtName: "", // 제품명
+        prdtCate: "0", //제품 카테고리
         zip: "",
         addr1: "",
         addr2: "",
         contact: "",
-        serviceGroup: "",
+        serviceGroup: "", //서비스 유형
         title: "",
         content: "",
-        prdtShop: "",
+        prdtShop: "", //제품 구매처
         ex_filename: [],
     });
 
     useEffect(() => {
         //회원이 아닌 본인인증의 경우 certifyState true
         //회원일 경우 loginDone true , user 데이터 있음.
-        if (!certifyState && !loginDone) {
-            router.push("/login");
-        }
+        // if (!certifyState && !loginDone) {
+        const certifyTimer = setTimeout(() => {
+            if (!certifyState) {
+                router.push("/login");
+            }
 
-        if (certifyStateError !== null) {
-            certifyStateError == 400 && router.push("/error/error404");
-        }
+            if (certifyStateError !== null) {
+                certifyStateError == 400 && router.push("/error/error404");
+            }
+        }, 200);
+
+        return () => {
+            clearTimeout(certifyTimer);
+        };
     }, [loginDone, certifyState, certifyStateError]);
 
     const handleFormChange = useCallback((changedData) => {
         setFormData(changedData);
     }, []);
-
-    console.log("formData", formData);
 
     //입력 값 체크
     const checkValidation = useCallback(
@@ -148,7 +153,6 @@ const Service = () => {
             }
 
             formData.contact = data.cell1 + data.cell2 + data.cell3;
-            formData.custCode = data.productSelector;
 
             return true;
         },
@@ -158,7 +162,16 @@ const Service = () => {
     //접수하기
     const handleSubmit = useCallback(() => {
         if (checkValidation(formData)) {
-            console.log("Button 클릭! resultFormData 전달 : ", formData);
+            console.log(
+                "Button 클릭! checkValidation완료 FormData 전달 : ",
+                formData
+            );
+            //제외 데이터
+            delete formData.productSelector;
+            delete formData.cell1;
+            delete formData.cell2;
+            delete formData.cell3;
+
             //데이터 전달
             dispatch({
                 type: SUBMIT_SERVICE_REQUEST,
@@ -181,8 +194,8 @@ const Service = () => {
 
                 {/* 약관동의 */}
                 <Term
-                    allChk="Y"
-                    termslist={["policy", "marketing"]}
+                    allChk="N"
+                    termslist={["policy"]}
                     formData={formData}
                     onFormChange={handleFormChange}
                 />
