@@ -39,13 +39,13 @@ const ServiceForm = ({ onFormChange }) => {
 
     useEffect(() => {
         const userCertData = common.getSesstionStorageCertUser();
-        dispatch({
-            type: GET_MY_RENTAL_LIST_REQUEST,
-            data: {
-                name: userCertData.CertUserName,
-                phone: userCertData.CertPhoneNo,
-            },
-        });
+        // dispatch({
+        //     type: GET_MY_RENTAL_LIST_REQUEST,
+        //     data: {
+        //         name: userCertData.CertUserName,
+        //         phone: userCertData.CertPhoneNo,
+        //     },
+        // });
     }, []);
 
     useEffect(() => {

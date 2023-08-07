@@ -27,7 +27,7 @@ const Service = () => {
         //회원이 아닌 본인인증의 경우 certifyState true
         //회원일 경우 loginDone true , user 데이터 있음.
         if (!certifyState && !loginDone) {
-            router.push("/login");
+            // router.push("/login");
         }
     }, [loginDone, certifyState]);
 
@@ -81,9 +81,9 @@ export const getServerSideProps = wrapper.getServerSideProps(
             axios.defaults.headers.Cookie = cookie;
         }
 
-        context.store.dispatch({
-            type: CERTIFY_USER_INFO_REQUEST,
-        });
+        // context.store.dispatch({
+        //     type: CERTIFY_USER_INFO_REQUEST,
+        // });
 
         context.store.dispatch(END);
         await context.store.sagaTask.toPromise();
