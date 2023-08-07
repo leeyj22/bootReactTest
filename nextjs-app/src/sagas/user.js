@@ -163,7 +163,8 @@ function* certifyRequest(action) {
 
 //본인인증 상태 여부 체크(ssr)
 function certifyUserInfoAPI() {
-    return axios.get(`/certify/certifyCheck`);
+    // return axios.get(`/certify/certifyCheck`);
+    return axios.get(`/customer/certCheck`);
 }
 
 function* certifyUserInfo() {
@@ -176,10 +177,10 @@ function* certifyUserInfo() {
             data: result.data.data.isCertify,
         });
     } catch (err) {
-        console.error(err);
+        console.error("err==============", err);
         yield put({
             type: CERTIFY_USER_INFO_FAILURE,
-            data: err.response.data,
+            data: err,
         });
     }
 }

@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { terms } from "../../data/terms";
 import InputCheck from "../form/inputCheck";
+import TermPop from "./termPop";
+import { useDispatch } from "react-redux";
 
 // const termslist = ['policy','mareting'];
 
 const Term = ({ allChk, termslist, onFormChange, type }) => {
+    const dispatch = useDispatch();
     //termslist 에 따라 formData 초기화.
     const initialFormData = termslist.reduce((acc, termId) => {
         return {
@@ -14,6 +17,8 @@ const Term = ({ allChk, termslist, onFormChange, type }) => {
     }, {});
 
     const [formData, setFormData] = useState(initialFormData);
+    const [term, setTerm] = useState({});
+    const [showTerm, setShowTerm] = useState(false);
 
     useEffect(() => {
         onFormChange(formData);
@@ -59,6 +64,15 @@ const Term = ({ allChk, termslist, onFormChange, type }) => {
         });
     };
 
+    const onTermPop = (term) => {
+        setShowTerm(true);
+        setTerm(term);
+        // dispatch({
+        //     type : GET_TERM_REQUEST,
+        //     data : term.num
+        // })
+    };
+
     return (
         <article className="term-agree-wrap" data-allchk={allChk}>
             {allChk == "Y" && (
@@ -85,7 +99,10 @@ const Term = ({ allChk, termslist, onFormChange, type }) => {
                                     onChange={handleChange}
                                 />
                                 {term.pop == "Y" && (
-                                    <button className="btn-temp-pop">
+                                    <button
+                                        className="btn-temp-pop"
+                                        onClick={() => onTermPop(term)}
+                                    >
                                         <span className="hdtxt">
                                             {term.name} 팝업 열기
                                         </span>
@@ -97,6 +114,8 @@ const Term = ({ allChk, termslist, onFormChange, type }) => {
                 }
                 return null;
             })}
+
+            {showTerm && <TermPop term={term} setShowTerm={setShowTerm} />}
         </article>
     );
 };
