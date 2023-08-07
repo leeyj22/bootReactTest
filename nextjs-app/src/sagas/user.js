@@ -26,7 +26,6 @@ import {
 
 //test
 function getTestAPI(data) {
-    console.log("data???", data);
     return axios.get(`/api/userdata?userid=${data}`);
 }
 

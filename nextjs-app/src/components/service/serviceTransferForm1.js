@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import FormWriteTitle from "../form/formWriteTitle";
 
 const ServiceTransferForm1 = ({ onFormChange }) => {
@@ -14,6 +14,8 @@ const ServiceTransferForm1 = ({ onFormChange }) => {
         orderType: "", //주문타입(구매/렌탈 여부)
         orderTypeSub: "", //주문타입 sub(구매/렌탈 여부 서브)
     });
+
+    useEffect(() => {}, []);
 
     const handleChange = useCallback(
         (e) => {
@@ -61,9 +63,9 @@ const ServiceTransferForm1 = ({ onFormChange }) => {
                                         신청하실 제품을 선택하세요.
                                     </option>
                                     <option value="">직접입력</option>
-                                    <option value="test" modelCode="" bodyNo="">
+                                    {/* <option value="test" modelCode="" bodyNo="">
                                         ordGoods
-                                    </option>
+                                    </option> */}
                                 </select>
                             </div>
                             <p className="txt color-grey-b4">
@@ -218,7 +220,7 @@ const ServiceTransferForm1 = ({ onFormChange }) => {
                                 </div>
                             )}
 
-                            <p className="txt color-redf-0">
+                            <p className="txt color-red-f0">
                                 ※ 제품 분해/조립만 필요한 경우 분해/조립 접수
                                 메뉴를 이용해 주세요. (포장/이동 제외)
                             </p>

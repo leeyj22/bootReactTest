@@ -158,10 +158,12 @@ export const reducer = (state = initalState, action) => {
             // 본인인증3 : 팝업에서 저장 certify_result ssr .
             case CERTIFY_SAVE_SSR_REQUEST:
                 draft.certifyInfo = action.data;
+                console.log("CERTIFY_SAVE_SSR_REQUEST", action.data);
                 break;
             // 본인인증4 : 로그인페이지에서 저장 csr
             case CERTIFY_SAVE_REQUEST:
                 draft.certifyInfo = action.data;
+                console.log("CERTIFY_SAVE_REQUEST", action.data);
                 draft.certifyState = true;
                 break;
             case CERTIFY_USER_INFO_REQUEST:

@@ -149,7 +149,7 @@ const ServiceTransferForm2 = ({ onFormChange }) => {
                                         </label>
                                     </div>
                                 </div>
-                                <p className="txt color-redf-0">
+                                <p className="txt color-red-f0">
                                     ※ 50,000원 이상 결제 시 할부 가능합니다.
                                 </p>
                             </div>
