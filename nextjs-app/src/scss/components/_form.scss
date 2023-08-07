@@ -134,8 +134,10 @@
     // 정보 동일 체크
     .form-write-same-chk{
         display: flex;
-        justify-content: end;
         font-size:2rem;
+        &.right{
+            justify-content: end;
+        }
         label{
             cursor: pointer;
             padding-left:40px;

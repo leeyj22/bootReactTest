@@ -2,13 +2,16 @@ import React, { useEffect, useState } from "react";
 import { terms } from "../../data/terms";
 import InputCheck from "../form/inputCheck";
 import TermPop from "./termPop";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { GET_TERM_REQUEST } from "../../reducers/service";
 
 // const termslist = ['policy','mareting'];
 
-const Term = ({ allChk, termslist, onFormChange, type }) => {
+const Term = ({ allChk, termslist, formData, onFormChange, type }) => {
     const dispatch = useDispatch();
-    //termslist 에 따라 formData 초기화.
+
+    const { termTxt } = useSelector((state) => state.service);
+    //termslist 에 따라 termsData 초기화.
     const initialFormData = termslist.reduce((acc, termId) => {
         return {
             ...acc,
@@ -16,18 +19,21 @@ const Term = ({ allChk, termslist, onFormChange, type }) => {
         };
     }, {});
 
-    const [formData, setFormData] = useState(initialFormData);
-    const [term, setTerm] = useState({});
+    const [termsData, setTermsData] = useState(initialFormData);
+    const [termData, setTermData] = useState({});
     const [showTerm, setShowTerm] = useState(false);
 
     useEffect(() => {
-        onFormChange(formData);
-    }, [formData]);
+        onFormChange({
+            ...formData,
+            ...termsData,
+        });
+    }, [termsData]);
 
     const handleChange = (e) => {
         const { id, checked } = e.target;
 
-        setFormData((currentFormData) => {
+        setTermsData((currentFormData) => {
             let updatedFormData;
 
             if (id === "chkAll") {
@@ -64,13 +70,15 @@ const Term = ({ allChk, termslist, onFormChange, type }) => {
         });
     };
 
-    const onTermPop = (term) => {
-        setShowTerm(true);
-        setTerm(term);
-        // dispatch({
-        //     type : GET_TERM_REQUEST,
-        //     data : term.num
-        // })
+    const onTermPop = (data) => {
+        if (data.pop == "Y") {
+            setTermData(data);
+            setShowTerm(true);
+            dispatch({
+                type: GET_TERM_REQUEST,
+                data: data.index,
+            });
+        }
     };
 
     return (
@@ -81,8 +89,9 @@ const Term = ({ allChk, termslist, onFormChange, type }) => {
                         <InputCheck
                             id="chkAll"
                             name="모두 동의"
-                            checked={formData["chkAll"] || false}
+                            checked={termsData["chkAll"] || false}
                             onChange={handleChange}
+                            necessary="chkAll"
                         />
                     </dt>
                 </dl>
@@ -95,7 +104,8 @@ const Term = ({ allChk, termslist, onFormChange, type }) => {
                                 <InputCheck
                                     id={term.id}
                                     name={term.name}
-                                    checked={formData[term.id] || false}
+                                    checked={termsData[term.id] || false}
+                                    necessary={term.necessary}
                                     onChange={handleChange}
                                 />
                                 {term.pop == "Y" && (
@@ -115,7 +125,13 @@ const Term = ({ allChk, termslist, onFormChange, type }) => {
                 return null;
             })}
 
-            {showTerm && <TermPop term={term} setShowTerm={setShowTerm} />}
+            {showTerm && termTxt !== undefined && (
+                <TermPop
+                    termData={termData}
+                    setShowTerm={setShowTerm}
+                    termHtml={termTxt}
+                />
+            )}
         </article>
     );
 };

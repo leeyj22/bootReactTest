@@ -42,7 +42,7 @@ function* getTest(action) {
         console.error(err);
         yield put({
             type: GET_TEST_APT_FAILURE,
-            data: err.response.data,
+            error: err.response.data,
         });
     }
 }
@@ -65,7 +65,7 @@ function* loginRequestUrl(action) {
         console.error(err);
         yield put({
             type: LOGIN_URL_FAILURE,
-            data: err.response.data,
+            error: err.response.data,
         });
     }
 }
@@ -89,7 +89,7 @@ function* loginRequest(action) {
         console.error(err);
         yield put({
             type: LOGIN_FAILURE,
-            data: err.response.data,
+            error: err.response.data,
         });
     }
 }
@@ -133,7 +133,7 @@ function* certifyPageType(action) {
         console.error(err);
         yield put({
             type: CERTIFY_PAGETYPE_FAILURE,
-            data: err.response.data,
+            error: err.response.data,
         });
     }
 }
@@ -156,7 +156,7 @@ function* certifyRequest(action) {
         console.error(err);
         yield put({
             type: CERTIFY_FAILURE,
-            data: err.response.data,
+            error: err.response.data,
         });
     }
 }
@@ -177,10 +177,9 @@ function* certifyUserInfo() {
             data: result.data.data.isCertify,
         });
     } catch (err) {
-        console.error("err==============", err);
         yield put({
             type: CERTIFY_USER_INFO_FAILURE,
-            data: err,
+            error: err.response.status,
         });
     }
 }

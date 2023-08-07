@@ -158,7 +158,7 @@ const ServiceTransferForm2 = ({ onFormChange }) => {
                 />
 
                 <div className="form-write-item">
-                    <div className="form-write-same-chk">
+                    <div className="form-write-same-chk right">
                         <input type="checkbox" name="" id="sameInfo" />
                         <label htmlFor="sameInfo">회수자 정보와 동일</label>
                     </div>

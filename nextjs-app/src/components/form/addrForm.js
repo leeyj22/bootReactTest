@@ -17,12 +17,6 @@ const AddrForm = ({
                 [addr1]: data.roadAddrPart1,
                 [addr2]: data.addrDetail,
             });
-            // onFormChange({
-            //     ...formData,
-            //     [zipcode]: data.zipNo,
-            //     [addr1]: data.roadAddrPart1,
-            //     [addr2]: data.addrDetail,
-            // });
         });
     };
 
@@ -35,11 +29,6 @@ const AddrForm = ({
                 ...formData,
                 [name]: newValue,
             });
-
-            // onFormChange({
-            //     ...formData,
-            //     [name]: newValue,
-            // });
         },
         [formData]
     );
@@ -55,6 +44,7 @@ const AddrForm = ({
                         name={zipcode}
                         id={zipcode}
                         value={formData[zipcode] || ""}
+                        onClick={handleGetPostCode}
                     />
                     <button
                         id="searchAddr"
@@ -74,6 +64,7 @@ const AddrForm = ({
                         name={addr1}
                         id={addr1}
                         value={formData[addr1] || ""}
+                        onClick={handleGetPostCode}
                     />
                 </div>
             </div>

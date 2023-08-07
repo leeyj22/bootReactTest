@@ -234,6 +234,11 @@ font-family: 'Noto Sans KR', sans-serif;
   color: #F5F5F7 !important;
 }
 
+/*marget*/
+.mgt10 {
+  margin-top: 10px;
+}
+
 #header {
   position: relative;
   background-color: #000;
@@ -665,8 +670,10 @@ footer .bottom .app a img {
 }
 .form-write-item .form-write-same-chk {
   display: flex;
-  justify-content: end;
   font-size: 2rem;
+}
+.form-write-item .form-write-same-chk.right {
+  justify-content: end;
 }
 .form-write-item .form-write-same-chk label {
   cursor: pointer;
@@ -982,6 +989,10 @@ footer .bottom .app a img {
 .section-popup .section-popup--con .inner {
   padding: 20px;
   height: calc(100vh - 160px);
+}
+.section-popup .section-popup--con p {
+  padding-top: 10px;
+  line-height: 1.6;
 }
 .section-popup .btn-section-popup-close {
   position: fixed;

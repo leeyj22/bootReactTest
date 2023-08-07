@@ -24,7 +24,7 @@ function* getQna(action) {
         console.error(err);
         yield put({
             type: QNA_FAILURE,
-            data: err.response.data,
+            error: err.response.data,
         });
     }
 }
