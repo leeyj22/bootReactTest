@@ -293,11 +293,11 @@ public class CustomerController {
 
     @ResponseBody
     @RequestMapping(value = "/customer/certCheck")
-    public BFResponse certCheck(HttpServletRequest request) throws UnsupportedEncodingException {
+    public Response certCheck(HttpServletRequest request) throws UnsupportedEncodingException {
 
         HttpSession session = request.getSession(false);
 
-        BFResponse response = new BFResponse();
+        Response response = new BFResponse();
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> certMap = UtilManager.checkCertOrLogin(session);
         log.info("[CUSTOMER][CONTROLLER][CustomerController][assembleAndDisassembleStep1][certMap] : {}", certMap.toString());
@@ -306,8 +306,10 @@ public class CustomerController {
             result.put("userName", URLDecoder.decode(certMap.get(Consts.USER_NAME).toString(), "UTF-8"));
             result.put("phoneNo", certMap.get(Consts.USER_PHONE));
             result.put("certYn", "Y");
+            result.put("isCertify", true);
         } else {
             result.put("certYn", "N");
+            result.put("isCertify", false);
             result.put("accessMsg", "잘못된 접근입니다. 정상적인 경로를 통해 본인인증 후 이용해 주세요.");
         }
         response.setData(result);
