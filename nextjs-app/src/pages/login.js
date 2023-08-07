@@ -36,8 +36,8 @@ const login = () => {
                     event.data.certifyInfoState !== undefined &&
                     event.data.certifyInfoState
                 ) {
+                    console.log("event.data", event.data);
                     //본인인증 데이터 저장 요청
-                    console.log("???", event.data);
                     dispatch({
                         type: CERTIFY_SAVE_REQUEST,
                         data: event.data,
@@ -77,6 +77,7 @@ const login = () => {
             //기존 URL 이동
             const beforeUrl = sessionStorage.getItem("beforeUrl");
 
+            console.log("certifyInfo", certifyInfo);
             console.log("certifyInfo.userDI", certifyInfo.userDI);
 
             //쿠키저장
@@ -86,6 +87,7 @@ const login = () => {
             });
 
             //이전 페이지 이동
+            console.log("beforeUrl", beforeUrl);
             if (beforeUrl == null || beforeUrl == undefined) {
                 router.push("/");
             } else {

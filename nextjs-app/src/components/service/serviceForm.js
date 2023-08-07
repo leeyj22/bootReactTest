@@ -2,11 +2,18 @@ import React, { useCallback, useEffect, useState } from "react";
 import FormWriteTitle from "../form/formWriteTitle";
 import FileMulti from "../form/fileMulti";
 import AddrForm from "../form/addrForm";
+import { useDispatch, useSelector } from "react-redux";
+import { common } from "../../func/common";
+import { GET_MY_RENTAL_LIST_REQUEST } from "../../reducers/service";
+import { FormInfoViewStyle } from "../../style/FormStyle";
 
 const ServiceForm = ({ onFormChange }) => {
+    const dispatch = useDispatch();
+    const { myLentalList } = useSelector((state) => state.service);
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const [formData, setFormData] = useState({
         //서비스접수 초기값 설정
-        productSelector: "", //제품
+        productSelector: "none", //제품
         prdtCate: "", // 제품없는경우 - 제품 카테고리
         prdtName: "", // 제품없는경우 - 제품명
         serviceGroup: "", //서비스 유형
@@ -30,6 +37,36 @@ const ServiceForm = ({ onFormChange }) => {
         });
     }, [formData]);
 
+    useEffect(() => {
+        const userCertData = common.getSesstionStorageCertUser();
+        dispatch({
+            type: GET_MY_RENTAL_LIST_REQUEST,
+            data: {
+                name: userCertData.CertUserName,
+                phone: userCertData.CertPhoneNo,
+            },
+        });
+    }, []);
+
+    useEffect(() => {
+        if (
+            myLentalList !== null &&
+            myLentalList !== undefined &&
+            myLentalList.length > 1
+        ) {
+            // alert(
+            //     "사용중인 제품이 조회되지 않습니다.\n제품명을 직접 입력하여 접수해주세요."
+            // );
+        }
+    }, [myLentalList]);
+
+    useEffect(() => {
+        const foundProduct = myLentalList?.find(
+            (list) => list.modelCode === formData.productSelector
+        );
+        setSelectedProduct(foundProduct);
+    }, [formData.productSelector, myLentalList]);
+
     const handleChange = useCallback(
         (e) => {
             const { name, value, type, checked } = e.target;
@@ -39,21 +76,9 @@ const ServiceForm = ({ onFormChange }) => {
                 ...prevFormData,
                 [name]: newValue,
             }));
-
-            // onFormChange({
-            //     ...formData,
-            //     [name]: newValue,
-            // });
         },
         [formData]
     );
-
-    // const handleFileChange = (files) => {
-    //     setFormData({
-    //         ...formData,
-    //         ex_filename: files,
-    //     });
-    // };
 
     return (
         <>
@@ -82,6 +107,14 @@ const ServiceForm = ({ onFormChange }) => {
                                     <option value="none">
                                         신청하실 제품을 선택하세요.
                                     </option>
+                                    {myLentalList?.map((list) => (
+                                        <option
+                                            key={list.orderNo}
+                                            value={list.modelCode}
+                                        >
+                                            {list.erpModelName}
+                                        </option>
+                                    ))}
                                     <option value="">직접입력</option>
                                 </select>
                             </div>
@@ -89,8 +122,8 @@ const ServiceForm = ({ onFormChange }) => {
                     </div>
 
                     {/* 제품이 없는 경우 노출 : 직접입력 */}
-                    {(formData.productSelector == "" ||
-                        formData.productSelector == "DI") && (
+                    {formData.productSelector == "" ||
+                    formData.productSelector == "DI" ? (
                         <div className="form-item col-2">
                             <div className="col">
                                 <div className="form-selectbox">
@@ -124,6 +157,56 @@ const ServiceForm = ({ onFormChange }) => {
                                 </div>
                             </div>
                         </div>
+                    ) : formData.productSelector !== "none" ? (
+                        <FormInfoViewStyle>
+                            <div className="form-viewer-item form-info">
+                                <div className="form-item col-2">
+                                    {selectedProduct && (
+                                        <>
+                                            <div className="col">
+                                                <span className="form-title">
+                                                    제품명
+                                                </span>
+                                                <p>
+                                                    {
+                                                        selectedProduct.erpModelName
+                                                    }
+                                                </p>
+                                            </div>
+                                            <div className="col">
+                                                <span className="form-title">
+                                                    사용자명
+                                                </span>
+                                                <p>
+                                                    {
+                                                        selectedProduct.instCustName
+                                                    }
+                                                </p>
+                                            </div>
+                                            <div className="col">
+                                                <span className="form-title">
+                                                    연락처
+                                                </span>
+                                                <p>
+                                                    {selectedProduct.custMobile}
+                                                </p>
+                                            </div>
+                                            <div className="col">
+                                                <span className="form-title">
+                                                    설치주소
+                                                </span>
+                                                <p>
+                                                    {selectedProduct.instAddr1 +
+                                                        selectedProduct.instAddr2}
+                                                </p>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </FormInfoViewStyle>
+                    ) : (
+                        ""
                     )}
                 </div>
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import FormWriteTitle from "../form/formWriteTitle";
 
 const ServiceTransferForm1 = ({ onFormChange }) => {
@@ -14,6 +14,8 @@ const ServiceTransferForm1 = ({ onFormChange }) => {
         orderType: "", //주문타입(구매/렌탈 여부)
         orderTypeSub: "", //주문타입 sub(구매/렌탈 여부 서브)
     });
+
+    useEffect(() => {}, []);
 
     const handleChange = useCallback(
         (e) => {

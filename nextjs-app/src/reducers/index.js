@@ -3,6 +3,7 @@ import { HYDRATE } from "next-redux-wrapper";
 import { combineReducers } from "redux";
 import user from "./user";
 import page from "./page";
+import service from "./service";
 
 //reducer
 const rootReducer = (state, action) => {
@@ -14,6 +15,7 @@ const rootReducer = (state, action) => {
             const combinedReducer = combineReducers({
                 user,
                 page,
+                service,
             });
             return combinedReducer(state, action);
         }
