@@ -37,7 +37,7 @@ public class MessageService {
     @Autowired
     UniErpMessageDao uniErpMessageDao;
 
-    @Value(value = "system.unierp.secretKey")
+    @Value(value = "${system.unierp.secretKey}")
     String secretKey;
 
     /**
@@ -112,7 +112,7 @@ public class MessageService {
                 jsonObject.put("tranButton", false);
             }
 
-            // API 파라미터						
+            // API 파라미터 (알림톡 전송은 개발이 없음 : erp 개발db에 알림톡관련 테이블이 따로 없어서?)
             String callUrl = "https://erp.bodyfriend.co.kr/api/v1/common/send/alimtalk";
 
             HttpHeaders httpHeaders = new HttpHeaders();

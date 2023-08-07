@@ -28,13 +28,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ApiService {
 
-	@Value(value = "system.unierp.serviceCode")
+	@Value(value = "${system.unierp.serviceCode}")
 	private String uniErpServiceCode;
-	@Value(value = "system.unierp.secretKey")
+	@Value(value = "${system.unierp.secretKey}")
 	private String uniErpSecretKey;
-	@Value(value = "system.unierp.url")
+	@Value(value = "${system.unierp.url}")
 	private String uniErpUrl;
-
 	@Value(value="${system.webroot.filePath}")
 	public static String systemFilePath;
 
