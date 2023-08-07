@@ -6,15 +6,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { common } from "../../func/common";
 import { GET_MY_RENTAL_LIST_REQUEST } from "../../reducers/service";
 import { FormInfoViewStyle } from "../../style/FormStyle";
+import { Validation } from "../../hooks/validation";
 
-const ServiceForm = ({ onFormChange }) => {
+const ServiceForm = ({ formData, onFormChange }) => {
     const dispatch = useDispatch();
     const { myLentalList } = useSelector((state) => state.service);
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const [formData, setFormData] = useState({
+    const [serviceData, setServiceData] = useState({
         //서비스접수 초기값 설정
         productSelector: "none", //제품
-        prdtCate: "", // 제품없는경우 - 제품 카테고리
+        prdtCate: "0", // 제품없는경우 - 제품 카테고리
+        grpCode: "", //제품코드
         prdtName: "", // 제품없는경우 - 제품명
         serviceGroup: "", //서비스 유형
         title: "", //제목
@@ -22,7 +24,7 @@ const ServiceForm = ({ onFormChange }) => {
         ex_filename: [], //첨부파일
         prdtShop: "", //제품 구매처
         name: "", //고객 이름
-        cell1: "", //연락처 1번째 자리
+        cell1: "010", //연락처 1번째 자리
         cell2: "", //연락처 2번째 자리
         cell3: "", //연락처 3번째 자리
         contact: "", //고객 연락처 : cell1 + cell2 + cell3
@@ -33,19 +35,20 @@ const ServiceForm = ({ onFormChange }) => {
 
     useEffect(() => {
         onFormChange({
-            formData,
+            ...formData,
+            ...serviceData,
         });
-    }, [formData]);
+    }, [serviceData]);
 
     useEffect(() => {
         const userCertData = common.getSesstionStorageCertUser();
-        // dispatch({
-        //     type: GET_MY_RENTAL_LIST_REQUEST,
-        //     data: {
-        //         name: userCertData.CertUserName,
-        //         phone: userCertData.CertPhoneNo,
-        //     },
-        // });
+        dispatch({
+            type: GET_MY_RENTAL_LIST_REQUEST,
+            data: {
+                name: userCertData.CertUserName,
+                phone: userCertData.CertPhoneNo,
+            },
+        });
     }, []);
 
     useEffect(() => {
@@ -62,22 +65,43 @@ const ServiceForm = ({ onFormChange }) => {
 
     useEffect(() => {
         const foundProduct = myLentalList?.find(
-            (list) => list.modelCode === formData.productSelector
+            (list) => list.custCode === serviceData.custCode
         );
         setSelectedProduct(foundProduct);
-    }, [formData.productSelector, myLentalList]);
+    }, [serviceData.productSelector, myLentalList]);
 
     const handleChange = useCallback(
         (e) => {
             const { name, value, type, checked } = e.target;
             const newValue = type === "checkbox" ? checked : value;
 
-            setFormData((prevFormData) => ({
+            switch (name) {
+                case "cell2":
+                case "cell3":
+                    if (
+                        !Validation.onlyNumber(newValue) ||
+                        !Validation.onlyNumber(newValue)
+                    ) {
+                        alert("연락처는 숫자만 입력해주세요.");
+                        return false;
+                    }
+                    break;
+                case "productSelector":
+                    console.log("e.target", e.target);
+                    const selectedOption = e.target.selectedOptions[0];
+                    const grpCode = selectedOption.getAttribute("data-grpcode");
+                    serviceData.grpCode = grpCode;
+                    break;
+                default:
+                    break;
+            }
+
+            setServiceData((prevFormData) => ({
                 ...prevFormData,
                 [name]: newValue,
             }));
         },
-        [formData]
+        [serviceData]
     );
 
     return (
@@ -101,7 +125,7 @@ const ServiceForm = ({ onFormChange }) => {
                                 </label>
                                 <select
                                     name="productSelector"
-                                    value={formData.productSelector}
+                                    value={serviceData.productSelector}
                                     onChange={handleChange}
                                 >
                                     <option value="none">
@@ -110,7 +134,8 @@ const ServiceForm = ({ onFormChange }) => {
                                     {myLentalList?.map((list) => (
                                         <option
                                             key={list.orderNo}
-                                            value={list.modelCode}
+                                            value={list.custCode}
+                                            data-grpCode={list.grpCode}
                                         >
                                             {list.erpModelName}
                                         </option>
@@ -122,8 +147,8 @@ const ServiceForm = ({ onFormChange }) => {
                     </div>
 
                     {/* 제품이 없는 경우 노출 : 직접입력 */}
-                    {formData.productSelector == "" ||
-                    formData.productSelector == "DI" ? (
+                    {serviceData.productSelector == "" ||
+                    serviceData.productSelector == "DI" ? (
                         <div className="form-item col-2">
                             <div className="col">
                                 <div className="form-selectbox">
@@ -132,7 +157,7 @@ const ServiceForm = ({ onFormChange }) => {
                                     </label>
                                     <select
                                         name="prdtCate"
-                                        value={formData.prdtCate}
+                                        value={serviceData.prdtCate}
                                         onChange={handleChange}
                                     >
                                         <option value="0">
@@ -151,60 +176,64 @@ const ServiceForm = ({ onFormChange }) => {
                                         type="text"
                                         placeholder="제품명을 입력하세요."
                                         name="prdtName"
-                                        value={formData.prdtName}
+                                        value={serviceData.prdtName}
                                         onChange={handleChange}
                                     />
                                 </div>
                             </div>
                         </div>
-                    ) : formData.productSelector !== "none" ? (
-                        <FormInfoViewStyle>
-                            <div className="form-viewer-item form-info">
-                                <div className="form-item col-2">
-                                    {selectedProduct && (
-                                        <>
-                                            <div className="col">
-                                                <span className="form-title">
-                                                    제품명
-                                                </span>
-                                                <p>
-                                                    {
-                                                        selectedProduct.erpModelName
-                                                    }
-                                                </p>
-                                            </div>
-                                            <div className="col">
-                                                <span className="form-title">
-                                                    사용자명
-                                                </span>
-                                                <p>
-                                                    {
-                                                        selectedProduct.instCustName
-                                                    }
-                                                </p>
-                                            </div>
-                                            <div className="col">
-                                                <span className="form-title">
-                                                    연락처
-                                                </span>
-                                                <p>
-                                                    {selectedProduct.custMobile}
-                                                </p>
-                                            </div>
-                                            <div className="col">
-                                                <span className="form-title">
-                                                    설치주소
-                                                </span>
-                                                <p>
-                                                    {selectedProduct.instAddr1 +
-                                                        selectedProduct.instAddr2}
-                                                </p>
-                                            </div>
-                                        </>
-                                    )}
+                    ) : serviceData.productSelector !== "none" ? (
+                        <>
+                            <FormInfoViewStyle>
+                                <div className="form-viewer-item form-info">
+                                    <div className="form-item col-2">
+                                        {selectedProduct && (
+                                            <>
+                                                <div className="col">
+                                                    <span className="form-title">
+                                                        제품명
+                                                    </span>
+                                                    <p>
+                                                        {
+                                                            selectedProduct.erpModelName
+                                                        }
+                                                    </p>
+                                                </div>
+                                                <div className="col">
+                                                    <span className="form-title">
+                                                        사용자명
+                                                    </span>
+                                                    <p>
+                                                        {
+                                                            selectedProduct.instCustName
+                                                        }
+                                                    </p>
+                                                </div>
+                                                <div className="col">
+                                                    <span className="form-title">
+                                                        연락처
+                                                    </span>
+                                                    <p>
+                                                        {
+                                                            selectedProduct.custMobile
+                                                        }
+                                                    </p>
+                                                </div>
+                                                <div className="col">
+                                                    <span className="form-title">
+                                                        설치주소
+                                                    </span>
+                                                    <p>
+                                                        {selectedProduct.instAddr1 +
+                                                            selectedProduct.instAddr2}
+                                                    </p>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        </FormInfoViewStyle>
+                            </FormInfoViewStyle>
+                        </>
                     ) : (
                         ""
                     )}
@@ -223,7 +252,7 @@ const ServiceForm = ({ onFormChange }) => {
                                 </label>
                                 <select
                                     name="serviceGroup"
-                                    value={formData.serviceGroup}
+                                    value={serviceData.serviceGroup}
                                     onChange={handleChange}
                                 >
                                     <option value="">
@@ -254,7 +283,7 @@ const ServiceForm = ({ onFormChange }) => {
                                     type="text"
                                     placeholder="제목을 입력하세요."
                                     name="title"
-                                    value={formData.title}
+                                    value={serviceData.title}
                                     onChange={handleChange}
                                 />
                             </div>
@@ -274,7 +303,7 @@ const ServiceForm = ({ onFormChange }) => {
                                     placeholder="내용을 입력하세요."
                                     rows="10"
                                     name="content"
-                                    value={formData.cotent}
+                                    value={serviceData.cotent}
                                     onChange={handleChange}
                                 ></textarea>
                             </div>
@@ -295,8 +324,8 @@ const ServiceForm = ({ onFormChange }) => {
                                 maxSize="300MB"
                                 id="ex_filename"
                                 fileList="Y"
-                                formData={formData}
-                                setFormData={setFormData}
+                                formData={serviceData}
+                                setFormData={setServiceData}
                             />
                         </div>
                     </div>
@@ -315,7 +344,7 @@ const ServiceForm = ({ onFormChange }) => {
                                 </label>
                                 <select
                                     name="prdtShop"
-                                    value={formData.prdtShop}
+                                    value={serviceData.prdtShop}
                                     onChange={handleChange}
                                 >
                                     <option value="">
@@ -351,7 +380,7 @@ const ServiceForm = ({ onFormChange }) => {
                                     type="text"
                                     placeholder="이름"
                                     name="name"
-                                    value={formData.name}
+                                    value={serviceData.name}
                                     onChange={handleChange}
                                 />
                             </div>
@@ -371,7 +400,7 @@ const ServiceForm = ({ onFormChange }) => {
                                     <label htmlFor="cell1">010</label>
                                     <select
                                         name="cell1"
-                                        value={formData.cell1}
+                                        value={serviceData.cell1}
                                         onChange={handleChange}
                                     >
                                         <option value="010">010</option>
@@ -389,7 +418,7 @@ const ServiceForm = ({ onFormChange }) => {
                                         className="call-num-box"
                                         maxLength="4"
                                         name="cell2"
-                                        value={formData.cell2}
+                                        value={serviceData.cell2}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -400,7 +429,7 @@ const ServiceForm = ({ onFormChange }) => {
                                         className="call-num-box"
                                         maxLength="4"
                                         name="cell3"
-                                        value={formData.cell3}
+                                        value={serviceData.cell3}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -418,8 +447,8 @@ const ServiceForm = ({ onFormChange }) => {
                         zipcode="zip"
                         addr1="addr1"
                         addr2="addr2"
-                        formData={formData}
-                        setFormData={setFormData}
+                        formData={serviceData}
+                        setFormData={setServiceData}
                         // onFormChange={onFormChange}
                     />
                 </div>

@@ -1,7 +1,7 @@
 import React from "react";
 import { InputChkbox } from "../../style/FormStyle";
 
-const InputCheck = ({ id, name, checked, onChange }) => {
+const InputCheck = ({ id, name, necessary, checked, onChange }) => {
     return (
         <InputChkbox>
             <input
@@ -11,10 +11,16 @@ const InputCheck = ({ id, name, checked, onChange }) => {
                 checked={checked}
                 onChange={onChange}
             />
-            <label
-                htmlFor={id}
-                dangerouslySetInnerHTML={{ __html: name }}
-            ></label>
+            <label htmlFor={id}>
+                <em>
+                    {necessary === "chkAll"
+                        ? ""
+                        : necessary == "Y"
+                        ? "[필수]"
+                        : "[선택]"}
+                </em>
+                <span dangerouslySetInnerHTML={{ __html: name }}></span>
+            </label>
         </InputChkbox>
     );
 };
