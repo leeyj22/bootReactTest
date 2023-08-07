@@ -63,13 +63,13 @@ public class CustomerService{
     @Autowired
     private MarketingService marketingService;
 
-    @Value(value = "system.unierp.serviceCode")
+    @Value(value = "${system.unierp.serviceCode}")
     private String uniErpServiceCode;
-    @Value(value = "system.unierp.secretKey")
+    @Value(value = "${system.unierp.secretKey}")
     private String uniErpSecretKey;
-    @Value(value = "system.unierp.url")
+    @Value(value = "${system.unierp.url}")
     private String uniErpUrl;
-    @Value(value = "system.host.name")
+    @Value(value = "${system.host.name}")
     private String hostName;
 
     private final int LIST_SIZE = 15;
@@ -783,7 +783,6 @@ public class CustomerService{
         } catch (Exception e) {
             log.error("[CUSTOMER][SERVICE][customerService][insertOnlineService][ERROR] : {}", e.getStackTrace());
         } finally {
-
             // 로직 실패 시 접수 취소 요청
             if (!isSuccess && !UtilManager.isEmptyOrNull(serviceIdx)) {
                 log.error("[CUSTOMER][SERVICE][customerService][insertOnlineService][서비스 접수 실패] : {}", serviceIdx);

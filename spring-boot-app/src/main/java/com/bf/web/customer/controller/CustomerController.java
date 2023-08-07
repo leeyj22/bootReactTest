@@ -356,7 +356,7 @@ public class CustomerController {
      * 서비스 접수 등록 API
      * */
     @ResponseBody
-    @RequestMapping(value="/api/customer/saveAfterService", method = {RequestMethod.POST})
+    @PostMapping(value="/api/customer/saveAfterService")
     public Response saveAfterService (HttpServletRequest request, OnlineVO vo, HttpSession session) throws BFException {
 
         log.info("[CUSTOMER][CONTROLLER][CustomerApiController][saveAfterService][START]");

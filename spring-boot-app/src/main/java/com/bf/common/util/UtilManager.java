@@ -51,7 +51,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class UtilManager {
 
     public static String aes256Key;
-    @Value(value = "aes256.key")
+    @Value(value = "${aes256.key}")
     public void setAes256Key(String value){
         this.aes256Key = value;
     }
