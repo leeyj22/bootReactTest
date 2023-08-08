@@ -12,6 +12,9 @@ export const Validation = {
     onlyNumber: (str) => {
         return /^\d+$/.test(str);
     },
+    inputOnlyNum: (str) => {
+        return str.replace(/[^0-9]/gi, "");
+    },
     isChk: (bool) => {
         return bool;
     },

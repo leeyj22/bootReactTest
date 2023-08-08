@@ -35,6 +35,11 @@ export const GET_TEST_APT_REQUEST = "GET_TEST_APT_REQUEST";
 export const GET_TEST_APT_SUCCESS = "GET_TEST_APT_SUCCESS";
 export const GET_TEST_APT_FAILURE = "GET_TEST_APT_FAILURE";
 
+//old 로그인
+export const LOGIN_OLD_REQUEST = "LOGIN_OLD_REQUEST";
+export const LOGIN_OLD_SUCCESS = "LOGIN_OLD_SUCCESS";
+export const LOGIN_OLD_FAILUR = "LOGIN_OLD_FAILUR";
+
 //로그인
 export const LOGIN_URL_REQUEST = "LOGIN_URL_REQUEST";
 export const LOGIN_URL_SUCCESS = "LOGIN_URL_SUCCESS";
@@ -97,16 +102,19 @@ export const reducer = (state = initalState, action) => {
                 draft.loginUrlError = action.error;
                 break;
             case LOGIN_REQUEST:
+            case LOGIN_OLD_REQUEST:
                 draft.loginLoading = true;
                 draft.loginDone = false;
                 draft.loginError = null;
                 break;
             case LOGIN_SUCCESS:
+            case LOGIN_OLD_SUCCESS:
                 draft.loginLoading = false;
                 draft.loginDone = true;
                 draft.user = action.data;
                 break;
             case LOGIN_FAILURE:
+            case LOGIN_OLD_FAILUR:
                 draft.loginLoading = false;
                 draft.loginError = action.error;
                 break;

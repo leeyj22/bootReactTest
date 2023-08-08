@@ -10,13 +10,13 @@ import { Validation } from "../../hooks/validation";
 
 const ServiceForm = ({ formData, onFormChange }) => {
     const dispatch = useDispatch();
+    const { certifyState } = useSelector((state) => state.user);
     const { myLentalList } = useSelector((state) => state.service);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [serviceData, setServiceData] = useState({
         //서비스접수 초기값 설정
         productSelector: "none", //제품
         prdtCate: "0", // 제품없는경우 - 제품 카테고리
-        grpCode: "", //제품코드
         prdtName: "", // 제품없는경우 - 제품명
         serviceGroup: "", //서비스 유형
         title: "", //제목
@@ -41,15 +41,17 @@ const ServiceForm = ({ formData, onFormChange }) => {
     }, [serviceData]);
 
     useEffect(() => {
-        const userCertData = common.getSesstionStorageCertUser();
-        dispatch({
-            type: GET_MY_RENTAL_LIST_REQUEST,
-            data: {
-                name: userCertData.CertUserName,
-                phone: userCertData.CertPhoneNo,
-            },
-        });
-    }, []);
+        if (certifyState) {
+            const userCertData = common.getSesstionStorageCertUser();
+            dispatch({
+                type: GET_MY_RENTAL_LIST_REQUEST,
+                data: {
+                    name: userCertData.CertUserName,
+                    phone: userCertData.CertPhoneNo,
+                },
+            });
+        }
+    }, [certifyState]);
 
     useEffect(() => {
         if (
@@ -73,24 +75,21 @@ const ServiceForm = ({ formData, onFormChange }) => {
     const handleChange = useCallback(
         (e) => {
             const { name, value, type, checked } = e.target;
-            const newValue = type === "checkbox" ? checked : value;
+            let newValue = type === "checkbox" ? checked : value;
 
             switch (name) {
                 case "cell2":
                 case "cell3":
-                    if (
-                        !Validation.onlyNumber(newValue) ||
-                        !Validation.onlyNumber(newValue)
-                    ) {
-                        alert("연락처는 숫자만 입력해주세요.");
-                        return false;
-                    }
+                    newValue = Validation.inputOnlyNum(newValue);
                     break;
                 case "productSelector":
-                    console.log("e.target", e.target);
                     const selectedOption = e.target.selectedOptions[0];
                     const grpCode = selectedOption.getAttribute("data-grpcode");
-                    serviceData.grpCode = grpCode;
+                    const modelname =
+                        selectedOption.getAttribute("data-modelname");
+                    serviceData.prdtCate = grpCode;
+                    serviceData.prdtName = modelname;
+                    serviceData.custCode = newValue;
                     break;
                 default:
                     break;
@@ -133,9 +132,10 @@ const ServiceForm = ({ formData, onFormChange }) => {
                                     </option>
                                     {myLentalList?.map((list) => (
                                         <option
-                                            key={list.orderNo}
+                                            key={list.custCode}
                                             value={list.custCode}
-                                            data-grpCode={list.grpCode}
+                                            data-modelname={list.erpModelName}
+                                            data-grpcode={list.grpCode}
                                         >
                                             {list.erpModelName}
                                         </option>
@@ -147,8 +147,7 @@ const ServiceForm = ({ formData, onFormChange }) => {
                     </div>
 
                     {/* 제품이 없는 경우 노출 : 직접입력 */}
-                    {serviceData.productSelector == "" ||
-                    serviceData.productSelector == "DI" ? (
+                    {serviceData.productSelector == "" ? (
                         <div className="form-item col-2">
                             <div className="col">
                                 <div className="form-selectbox">

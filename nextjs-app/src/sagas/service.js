@@ -37,7 +37,7 @@ function* getTerm(action) {
 //서비스접수 > 나의 제품 리스트 가져오기
 function getMyRentalListAPI(data) {
     return axios.get(
-        `/customerHelp/selectMyRentalList_Inst?name=${data.name}&phone=${data.phone}`
+        `/api/myinfo/getMyAllProductList?name=${data.name}&phone=${data.phone}&useImg=N`
     );
 }
 
@@ -48,7 +48,7 @@ function* getMyRentalList(action) {
 
         yield put({
             type: GET_MY_RENTAL_LIST_SUCCESS,
-            data: result.data,
+            data: result.data.data.productList,
         });
     } catch (err) {
         console.error(err);
@@ -60,7 +60,6 @@ function* getMyRentalList(action) {
 }
 //서비스 접수하기
 function submitServiceAPI(data) {
-    console.log("data????===", data);
     return axios.post("/api/customer/saveAfterService", data);
 }
 
@@ -69,10 +68,11 @@ function* submitService(action) {
         const result = yield call(submitServiceAPI, action.data);
         console.log("submitServiceAPI result", result);
 
-        yield put({
-            type: SUBMIT_SERVICE_SUCCESS,
-            data: result.data.data.status,
-        });
+        if (result.data.status.code == 200) {
+            yield put({
+                type: SUBMIT_SERVICE_SUCCESS,
+            });
+        }
     } catch (err) {
         console.error(err);
         yield put({

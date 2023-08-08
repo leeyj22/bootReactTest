@@ -22,6 +22,9 @@ import {
     CERTIFY_USER_INFO_SUCCESS,
     CERTIFY_USER_INFO_FAILURE,
     CERTIFY_USER_INFO_REQUEST,
+    LOGIN_OLD_SUCCESS,
+    LOGIN_OLD_FAILUR,
+    LOGIN_OLD_REQUEST,
 } from "../reducers/user";
 
 //test
@@ -42,7 +45,7 @@ function* getTest(action) {
         console.error(err);
         yield put({
             type: GET_TEST_APT_FAILURE,
-            error: err.response.data,
+            error: err.response.status,
         });
     }
 }
@@ -65,7 +68,7 @@ function* loginRequestUrl(action) {
         console.error(err);
         yield put({
             type: LOGIN_URL_FAILURE,
-            error: err.response.data,
+            error: err.response.status,
         });
     }
 }
@@ -89,7 +92,30 @@ function* loginRequest(action) {
         console.error(err);
         yield put({
             type: LOGIN_FAILURE,
-            error: err.response.data,
+            error: err.response.status,
+        });
+    }
+}
+//login old
+function loginRequestOldAPI(data) {
+    console.log("data", data);
+    return axios.post("member/login_return", data);
+}
+
+function* loginRequestOld(action) {
+    try {
+        const result = yield call(loginRequestOldAPI, action.data);
+        console.log("loginRequestOldAPI result", result);
+
+        yield put({
+            type: LOGIN_OLD_SUCCESS,
+            data: result.data,
+        });
+    } catch (err) {
+        console.error(err);
+        yield put({
+            type: LOGIN_OLD_FAILUR,
+            error: err.response.status,
         });
     }
 }
@@ -111,7 +137,7 @@ function* loginRequest(action) {
 //         console.error(err);
 //         yield put({
 //             type: LOAD_USER_INFO_FAILURE,
-//             data: err.response.data,
+//             data: err.response.status,
 //         });
 //     }
 // }
@@ -133,7 +159,7 @@ function* certifyPageType(action) {
         console.error(err);
         yield put({
             type: CERTIFY_PAGETYPE_FAILURE,
-            error: err.response.data,
+            error: err.response.status,
         });
     }
 }
@@ -156,7 +182,7 @@ function* certifyRequest(action) {
         console.error(err);
         yield put({
             type: CERTIFY_FAILURE,
-            error: err.response.data,
+            error: err.response.status,
         });
     }
 }
@@ -193,6 +219,9 @@ function* watchLoginUrl() {
 function* watchLogin() {
     yield takeLatest(LOGIN_REQUEST, loginRequest);
 }
+function* watchLoginOld() {
+    yield takeLatest(LOGIN_OLD_REQUEST, loginRequestOld);
+}
 function* watchCertifyPageType() {
     yield takeLatest(CERTIFY_PAGETYPE_REQUEST, certifyPageType);
 }
@@ -210,6 +239,7 @@ export default function* userSaga() {
     yield all([fork(watchLoadTest)]);
     yield all([fork(watchLoginUrl)]);
     yield all([fork(watchLogin)]);
+    yield all([fork(watchLoginOld)]);
     yield all([fork(watchCertifyPageType)]);
     yield all([fork(watchCertify)]);
     yield all([fork(watchCertifyUserInfo)]);
