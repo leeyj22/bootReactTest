@@ -78,7 +78,7 @@ public class CustomerService{
     private final static String aes_key = "bfservicekey!@12";
 
     private static final String baseUrl = "https://erp.bodyfriend.co.kr";
-    private static final String secretKey = "34587180942444ee9e21180e6a12e941"; //prod secret key - 이전설치 비용조회 용
+    private static final String prodSecretKey = "34587180942444ee9e21180e6a12e941"; //prod secret key - 이전설치 비용조회 용
 
     public List<NoticeVO> selectNoticeList() {
         return customerDao.selectNoticeList();
@@ -832,7 +832,7 @@ public class CustomerService{
             httpHeaders.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
             httpHeaders.setContentType(new MediaType(Consts.APPLICATION, Consts.JSON, Charset.forName(Consts.UTF_8)));
             httpHeaders.add("serviceCode", "ERP");
-            httpHeaders.add("secretKey", secretKey);
+            httpHeaders.add("secretKey", prodSecretKey);
 
             // SET GET Params
             String param = "?custKind=" + params.get("custKind");		// 제품구분코드(M:안마의자 | W:정수기 | L:라클라우드)
