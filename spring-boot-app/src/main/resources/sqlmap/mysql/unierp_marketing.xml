@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bf.unierp.marketing.mapper.UniErpMarketingMapper">
+
+    <!-- 이벤트 참여 중복 확인 -->
+    <select id="checkDuplicate" resultType="int" parameterType="hashmap">
+        SELECT COUNT(*) AS cnt
+        FROM RENTAL.dbo.R_EXPERIENCE_COUPON (NOLOCK)
+        WHERE HAND_TEL_NO=RENTAL.dbo.FN_ENC(#{phone}) AND ONAIR_ROUND=#{onairNo}
+    </select>
+
+    <!-- 쿠폰 번호 생성 -->
+    <select id="createSerialNo" parameterType="string" resultType="string">
+        DECLARE @COUPON_NO VARCHAR(12)
+        EXEC RENTAL.dbo.R_3601M1_CREATE_SINGLE 1, #{onairMedia}, @COUPON_NO OUTPUT
+        SELECT @COUPON_NO AS serialNo
+    </select>
+
+    <!-- 쿠폰 입력 -->
+    <select id="insertSerialNo" parameterType="hashmap" resultType="hashmap">
+        DECLARE @RT_R3601M1 AS RT_R3601M1
+        DECLARE @MSG_CD NVARCHAR(06)
+        DECLARE @MESSAGE NVARCHAR(200)
+        DECLARE @RETURN INT
+
+        INSERT INTO @RT_R3601M1 (SEQ_NO, HAND_TEL_NO, CUST_NM, ONAIR_MEDIA, ONAIR_ROUND, ONAIR_ROUND_NM, COUPON_NO, CUD_CHAR, ROW_NUM, COUPON_TYPE)
+        SELECT '0', #{phone}, #{name}, #{onairMedia}, #{onairNo}, #{onairRound}, #{serialNo}, 'C', 1, #{couponType}
+
+        EXEC @RETURN = RENTAL.dbo.USP_R3601M1_CUD @RT_R3601M1, 'homepage', @MSG_CD OUTPUT, @MESSAGE OUTPUT
+
+        SELECT
+        @RETURN AS rtn,
+        @MSG_CD AS msgCd,
+        @MESSAGE AS msg
+    </select>
+
+    <!-- 시리얼 정보 확인 -->
+    <select id="getSerialInfo" parameterType="string" resultType="hashmap">
+        SELECT
+        CONVERT(VARCHAR, EXPIRE_DT, 23) AS expireDate,
+        ISNULL(CONVERT(VARCHAR, USE_DT, 23),'') AS useDate,
+        USE_FLAG AS useFlag,
+        (
+        CASE
+        WHEN ISNULL(EXPIRE_DT,'') = '' THEN 1
+        WHEN DATEDIFF(D, GETDATE(), EXPIRE_DT) >=0 THEN 1
+        ELSE 0
+        END
+        ) AS valid,
+        ONAIR_ROUND AS onairNo,
+        ISNULL(HOMEPAGE_ID, '') AS homepageId
+        FROM R_EXPERIENCE_COUPON (NOLOCK)
+        WHERE COUPON_NO=#{serialNo}
+    </select>
+
+    <!-- 시리얼 사용 -->
+    <update id="useSerial" parameterType="hashmap">
+        UPDATE RENTAL.dbo.R_EXPERIENCE_COUPON
+        SET USE_DT=GETDATE(), USE_FLAG='Y', SALES_GRP=#{salesGrp}, GIFT_FLAG='Y', HAND_TEL_NO2 = RENTAL.dbo.FN_ENC(#{phone})
+        WHERE COUPON_NO=#{serialNo} AND USE_FLAG <![CDATA[<>]]> 'Y'
+    </update>
+
+    <!-- 시리얼 삭제 -->
+    <delete id="deleteSerialNo" parameterType="hashmap">
+        DELETE FROM RENTAL.dbo.R_EXPERIENCE_COUPON
+        WHERE
+        COUPON_NO=#{serialNo}
+        AND HAND_TEL_NO=RENTAL.dbo.FN_ENC(#{phone})
+        AND CUST_NM=#{name}
+        AND ONAIR_MEDIA=#{onairMedia}
+        AND ONAIR_ROUND=#{onairNo}
+        AND USE_FLAG='N'
+    </delete>
+
+    <!-- 전시장 조회 -->
+    <select id="getSaleGrpList" resultType="hashmap">
+        SELECT
+        SALES_GRP AS salesGrp,
+        SALES_GRP_NM AS salesGrpNm
+        FROM UNIERP5.dbo.B_SALES_GRP (NOLOCK)
+        WHERE ROOT_SALES_ORG IN ('1A00', '4A00') AND USAGE_FLAG = 'Y'
+        ORDER BY SALES_GRP_NM
+    </select>
+
+    <!-- 방송 정보 조회 -->
+    <select id="getOnairInfo" resultType="hashmap" parameterType="string">
+        SELECT
+        ONAIR_MEDIA AS onairMedia,
+        ONAIR_ROUND AS onairRound,
+        PWD AS pwd
+        FROM RENTAL.dbo.R_ONAIR_INFO (NOLOCK)
+        WHERE IDENTITY_NO=#{onairNo}
+    </select>
+
+    <!-- 쿠폰별 페이지뷰 조회 -->
+    <select id="callUspExperienceCouponHomepageSel" resultType="string" parameterType="string">
+        DECLARE @VIEW_PAGE NVARCHAR(400)
+        EXEC RENTAL.dbo.USP_EXPERIENCE_COUPON_HOMEPAGE_SEL #{serialNo}, @VIEW_PAGE OUTPUT
+        SELECT @VIEW_PAGE AS viewPage
+    </select>
+
+    <!-- 사용가능한 전시장 쿠폰 조회 -->
+    <select id="getShowroomCoupon" resultType="hashmap">
+        SELECT
+        IDENTITY_NO AS onairNo,
+        ONAIR_ROUND AS couponType
+        FROM RENTAL.dbo.R_ONAIR_INFO (NOLOCK)
+        WHERE
+        IDENTITY_NO <![CDATA[<>]]> 1
+        AND ONAIR_MEDIA='SC' AND ONAIR_DT <![CDATA[<=]]> GETDATE() AND DATEADD(D, 1, EXPIRE_DT) > GETDATE()
+    </select>
+
+    <!-- 쿠폰정보에 홈페이지 전시장체험 접수 아이디 추가 -->
+    <update id="updateSeqOnShowroomCoupon" parameterType="hashmap">
+        UPDATE RENTAL.dbo.R_EXPERIENCE_COUPON
+        SET HOMEPAGE_ID = #{homepageId}
+        WHERE COUPON_NO = #{couponNo}
+    </update>
+
+</mapper>

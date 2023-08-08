@@ -56,7 +56,6 @@ public class SVCDataBaseConfig {
         return new SqlSessionTemplate( sqlSessionFactoryBean.getObject() );
     }
 
-    @Primary
     @Bean(name = "svcTransactionManager")
     public PlatformTransactionManager transactionManager(@Qualifier("svcDatasource") DataSource svcDatasource ) {
         /** TRANSACTION MANAGER **/
