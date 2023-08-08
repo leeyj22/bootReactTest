@@ -196,7 +196,6 @@ public class MemberService {
         return res;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Transactional
     public Map loginCheck(Member member){
         Sha256 sha256 = new Sha256();
@@ -205,14 +204,14 @@ public class MemberService {
         member.setPwd(sha256.enc(member.getPwd()));
 
         try {
-//            member = memberDao.selectOne("loginCheck", member);
-//
-//            if(member != null){
-//                resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
-//                resultMap.put(Constants.RESULT_DATA, member);
-//            }else{
-//                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
-//            }
+            member = memberDao.loginCheck(member);
+
+            if(member != null){
+                resultMap.put(Constants.RESULT_CODE, Constants.SUCCESS);
+                resultMap.put(Constants.RESULT_DATA, member);
+            }else{
+                resultMap.put(Constants.RESULT_CODE, Constants.FAIL);
+            }
 
         } catch (Exception e) {
             resultMap.put(Constants.RESULT_CODE, Constants.ERROR);
@@ -222,7 +221,6 @@ public class MemberService {
         return resultMap;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Map loginCheck_social(String userId) {
 
         Map resultMap = new HashMap();

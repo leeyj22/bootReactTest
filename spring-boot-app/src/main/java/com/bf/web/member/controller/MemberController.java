@@ -37,6 +37,8 @@ public class MemberController {
     public String systemHostName;
     @Value(value="${system.admin.url}")
     public String systemAdminUrl;
+    @Value(value="${system.front.host.name}")
+    public String systemFrontHostName;
 
     Sha256 sha256 = new Sha256();
 
@@ -273,28 +275,26 @@ public class MemberController {
                 memberData.setIp(Util.ipaddr(request));
                 memberService.updateMemberVisit(memberData);
 
-                mav.addObject("name", memberData.getName());
+//                mav.addObject("name", memberData.getName());
 
                 if("99".equals(member.getLevelCode())) {
-//                    mav.setViewName("redirect:/admin/main");
                     mav.setViewName("redirect:" + systemAdminUrl + "/main");
 
                 } else {
-                    mav.setViewName("redirect:/member/login?result=1");
+                    mav.setViewName("redirect:" + systemFrontHostName + "/");
                 }
 
             } else {
                 //미승인회원
                 SiteInfo siteInfo = memberService.getSiteInfo();
                 mav.addObject("siteTel", siteInfo.getSiteTel());
-                mav.setViewName("redirect:/member/login?result=99");
+                mav.setViewName("redirect:/login_old");
             }
         } else {
             if("99".equals(member.getLevelCode())) {
-//                mav.setViewName("redirect:/admin/login?result=0");
-                mav.setViewName("redirect:" + systemAdminUrl + "/login.bf?result=0");
+                mav.setViewName("redirect:" + systemAdminUrl + "/login_old");
             } else {
-                mav.setViewName("redirect:/member/login?result=0");
+                mav.setViewName("redirect:/login_old");
             }
         }
 
@@ -306,6 +306,5 @@ public class MemberController {
     public int socialMemberCheck(@RequestParam(value = "socialId", required = true) String socialId) {
         return memberService.socialMemberCheck(socialId);
     }
-
 
 }

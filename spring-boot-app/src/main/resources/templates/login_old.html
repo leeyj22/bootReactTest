@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!-- content -->
+<section id="container" class="content">
+    <h3 class="hdtxt">기존 로그인 페이지</h3>
+    <div id="login-container" class="content-area">
+        <div class="page-subtitle-mid">
+            <h2>로그인</h2>
+        </div>
+        <div class="login-area">
+            <ul class="login-area-nav tab-nav">
+                <li><a href="#members-tab" class="members-tab on">회원</a></li>
+                <li><a href="#non-members-tab" class="non-members-tab">비회원 주문확인</a></li>
+            </ul>
+            <div class="tab-contentsWrap">
+                <div id="members-tab" class="login-input tab-contents">
+                    <form name="login_form" id="form" method="post" action="/member/loginCheck">
+                        <input type="hidden" id="email" name="email" value="">
+                        <input type="hidden" id="token" name="token" value="">
+                        <input type="hidden" id="type" name="type" value="USER">
+                        <div class="member-txt-box">
+                            <fieldset>
+                                <legend>회원 로그인</legend>
+                                <input type="text" placeholder="아이디" id="user_id" name="userId" required/>
+                                <input type="password" placeholder="비밀번호" id="user_pwd" name="pwd" required/>
+                            </fieldset>
+                        </div>
+                        <div class="login-option">
+                            <input type="checkbox" id="checkId" name="login-option" value="id-save"/><label for="checkId">아이디 저장</label>
+                            <input type="checkbox" id="checkOn" name="login-option" value="login-keep"/><label for="checkOn">로그인 상태 유지</label>
+                            <a class="idpw-search" href="/member/idPwSearch"><span>아이디/비밀번호 찾기</span></a>
+                        </div>
+                        <div class="login-btn wide-btn">
+                            <a href="javascript:void(0);" id="login_member"><span>로그인</span></a>
+                        </div>
+                        <div class="snsBtn wide-btn">
+                            <a href="javascript:void(0);" onclick="faceboodLogin();">
+								<span>
+								<img class="face-ico" src="/img/content/face-ico.png?version=202006191548" alt="">
+								<em class="facebook-txt">페이스북 계정</em>으로 로그인 </span>
+                            </a>
+                        </div>
+                        <div class="snsBtn wide-btn">
+                            <a href="javascript:void(0);" onclick="kakaoLogin();">
+								<span>
+								<img src="/img/content/kakao-ico.png?version=202006191548" alt="">
+								<em class="kakao-txt">카카오 계정</em>으로 로그인 </span>
+                            </a>
+                        </div>
+                        <div class="snsBtn wide-btn">
+                            <a href="javascript:void(0);" onclick="naverLogin();">
+								<span>
+								<img src="/img/content/naver-ico.png?version=202006191548" alt="">
+								<em class="naver-txt">네이버 계정</em>으로 로그인 </span>
+                            </a>
+                        </div>
+                    </form>
+                    <div id="naver_id_login" style="display:none;">
+                    </div>
+                </div>
+                <div id="non-members-tab" class="login-input tab-contents">
+                    <form id="nomember_order_frm" method="post" action="/member/loginCheckNomember">
+                        <div class="member-txt-box">
+                            <fieldset>
+                                <legend>비회원 로그인</legend>
+                                <input type="text" placeholder="주문자명" id="user_name" name="name" required/>
+                                <!-- <input type="email" placeholder="주문고객 이메일" required/> -->
+                                <input type="text" placeholder="주문번호" id="order_nbr" name="orderNum" required/>
+                            </fieldset>
+                        </div>
+                        <div class="login-btn wide-btn">
+                            <a href="javascript:void(0);" id="login_nomember"><span>검색</span></a>
+                        </div>
+                    </form>
+                </div>
+                <div class="login-info">
+                    <span>아직 바디프랜드 회원이 아니세요?</span>
+                    <span>회원가입 하시면 더 많은 혜택을 만나보실 수 있습니다.</span>
+                    <p class="wide-btn non-btn">
+                        <a href="/member/joinType"><span>신규 회원가입</span></a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+<!-- //content -->
+
+<!-- 공통 적용 스크립트 , 모든 페이지에 노출되도록 설치. 단 전환페이지 설정값보다 항상 하단에 위치해야함 -->
+    <script type="text/javascript" src="//wcs.naver.net/wcslog.js"> </script>
+    <script type="text/javascript">
+    if (!wcs_add) var wcs_add={};
+    wcs_add["wa"] = "s_3c27314851be";
+    if (!_nasa) var _nasa={};
+    if(window.wcs){
+    wcs.inflow();
+    wcs_do(_nasa);
+    }
+    </script>
+
+    <script async type="text/javascript">
+        function mobRf() {
+            var rf = new EN();
+            rf.sendRf()
+        }
+    </script>
+    <!-- page script -->
+    <script type="text/javascript">
+		var login = {
+			onLoadEvent : function(){
+				//아이디/비밀번호 로그인
+				$('#login_member').on('click', function(){
+				    console.log('login_member click');
+					login.memberLogin();
+				});
+				//아이디/비밀번호 로그인 - 비밀번호 엔터
+				$('#user_pwd').keydown(function(e) {
+	                if ((e.which == 13) || (e.keyCode == 13)) {
+	                	login.memberLogin();
+	    				return false;
+	                }else{
+	                	return true;
+	                }
+	            });
+
+				//비회원 로그인
+				$('#login_nomember').on('click', function(){
+					login.nomemberLogin();
+				});
+				//비회원 로그인 - 주문번호 엔터
+				$('#order_nbr').keydown(function(e) {
+					if ((e.which == 13) || (e.keyCode == 13)) {
+	                	login.nomemberLogin();
+	    				return false;
+	                }else{
+	                	return true;
+	                }
+	            });
+			},
+			//아이디/비밀번호 로그인
+			memberLogin : function(){
+			    console.log('memberLogin');
+				if ( $('#user_id').val() == "" ) {
+					alert('아이디를 입력하세요.');
+					return;
+				} else if ( $('#user_pwd').val() == "" ) {
+					alert('비밀번호를 입력하세요.');
+					return;
+				}
+
+				//로그인상태유지
+				var loginExpDate = new Date();
+				if ($('#checkOn').is(":checked")) {
+					loginExpDate.setTime(loginExpDate.getTime() + 1000 * 3600 * 24 * 7); // 쿠키 유지 7일
+				} else {
+					loginExpDate.setTime(loginExpDate.getTime() - 1);
+				}
+				setCookie("bodyfriend_autoid", $('#user_id').val(), loginExpDate);
+			   	setCookie("bodyfriend_autopw", $('#user_pwd').val(), loginExpDate);
+
+				//아이디저장
+				var idExpDate = new Date();
+				if ($('#checkId').is(":checked")) {
+					idExpDate.setTime(idExpDate.getTime() + 1000 * 3600 * 24 * 30); // 쿠키 유지 30일
+				} else {
+					idExpDate.setTime(idExpDate.getTime() - 1);
+				}
+				setCookie("bodyfriend_saveid", $('#user_id').val(), idExpDate);
+
+				//리턴 주소
+	// 			if (location.href.indexOf("/member/login.bf", 0) == -1) {
+	// 				$('#returnUrl').val(location.pathname);
+	// 			}
+	// 			$('#returnUrl').val(document.referrer);
+
+				// WIDERPLANET  SCRIPT START 2018.8.14
+		 		// <DA 광고(타겟팅 게이츠)>, 로그인 -->
+				var loginId = $('#user_id').val();
+				if(loginId == null){
+					loginId == "";
+				}else{
+					loginId = loginId.substring(0, 1) + "**" + loginId.substring(3, loginId.length);
+				}
+
+				var wptg_tagscript_vars = wptg_tagscript_vars || [];
+				wptg_tagscript_vars.push(
+				(function() {
+				    return {
+				        wp_hcuid:loginId,  /*고객넘버 등 Unique ID (ex. 로그인  ID, 고객넘버 등 )를 암호화하여 대입.
+				                     *주의 : 로그인 하지 않은 사용자는 어떠한 값도 대입하지 않습니다.*/
+				        ti:"20765",
+				        ty:"Login",                        /*트래킹태그 타입 */
+				        device:"web",                  /*디바이스 종류  (web 또는  mobile)*/
+				        items:[{
+				            i:"로그인",          /*전환 식별 코드  (한글 , 영어 , 번호 , 공백 허용 )*/
+				            t:"로그인",          /*전환명  (한글 , 영어 , 번호 , 공백 허용 )*/
+				            p:"1",                   /*전환가격  (전환 가격이 없을 경우 1로 설정 )*/
+				            q:"1"                   /*전환수량  (전환 수량이 고정적으로 1개 이하일 경우 1로 설정 )*/
+				        }]
+				    };
+				}));
+				// WIDERPLANET  SCRIPT END 2018.8.14
+
+				// This script is for AceCounter START ~
+				var _ag   = 0 ;         // 로그인사용자 나이
+				var _id   = loginId;    // 로그인사용자 아이디
+				var _mr   = '';        	// 로그인사용자 결혼여부 ('single' , 'married' )
+				var _gd   = '';         // 로그인사용자 성별 ('man' , 'woman')
+				// ~ AceCounter END
+
+				$('#returnUrl').val("/home/");
+				console.log('form submit');
+				$('#form').submit();
+			},
+			//비회원 로그인
+			nomemberLogin : function(){
+				if ( $('#user_name').val() == "" ) {
+					alert('이름을 입력하세요.');
+					return;
+				} else if ( $('#order_nbr').val() == "" ) {
+					alert('주문번호를 입력하세요.');
+					return;
+				}
+				$('#nomember_order_frm').submit();
+			}
+		};
+
+		$(function(){
+			login.onLoadEvent();
+		    $('#userId').focus();
+
+			var result = "${param.result}";
+			if(result == '0'){
+				deleteCookie();
+				alert("로그인 실패 : 아이디와 패스워드를 확인해주세요");
+				return;
+			} else if(result == '1'){
+				//alert("${name}"+"님 안녕하세요.");
+				if ("${param.returnUrl}" == "") {
+					location.href = '/home/';
+				}
+				return;
+			} else if(result == '2'){
+				alert("주문내역이 없습니다.");
+				return;
+			} else if(result == '99'){
+				deleteCookie();
+				alert("로그인 실패 : 회원가입이 승인되지 않았습니다.\n문의사항이 있으시면 "+"${param.siteTel}"+"로 연락주시기 바랍니다.");
+				return;
+			}
+
+		    //쿠키
+			var saveid = getCookie("bodyfriend_saveid");
+			var autoid = getCookie("bodyfriend_autoid");
+			var autopw = getCookie("bodyfriend_autopw");
+
+			if(autoid != ""){
+				$('#user_id').val(autoid);
+				$('#user_pwd').val(autopw);
+
+				login.memberLogin();
+			}
+
+			if(saveid != ""){
+				$('#user_id').val(saveid);
+			}
+		});
+
+		$(window).load(function(){
+			if ("${param.returnUrl}" != "") {
+				location.href = "${param.returnUrl}";
+			}
+		});
+
+		function setCookie (name, value, expires) {
+			document.cookie = name + "=" + escape(value) +"; path=/; expires=" + expires.toGMTString();
+		}
+
+		function getCookie(Name) {
+		    var search = Name + "=";
+		    if (document.cookie.length > 0) { // 쿠키가 설정되어 있다면
+				offset = document.cookie.indexOf(search);
+		    	if (offset != -1) { // 쿠키가 존재하면
+		        	offset += search.length;
+			        // set index of beginning of value
+			        end = document.cookie.indexOf(";", offset);
+			        // 쿠키 값의 마지막 위치 인덱스 번호 설정
+			        if (end == -1)
+			        	end = document.cookie.length;
+		        	return unescape(document.cookie.substring(offset, end));
+				}
+		    }
+		    return "";
+		}
+
+		function deleteCookie(){
+			var expdate = new Date();
+			expdate.setDate( expdate.getDate() - 1 );
+		  	document.cookie = "bodyfriend_saveid= " + "; expires=" + expdate.toGMTString() + "; path=/";
+		 	document.cookie = "bodyfriend_autoid= " + "; expires=" + expdate.toGMTString() + "; path=/";
+			document.cookie = "bodyfriend_autopw= " + "; expires=" + expdate.toGMTString() + "; path=/";
+		}
+	</script>
+</body>
+</html>

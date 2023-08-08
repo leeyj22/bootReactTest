@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bf.web.marketing.mapper.MarketingMapper">
+
+    <!-- 마케팅 동의 확인 -->
+    <insert id="insertMarketingAgree" parameterType="com.bf.web.marketing.vo.MarketingAgreeVO">
+        INSERT INTO marketing_agree (
+        name, phone, agree_status, ref_page_idx, upd_date, reg_date
+        ) VALUES (
+        #{name}, REPLACE(#{phone}, '-', ''), #{agreeStatus}, #{refPageIdx}, NOW(), NOW()
+        )
+        ON DUPLICATE KEY UPDATE
+        agree_status = values(agree_status),
+        ref_page_idx = values(ref_page_idx),
+        upd_date = NOW()
+    </insert>
+
+    <!-- 마케팅 동의 여부 확인 -->
+    <select id="checkMarketingAgree" parameterType="string" resultType="int">
+        SELECT IFNULL(marketing_agree, '0') as marketingAgree
+        FROM member
+        WHERE user_idx = #{userIdx}
+    </select>
+
+</mapper>

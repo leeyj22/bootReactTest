@@ -1,6 +1,7 @@
 package com.bf.common;
 
 import com.bf.common.util.UtilManager;
+import com.bf.web.marketing.service.MarketingService;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,6 @@ import java.util.Enumeration;
 @Slf4j
 @Component
 public class Interceptor extends HandlerInterceptorAdapter {
-
-//	@Autowired
-//	MarketingService marketingService;
 
 	@Value(value="${system.auth.url}")
 	public static String systemAuthUrl;
@@ -67,7 +65,7 @@ public class Interceptor extends HandlerInterceptorAdapter {
 		}   
 		
 		// UNIERP 연동 페이지
-		if (requestURI.indexOf("assemble-and-disassemble") >= 0				// 분해조립
+		/*if (requestURI.indexOf("assemble-and-disassemble") >= 0				// 분해조립
 				|| requestURI.indexOf("assembleOrderComplete") >= 0			// 분해조립 결제 완료
 				|| requestURI.indexOf("svcTrans") >= 0						// 이전설치
 				|| requestURI.indexOf("myinfo/member_info") >= 0			// 마이페이지
@@ -82,7 +80,7 @@ public class Interceptor extends HandlerInterceptorAdapter {
 				response.sendRedirect("/html/system/00.system.html");
 				return false;
 			}
-		}
+		}*/
 
 		if (requestURI.indexOf("productOrderComplete") >= 0) {
 			Enumeration<String> paramNames = request.getParameterNames();
@@ -164,7 +162,6 @@ public class Interceptor extends HandlerInterceptorAdapter {
 		log.info("[INTERCEPTOR][requestURI] : {}", request.getRequestURI());
 		
 		Enumeration<String> paramNames 	= request.getParameterNames();
-		log.info("******************************************************");
 		while (paramNames.hasMoreElements()) {
 			String key 		= (String) paramNames.nextElement();
 			String value 	= request.getParameter(key);
@@ -172,20 +169,8 @@ public class Interceptor extends HandlerInterceptorAdapter {
 			if ("_".equals(key)) continue;
 			log.info("[INTERCEPTOR][PARAMETER][{}] : {}", key, value);
 		}
-		log.info("******************************************************");
-		
 		log.info("====================================================================================================");
-		
-		// 마케팅 동의
-        if (requestURI.equals("/customer/assemble-and-disassemble_step2")
-                || requestURI.equals("/showroom/reserve")              
-                || requestURI.equals("/product/productOrder")
-                || requestURI.equals("/rental/agree")               
-                || requestURI.equals("/svcTrans2")               
-                || requestURI.equals("/customer/after-service")) {
-//            _checkMarketing(request, session);
-        }
-		
+
 		return returnResult;
 	}
 
@@ -300,7 +285,4 @@ public class Interceptor extends HandlerInterceptorAdapter {
         }
 	}
 	
-//	private void _checkMarketing(HttpServletRequest request, HttpSession session) {
-//	    request.setAttribute("marketingAgree", marketingService.checkMarketingAgree(session));
-//	}
 }
