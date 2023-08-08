@@ -1,8 +1,7 @@
 package com.bf.common;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,10 +9,9 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class FileUpload {
-    
-    private static Logger LOGGER = LoggerFactory.getLogger(FileUpload.class);
-    
+
 	public static int fileUpload(MultipartFile fileData, String path, String fileName) throws IOException {
 		
 		int result = 0;
@@ -22,11 +20,11 @@ public class FileUpload {
 		String contentType = fileData.getContentType();
 		long fileSize = fileData.getSize();
 		
-		LOGGER.info("fileName : {}", fileName);
-		LOGGER.info("originalFileName : {}", originalFileName);
-		LOGGER.info("path : {}", path);
-		LOGGER.info("contentType : {}", contentType);
-		LOGGER.info("fileSize : {}", fileSize);
+		log.info("fileName : {}", fileName);
+		log.info("originalFileName : {}", originalFileName);
+		log.info("path : {}", path);
+		log.info("contentType : {}", contentType);
+		log.info("fileSize : {}", fileSize);
 		
 		InputStream is = null;
 		OutputStream out = null;
@@ -81,11 +79,11 @@ public class FileUpload {
 		String contentType = fileData.getContentType();
 		long fileSize = fileData.getSize();
 		
-		LOGGER.info("fileName : {}", fileName);
-        LOGGER.info("originalFileName : {}", originalFileName);
-        LOGGER.info("path : {}", path);
-        LOGGER.info("contentType : {}", contentType);
-        LOGGER.info("fileSize : {}", fileSize);
+		log.info("fileName : {}", fileName);
+        log.info("originalFileName : {}", originalFileName);
+        log.info("path : {}", path);
+        log.info("contentType : {}", contentType);
+        log.info("fileSize : {}", fileSize);
 		
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		resultMap.put("fileName", fileName);

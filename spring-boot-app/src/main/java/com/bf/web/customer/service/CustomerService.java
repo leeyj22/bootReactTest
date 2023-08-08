@@ -21,6 +21,7 @@ import com.bf.web.marketing.vo.MarketingAgreeVO;
 import com.bf.web.message.service.MessageService;
 import com.bf.web.myinfo.dao.MyinfoDao;
 import com.bf.web.myinfo.vo.Myinfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -33,6 +34,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -75,8 +77,8 @@ public class CustomerService{
     private final int LIST_SIZE = 15;
     private final static String aes_key = "bfservicekey!@12";
 
-//    private static final String baseUrl = "https://erp.bodyfriend.co.kr";
-//    private static final String secretKey = "34587180942444ee9e21180e6a12e941";
+    private static final String baseUrl = "https://erp.bodyfriend.co.kr";
+    private static final String secretKey = "34587180942444ee9e21180e6a12e941"; //prod secret key - 이전설치 비용조회 용
 
     public List<NoticeVO> selectNoticeList() {
         return customerDao.selectNoticeList();
@@ -794,6 +796,84 @@ public class CustomerService{
             }
         }
         log.info("[CUSTOMER][SERVICE][customerService][insertOnlineService][END]");
+        return res;
+    }
+
+    /**
+     * 이전설치 비용 조회 API 호출
+     * @param params
+     * @return
+     * @throws Exception
+     */
+    public Response getTransferPrice(@RequestBody Map<String, Object> params) throws BFException {
+
+        log.info("[CUSTOMER][SERVICE][customerService][getTransferPrice][START]");
+        BFResponse res = new BFResponse(ResultCodes.ERR_NOT_DEFINED);
+
+        try {
+            Map resultMap = new HashMap<String, Object>();
+            RestTemplate restTemplate = new RestTemplate();
+            JSONArray jsonArray = new JSONArray();
+            JSONObject jsonObject = new JSONObject();
+            String apiResult = null;
+            String url = "";
+
+            log.info("[CUSTOMER][SERVICE][customerService][getTransferPrice] params :: " + params.toString());
+
+            // 필수 파라미터 체크
+            Map paramsCheck = UtilManager.checkMandantoryWithReturn(params, new String[] { "custKind", "shippingType", "recRoadAddress" });
+            if (!(boolean) paramsCheck.get(Consts.CHECK)) {
+                throw new BFException(ResultCodes.ERR_PARAM_NOT_FOUND);
+            }
+
+            org.json.JSONObject resultJson = null;
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
+            httpHeaders.setContentType(new MediaType(Consts.APPLICATION, Consts.JSON, Charset.forName(Consts.UTF_8)));
+            httpHeaders.add("serviceCode", "ERP");
+            httpHeaders.add("secretKey", secretKey);
+
+            // SET GET Params
+            String param = "?custKind=" + params.get("custKind");		// 제품구분코드(M:안마의자 | W:정수기 | L:라클라우드)
+            param += "&shippingType=" + params.get("shippingType");		// 서비스 구분
+            param += "&roadAddress=" + params.get("oldRoadAddress");	// 회수주소
+            param += "&roadAddress2=" + params.get("recRoadAddress");	// 설치주소
+
+            System.out.println("param 1 :: " + param.toString());
+            String callUrl = baseUrl + "/api/v1/transfer/getTransferPrice" + param;
+
+            System.out.println("param 2 :: " + callUrl);
+
+            resultJson = RestAdapter.callRestApi(httpHeaders, callUrl, HttpMethod.GET, param);
+            System.out.println(">>>>> resultJson :::" + resultJson.toString());
+            System.out.println(">>>>> resultJson status :::" + resultJson.get("status"));
+
+            if (null != resultJson) {
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, Object> status = mapper.readValue(resultJson.get("status").toString(), Map.class);
+                Map<String, Object> data = mapper.readValue(resultJson.get("data").toString(), Map.class);
+
+                String code = status.get("code").toString();
+                if ("200".equals(code)) {
+                    res = new BFResponse(ResultCodes.RET_SUCCESS, data);
+                } else {
+                    res = new BFResponse(ResultCodes.ERR_DB_NOT_DEFINED);
+                }
+            } else {
+                res = new BFResponse(ResultCodes.ERR_DB_NOT_DEFINED);
+            }
+
+        } catch (BFException be) {
+            log.error("[CUSTOMER][SERVICE][customerService][getTransferPrice][ERROR] : {}", be.getMessage());
+            throw be;
+        } catch (Exception e) {
+            log.error("[CUSTOMER][SERVICE][customerService][getTransferPrice][ERROR] : {}", e.getMessage());
+            res = new BFResponse(ResultCodes.ERR_NOT_DEFINED);
+        }
+
+        log.info("[CUSTOMER][SERVICE][customerService][getTransferPrice][END]");
+
         return res;
     }
 

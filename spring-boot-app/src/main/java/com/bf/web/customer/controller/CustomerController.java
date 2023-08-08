@@ -956,14 +956,14 @@ public class CustomerController {
         return customerService.getGoodsList(request);
     }
 
-   /* *//**
+    /**
      * 이전설치 비용 조회
      * @param params
      * @return
      * @throws Exception
-     *//*
+     */
     @ResponseBody
-    @RequestMapping(value="/customer/getTransferPrice.json", method=RequestMethod.POST, produces="application/json")
+    @PostMapping(value="/customer/getTransferPrice", produces="application/json")
     public Response getTransferPrice(@RequestBody Map<String, Object> params) throws Exception {
         log.info("[CONTROLLER][CustomerController][getTransferPrice][START]");
         System.out.println("params   2 :: " + params.toString());
@@ -973,9 +973,8 @@ public class CustomerController {
         log.info("[CONTROLLER][CustomerController][getTransferPrice][END]");
 
         return res;
-    }*/
+    }
 
-    //TODO : UtilManager.checkCertOrLogin(session); << 로그인이나 본인인증 했는지 여부 체크하는거... 이거 로직에 추가?
     /**
      * 조립분해 - 신청 step1
      * @return
