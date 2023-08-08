@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { common } from "../../func/common";
 import { GET_MY_RENTAL_LIST_REQUEST } from "../../reducers/service";
 import { FormInfoViewStyle } from "../../style/FormStyle";
-import { Validation } from "../../hooks/validation";
+import { Validation } from "../../func/validation";
 
 const ServiceForm = ({ formData, onFormChange }) => {
     const dispatch = useDispatch();
@@ -90,6 +90,13 @@ const ServiceForm = ({ formData, onFormChange }) => {
                     serviceData.prdtCate = grpCode;
                     serviceData.prdtName = modelname;
                     serviceData.custCode = newValue;
+                    break;
+                case "prdtCate":
+                    if (newValue !== "L") {
+                        serviceData.prdtName = "";
+                    } else {
+                        serviceData.prdtName = "모션베드";
+                    }
                     break;
                 default:
                     break;
@@ -175,8 +182,17 @@ const ServiceForm = ({ formData, onFormChange }) => {
                                         type="text"
                                         placeholder="제품명을 입력하세요."
                                         name="prdtName"
-                                        value={serviceData.prdtName}
+                                        value={
+                                            serviceData.prdtCate == "L"
+                                                ? "모션베드"
+                                                : serviceData.prdtName
+                                        }
                                         onChange={handleChange}
+                                        readOnly={
+                                            serviceData.prdtCate == "L"
+                                                ? true
+                                                : false
+                                        }
                                     />
                                 </div>
                             </div>

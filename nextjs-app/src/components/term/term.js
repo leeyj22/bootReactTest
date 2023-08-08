@@ -7,7 +7,7 @@ import { GET_TERM_REQUEST } from "../../reducers/service";
 
 // const termslist = ['policy','mareting'];
 
-const Term = ({ allChk, termslist, formData, onFormChange, type }) => {
+const Term = ({ allChk, termslist, onFormChange, type }) => {
     const dispatch = useDispatch();
 
     const { termTxt } = useSelector((state) => state.service);
@@ -24,10 +24,10 @@ const Term = ({ allChk, termslist, formData, onFormChange, type }) => {
     const [showTerm, setShowTerm] = useState(false);
 
     useEffect(() => {
-        onFormChange({
-            ...formData,
+        onFormChange((prevFormData) => ({
+            ...prevFormData,
             ...termsData,
-        });
+        }));
     }, [termsData]);
 
     const handleChange = (e) => {

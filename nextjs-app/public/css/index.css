@@ -661,6 +661,9 @@ footer .bottom .app a img {
 .form-write-item {
   margin-bottom: 20px;
 }
+.form-write-item .form-selectbox.form-width-half > div {
+  width: 50%;
+}
 .form-write-item .form-selectbox label {
   position: absolute;
   opacity: 0;

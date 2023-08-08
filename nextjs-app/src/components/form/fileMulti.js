@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import useFileInput from "../../hooks/useFileInput";
-import { fileToSize } from "../../hooks/fileToSize";
+import { common } from "../../func/common";
 
 const FileMulti = ({
     name,
@@ -38,7 +38,8 @@ const FileMulti = ({
                             return (
                                 <div className="file-item" key={index}>
                                     <span title={file.name}>
-                                        {file.name}({fileToSize(file.size)})
+                                        {file.name}(
+                                        {common.fileToSize(file.size)})
                                     </span>
                                     <button
                                         title="파일 빼기"
