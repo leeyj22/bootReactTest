@@ -5,6 +5,7 @@ import com.bf.common.element.BFResponse;
 import com.bf.common.element.Response;
 import com.bf.common.util.Sha256;
 import com.bf.common.util.UtilManager;
+import com.bf.unierp.customer.dao.UniErpCustomerDao;
 import com.bf.unierp.myinfo.dao.UnierpMyinfoDao;
 import com.bf.web.api.service.ApiService;
 import com.bf.web.api.vo.ApiResponseVO;
@@ -49,6 +50,8 @@ public class MyinfoService {
     MemberDao memberDao;
     @Autowired
     CustomerDao customerDao;
+    @Autowired
+    UniErpCustomerDao uniErpCustomerDao;
 
     @Value(value = "${system.membership.salt}")
     String membershipSalt;
@@ -500,17 +503,17 @@ public class MyinfoService {
     }*/
 
     //erp 구매&렌탈 이력(사용자만 조회)
-    public List<HashMap<String, String>> selectMyRentalList_Inst(HttpServletRequest request) throws Exception {
+    public List<Map<String, Object>> selectMyRentalList_Inst(HttpServletRequest request) throws Exception {
         Map params = new HashMap();
 
         params.put("name", request.getParameter("name"));
         params.put("phone", request.getParameter("phone"));
         params.put("type", request.getParameter("type"));
 
-        List<HashMap<String, String>> list = unierpMyinfoDao.selectMyRentalListUNIERP_info(params);
+        List<Map<String, Object>> list = uniErpCustomerDao.selectMyRentalListUNIERP_info(params);
         if(list.size() > 0){
             for(int i=0; i<list.size(); i++){
-                list.get(i).put("imgPath", myinfoDao.getGoodsImgPath(list.get(i).get("modelCode")));
+                list.get(i).put("imgPath", myinfoDao.getGoodsImgPath(String.valueOf(list.get(i).get("modelCode"))));
             }
         }
         return list;
@@ -524,7 +527,7 @@ public class MyinfoService {
         params.put("phone", request.getParameter("phone"));
         params.put("type", request.getParameter("type"));
 
-        List<HashMap<String, String>> list = unierpMyinfoDao.selectMyRentalListUNIERP_info(params);
+        List<Map<String, Object>> list = uniErpCustomerDao.selectMyRentalListUNIERP_info(params);
 
         Map subParams = new HashMap<String, Object>();
         List<HashMap<String, String>> writeInfo = new ArrayList<HashMap<String, String>>();
@@ -536,7 +539,7 @@ public class MyinfoService {
             writeInfo = myinfoDao.getReviewWriteInfo(subParams);
             // 주문번호 추가
             for(int i=0; i<writeInfo.size(); i++){
-                writeInfo.get(i).put("orderNo", list.get(i).get("orderNo"));
+                writeInfo.get(i).put("orderNo", String.valueOf(list.get(i).get("orderNo")));
             }
         }
 

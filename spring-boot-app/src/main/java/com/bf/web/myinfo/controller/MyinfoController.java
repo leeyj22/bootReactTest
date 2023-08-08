@@ -302,7 +302,7 @@ public class MyinfoController {
     //erp 구매&렌탈 이력(사용자만 조회)
     @ResponseBody
     @RequestMapping(value ="/myinfo/selectMyRentalList_Inst.json")
-    public List<HashMap<String, String>> selectMyRentalList_Inst(HttpServletRequest request) throws Exception{
+    public List<Map<String, Object>> selectMyRentalList_Inst(HttpServletRequest request) throws Exception{
         return myinfoService.selectMyRentalList_Inst(request);
     }
 

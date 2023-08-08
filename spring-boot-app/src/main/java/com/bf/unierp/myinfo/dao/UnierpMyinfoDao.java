@@ -13,10 +13,6 @@ public class UnierpMyinfoDao {
 
     @Autowired private UnierpMyinfoMapper unierpMyinfoMapper;
 
-    public List<HashMap<String, String>> selectMyRentalListUNIERP_info(Map map){
-        return unierpMyinfoMapper.selectMyRentalListUNIERP_info(map);
-    }
-
     public int selectTemporarySCVCountUNIERP(Map params){
         return unierpMyinfoMapper.selectTemporarySCVCountUNIERP(params);
     }

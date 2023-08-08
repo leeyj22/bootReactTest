@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bf.unierp.myinfo.mapper.UnierpMyinfoMapper">
+
+    <!-- 당일 서비스  접수 건 UNIERP-->
+    <select id="selectTemporarySCVCountUNIERP" parameterType="HashMap" resultType="Integer">
+        SELECT count(*) as count
+        FROM RENTAL.DBO.TB_ASRESERVE_INFO ainfo WITH (NOLOCK)
+        WHERE 1=1
+        AND CONTRACT_NM = #{userName} AND CONTRACT_HPHONE_NO = UNIERP5.dbo.FN_ENC(#{phoneNo})
+        AND CONVERT(VARCHAR(10), GETDATE(), 112) = CONVERT(VARCHAR(10), IN_DATE, 112)
+        AND DEL_FLAG = 'N'
+    </select>
+
+    <!-- SERVICE DB 처리 내역 조회 UNIERP -->
+    <select id="selectSCVListUNIERP" parameterType="HashMap" resultType="HashMap">
+        SELECT
+        /**************** [myinfo.selectSCVListUNIERP] ****************/
+        info2.TEL_NO AS HP,
+        CUST_NM AS IN_USER_NAME,
+        info.SERVICE_NO AS receiptSeq,
+        CONVERT(varchar(10), info.receive_dt, 120) AS receiptDate,
+        info3.REPAIR_LIST AS repairHistory,
+        info.CUST_NO AS IN_USER_NUMBER,
+        case  when info.JOB_KIND = '1' then '접수중'
+        when info.JOB_KIND = '2' then '기사배정중'
+        when info.JOB_KIND in ('3','8') then '방문중'
+        when info.JOB_KIND = '4' then '방문완료'
+        when info.JOB_KIND = '5' then '맞교체'
+        when info.JOB_KIND = '6' then '반품'
+        when info.JOB_KIND = '0' then '취소'
+        else '' end progressNo,
+        info.TEL_NO AS IN_TEL,
+        info.HAND_TEL_NO AS IN_HANDPHONE,
+        info.REQ_TYPE AS CALL_TYPE,
+        info.SALES_CHANNEL_NM AS PURCHASING_OFFICE,
+        info.ADDR1 + ' ' + info.ADDR2 + ' ' + info.ADDR3 AS ADDR,
+        info.ADDR1 AS AREA,
+        convert(varchar, info.INSTALL_DT, 102) AS IN_PRODUCT_DATE,
+        info.GOODS_NM AS productName,
+        info4.COLOR_CKO022 AS OPTIONDATA,
+        '' AS COMPONENT,
+        info.SERVICE_MONTH AS serviceMonth,
+        info.CALLER_ID AS ACCESS_ID,
+        info.SVC_SYMPTOM AS SYMPTOM,
+        info.DRIVER_ID1 AS GISA_NAME,
+        convert(varchar, info.APPLY_DT, 102) AS DUE_DATE
+        FROM RENTAL.DBO.R_SERVICE_INFO info WITH (NOLOCK) LEFT JOIN (SELECT SERVICE_NO, TEL_NO = RENTAL.DBO.[FN_DEC](TEL_NO)
+        FROM RENTAL.DBO.R_SERVICE_INFO
+        ) info2 on info.SERVICE_NO = info2.SERVICE_NO
+        LEFT JOIN RENTAL.DBO.R_SERVICE_RESULT info3 on info.SERVICE_NO = info3.SERVICE_NO
+        LEFT JOIN UNIERP5.DBO.B_ITEM info4 on info.GOODS_CD = info4.ITEM_CD
+        WHERE (1=1)
+        AND (CUST_NM = #{userName} or or CUST_NM = #{userName})
+        AND info2.TEL_NO = #{phoneNo}
+    </select>
+
+    <!-- ERP 카드사 코드 확인 -->
+    <select id="getCardInfoUnierp" parameterType="string" resultType="hashmap">
+        DECLARE @CARD_NM VARCHAR(20) = #{cardNm}
+
+        SET @CARD_NM = CASE @CARD_NM
+        WHEN 'KB국민' THEN '국민'
+        WHEN 'NH채움' THEN '농협'
+        WHEN '산은캐피탈' THEN '산은'
+        ELSE @CARD_NM END
+
+        SELECT TOP 1
+        CARD_CO_CD AS cardCoCd
+        , CARD_CO_NM AS cardCoNm
+        FROM   UNIERP5.DBO.B_CARD_CO (NOLOCK)
+        WHERE CARD_CO_NM LIKE CONCAT('%', @CARD_NM, '%')
+    </select>
+
+    <select id="getGoodsList" resultType="HashMap">
+        SELECT
+        modelcode as modelCode
+        , modelname as modelName
+        , outprice as sellPrice
+        , LentalPrice as rentalPrice
+        , rent_term as rentalMonth
+        , case custkind when '01' then 'M' when '03' then 'L' else 'W' end as grpCode
+        FROM BODYF.dbo.tblitem a WITH (NOLOCK) WHERE (1=1)
+        AND A.JUB_YN = 'Y'
+        <choose>
+            <when test="value != null and value != ''">
+                AND custkind = #{value}
+            </when>
+            <otherwise>
+                AND custkind in ('01','03','06')
+            </otherwise>
+        </choose>
+        ORDER BY A.CUSTKIND, A.outprice DESC
+    </select>
+
+</mapper>
