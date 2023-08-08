@@ -46,8 +46,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 public class UtilManager {
 
     public static String aes256Key;

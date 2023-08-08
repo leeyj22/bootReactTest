@@ -777,7 +777,6 @@ public class CustomerService{
             isSuccess = true;
 
         } catch (BFException e) {
-            // TODO: handle exception
             log.error("[CUSTOMER][SERVICE][customerService][insertOnlineService][ERROR] : {} ", e.getMessage());
             throw e;
         } catch (Exception e) {
@@ -790,7 +789,7 @@ public class CustomerService{
                 try {
                     apiService.callErpApiServer(callUrl, HttpMethod.POST, null);
                 } catch (Exception e) {
-                    // TODO: handle exception
+                    log.error("[CUSTOMER][SERVICE][customerService][insertOnlineService][서비스 접수취소 실패] : {}", serviceIdx);
                 }
             }
         }

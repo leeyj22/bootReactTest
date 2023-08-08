@@ -119,8 +119,8 @@ public class MessageService {
             httpHeaders.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE + ";charset=UTF-8");
             httpHeaders.setContentType(new MediaType(Consts.APPLICATION, Consts.JSON, Charset.forName(Consts.UTF_8)));
             httpHeaders.add("serviceCode", "ERP");
-//            httpHeaders.add("secretKey", "34587180942444ee9e21180e6a12e941");
-            httpHeaders.add("secretKey", secretKey);
+            httpHeaders.add("secretKey", "34587180942444ee9e21180e6a12e941");
+//            httpHeaders.add("secretKey", secretKey);
 
             JSONObject jsonResult = RestAdapter.callRestApi(httpHeaders, callUrl, HttpMethod.POST, jsonObject);
             JSONObject statusJson = jsonResult.getJSONObject("status");
