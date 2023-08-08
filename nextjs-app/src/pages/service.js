@@ -5,7 +5,6 @@ import { Container } from "../style/AppCommonStyle";
 import PageName from "../components/pagename";
 import Term from "../components/term/term";
 import NoticeService from "../components/service/noticeService";
-import Button from "../components/form/button";
 import ServiceForm from "../components/service/serviceForm";
 import { useDispatch, useSelector } from "react-redux";
 import { useSaveBeforePathname } from "../hooks/useSaveBeforePathname";
@@ -14,8 +13,9 @@ import { END } from "redux-saga";
 import axios from "axios";
 import wrapper from "../store/configureStore";
 import { CERTIFY_USER_INFO_REQUEST } from "../reducers/user";
-import { Validation } from "../hooks/validation";
+import { Validation } from "../func/validation";
 import { SUBMIT_SERVICE_REQUEST } from "../reducers/service";
+import { formDataConsoleChk } from "../func/common";
 //서비스 접수 service1
 
 const formInit = {
@@ -44,11 +44,12 @@ const Service = () => {
         useSelector((state) => state.user);
     const [formData, setFormData] = useState(formInit);
 
+    //본인인증 | 로그인 체크
     useEffect(() => {
         //회원이 아닌 본인인증의 경우 certifyState true
         //회원일 경우 loginDone true , user 데이터 있음.
-        // if (!certifyState && !loginDone) {
         const certifyTimer = setTimeout(() => {
+            // if (!certifyState && !loginDone) {
             if (!certifyState) {
                 router.push("/login");
             }
@@ -63,6 +64,7 @@ const Service = () => {
         };
     }, [loginDone, certifyState, certifyStateError]);
 
+    //접수완료 초기화
     useEffect(() => {
         if (submitServiceDone) {
             alert("접수가 완료되었습니다.");
@@ -70,6 +72,7 @@ const Service = () => {
         }
     }, [submitServiceDone]);
 
+    //작성시 데이터 set
     const handleFormChange = useCallback((changedData) => {
         setFormData(changedData);
     }, []);
@@ -86,7 +89,10 @@ const Service = () => {
                 alert("신청하실 제품을 선택하세요.");
                 return false;
             }
-            if (data.productSelector === "" && data.prdtCate === "0") {
+            if (
+                (data.productSelector === "" && data.prdtCate === "0") ||
+                (data.productSelector === "" && data.prdtCate === null)
+            ) {
                 alert("제품카테고리를 선택해주세요.");
                 return false;
             }
@@ -183,6 +189,11 @@ const Service = () => {
             serviceData.append("custCode", formData.custCode);
             serviceData.append("prdtShop", formData.prdtShop);
             serviceData.append("ex_filename", formData.ex_filename);
+            //마케팅 체크 여부
+            serviceData.append("marketingYn", formData.marketing ? "Y" : "N");
+
+            //폼데이터 콘솔 확인(운영 삭제)
+            formDataConsoleChk(serviceData);
 
             //데이터 전달
             dispatch({
@@ -194,40 +205,40 @@ const Service = () => {
     return (
         <AppLayout>
             <Breadcrumb pageId="service" pageSubId="service1" />
-            {/* {(loginDone || certifyState) && ( */}
-            <Container>
-                <PageName title="서비스 접수" />
+            {(loginDone || certifyState) && (
+                <Container>
+                    <PageName title="서비스 접수" />
 
-                {/* 서비스 작성 */}
-                <ServiceForm
-                    formData={formData}
-                    onFormChange={handleFormChange}
-                />
+                    {/* 서비스 작성 */}
+                    <ServiceForm
+                        formData={formData}
+                        onFormChange={handleFormChange}
+                    />
 
-                {/* 약관동의 */}
-                {/* 마케팅 동의 했을 경우 ?
+                    {/* 약관동의 */}
+                    {/* 마케팅 동의 했을 경우 ?
                  allChk="N"
                 termslist={["policy", "marketing"]}
                  */}
-                <Term
-                    allChk="N"
-                    termslist={["policy", "marketing"]}
-                    formData={formData}
-                    onFormChange={handleFormChange}
-                />
+                    <Term
+                        allChk="N"
+                        termslist={["policy", "marketing"]}
+                        formData={formData}
+                        onFormChange={handleFormChange}
+                    />
 
-                {/* 유의사항 */}
-                <NoticeService noticeName="service" />
+                    {/* 유의사항 */}
+                    <NoticeService noticeName="service" />
 
-                {/* 버튼 */}
-                <div
-                    className={`type1 btn-wrap`}
-                    style={{ textAlign: "center" }}
-                >
-                    <button onClick={handleSubmit}>접수하기</button>
-                </div>
-            </Container>
-            {/* )} */}
+                    {/* 버튼 */}
+                    <div
+                        className={`type1 btn-wrap`}
+                        style={{ textAlign: "center" }}
+                    >
+                        <button onClick={handleSubmit}>접수하기</button>
+                    </div>
+                </Container>
+            )}
         </AppLayout>
     );
 };

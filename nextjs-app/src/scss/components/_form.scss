@@ -123,6 +123,11 @@
     margin-bottom:20px;
     //selectbox
     .form-selectbox{
+        &.form-width-half{
+            &>div{
+                width:50%;
+            }
+        }
         label{
             position: absolute;
             opacity: 0;

@@ -1,4 +1,4 @@
-import { Validation } from "./validation";
+import { Validation } from "../func/validation";
 
 // 본인인증
 export const Certify = {
