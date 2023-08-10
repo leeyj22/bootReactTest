@@ -9,6 +9,10 @@
 /* 접근성 : 숨김 텍스트 */
 .hdtxt{height: 0; width: 0; font-size: 0; line-height: 0; margin: 0; padding: 0; overflow:hidden;}
 
+/*display*/
+.dis-block{display: block !important;}
+.dis-none{display: none !important;}
+
 /*layout*/
 
 /*color*/
@@ -17,7 +21,10 @@
 .color-white{color:$color-white !important;}
 .color-primary{color:$color-primary !important;}
 .color-secondary{color:$color-secondary !important;}
+
 .color-red-f0{color:$color-red-f0 !important;}
+.color-purple-9060ff{color:$color-purple-9060ff !important}
+.color-orange-ffbb4f{color:$color-orange-ffbb4f !important}
 
 .color-grey-9{color:$color-grey-9 !important;}
 .color-grey-b0{color:$color-grey-b0 !important;}
@@ -29,6 +36,73 @@
 .color-grey-db{color:$color-grey-db !important;}
 .color-grey-f3{color:$color-grey-f3 !important;}
 .color-grey-f5f5f7{color:$color-grey-f5f5f7 !important;}
+.color-grey-bbbcc8{color:$color-grey-bbbcc8 !important;}
+
+.color-border1{color:$color-border1 !important;}
 
 /*marget*/
 .mgt10{margin-top:10px;}
+
+/*로딩*/
+.loading-wrap{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:0 auto;
+    z-index:9999;
+    &.on{
+        display: block;
+    }
+    &.cls-1{
+        fill:$color-black-0;
+    }
+    .round{
+        position:fixed;
+        top:50%;
+        left:50%;
+        width:120px;
+        height:120px;
+        border-radius:50%;
+        animation-name:loadingRotate;
+        animation-duration:3s;
+        animation-iteration-count:infinite;
+        animation-direction:normal;
+        animation-fill-mode:forwards;
+        animation-timing-function:revert;
+        background:#fff;
+        border:10px solid #fff;
+        box-sizing:content-box;
+        z-index:9999;
+        svg{
+            position:absolute;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%
+        }
+    }
+    .logo,
+    .polygon{
+        animation-name:loadingColor;
+        animation-duration:5s;
+        animation-iteration-count:infinite;
+        animation-direction:normal;
+        animation-fill-mode:forwards;
+    }
+    .logoshape{
+        position:fixed;
+        top:50%;
+        left:50%;
+        transform:translate(-50%,-50%);
+        width:110px;
+        height:110px;
+        z-index:9999;
+    }
+    #loadingPolygon {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+
+

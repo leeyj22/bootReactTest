@@ -5,9 +5,9 @@ const AddrForm = ({
     zipcode,
     addr1,
     addr2,
+    postData,
     formData,
     setFormData,
-    // onFormChange,
 }) => {
     const handleGetPostCode = () => {
         PostCode.init((data) => {
@@ -16,6 +16,7 @@ const AddrForm = ({
                 [zipcode]: data.zipNo,
                 [addr1]: data.roadAddrPart1,
                 [addr2]: data.addrDetail,
+                [postData]: data,
             });
         });
     };

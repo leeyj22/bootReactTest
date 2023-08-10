@@ -12,7 +12,10 @@ import { useRouter } from "next/router";
 import { END } from "redux-saga";
 import axios from "axios";
 import wrapper from "../store/configureStore";
-import { CERTIFY_USER_INFO_REQUEST } from "../reducers/user";
+import {
+    CERTIFY_USER_INFO_REQUEST,
+    GET_MARKETING_AGREE_REQUEST,
+} from "../reducers/user";
 import { Validation } from "../func/validation";
 import { SUBMIT_SERVICE_REQUEST } from "../reducers/service";
 import { formDataConsoleChk } from "../func/common";
@@ -40,9 +43,16 @@ const Service = () => {
     const router = useRouter();
     const dispatch = useDispatch();
     useSaveBeforePathname();
-    const { loginDone, certifyState, certifyStateError, submitServiceDone } =
-        useSelector((state) => state.user);
+    const {
+        loginDone,
+        certifyState,
+        certifyStateError,
+        submitServiceDone,
+        getMarketingDone,
+        marketingAgree,
+    } = useSelector((state) => state.user);
     const [formData, setFormData] = useState(formInit);
+    const [termslist, setTermsList] = useState(["policy"]);
 
     //본인인증 | 로그인 체크
     useEffect(() => {
@@ -57,12 +67,25 @@ const Service = () => {
             if (certifyStateError !== null) {
                 certifyStateError == 400 && router.push("/error/error404");
             }
+
+            if (certifyState || loginDone) {
+                dispatch({
+                    type: GET_MARKETING_AGREE_REQUEST,
+                });
+            }
         }, 200);
 
         return () => {
             clearTimeout(certifyTimer);
         };
     }, [loginDone, certifyState, certifyStateError]);
+
+    //마케팅 동의 여부
+    useEffect(() => {
+        if (marketingAgree === 0) {
+            setTermsList([...termslist, "marketing"]);
+        }
+    }, [getMarketingDone]);
 
     //접수완료 초기화
     useEffect(() => {
@@ -222,7 +245,7 @@ const Service = () => {
                  */}
                     <Term
                         allChk="N"
-                        termslist={["policy", "marketing"]}
+                        termslist={termslist}
                         formData={formData}
                         onFormChange={handleFormChange}
                     />

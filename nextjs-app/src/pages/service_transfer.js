@@ -119,7 +119,9 @@ const ServiceTransfer = () => {
                         data.orderTypeSub !== "4"
                     ) {
                         if (Validation.isEmpty(data.orderPerson)) {
-                            alert(`${data.installTxt}자 이름을 입력해주세요.`);
+                            alert(
+                                `${data.unInstallTxt}자 이름을 입력해주세요.`
+                            );
                             return false;
                         }
                         if (
@@ -127,7 +129,7 @@ const ServiceTransfer = () => {
                             Validation.isEmpty(data.telNumb01_02)
                         ) {
                             alert(
-                                `${data.installTxt}자 연락처를 입력해주세요.`
+                                `${data.unInstallTxt}자 연락처를 입력해주세요.`
                             );
                             return false;
                         }
@@ -136,7 +138,7 @@ const ServiceTransfer = () => {
                             Validation.isEmpty(data.orderAddr1) ||
                             Validation.isEmpty(data.orderAddr2)
                         ) {
-                            alert(`${data.installTxt} 주소를 입력해주세요.`);
+                            alert(`${data.unInstallTxt} 주소를 입력해주세요.`);
                             return false;
                         }
                     }
@@ -149,7 +151,7 @@ const ServiceTransfer = () => {
                     ) {
                         if (Validation.isEmpty(data.unInsDate)) {
                             alert(
-                                `${data.installTxt} 희망일자를 입력해주세요.`
+                                `${data.unInstallTxt} 희망일자를 입력해주세요.`
                             );
                             return false;
                         }
@@ -158,9 +160,7 @@ const ServiceTransfer = () => {
                     //설치만 있는 경우(포장)
                     if (data.orderTypeSub !== "6") {
                         if (Validation.isEmpty(data.receiver)) {
-                            alert(
-                                `${data.unInstallTxt}자 이름을 입력해주세요.`
-                            );
+                            alert(`${data.installTxt}자 이름을 입력해주세요.`);
                             return false;
                         }
                         if (
@@ -168,7 +168,7 @@ const ServiceTransfer = () => {
                             Validation.isEmpty(data.telNumb02_02)
                         ) {
                             alert(
-                                `${data.unInstallTxt}자 연락처를 입력해주세요.`
+                                `${data.installTxt}자 연락처를 입력해주세요.`
                             );
                             return false;
                         }
@@ -177,12 +177,12 @@ const ServiceTransfer = () => {
                             Validation.isEmpty(data.receiveAddr1) ||
                             Validation.isEmpty(data.receiverAddr2)
                         ) {
-                            alert(`${data.unInstallTxt} 주소를 입력해주세요.`);
+                            alert(`${data.installTxt} 주소를 입력해주세요.`);
                             return false;
                         }
                         if (Validation.isEmpty(data.insDate)) {
                             alert(
-                                `${data.unInstallTxt} 희망일자를 입력해주세요.`
+                                `${data.installTxt} 희망일자를 입력해주세요.`
                             );
                             return false;
                         }
@@ -192,7 +192,7 @@ const ServiceTransfer = () => {
                     if (data.orderTypeSub == "1" || data.orderTypeSub == "5") {
                         if (data.insDate == data.unInsDate) {
                             alert(
-                                `${data.installTxt} 희망일과 ${data.unInstallTxt} 희망일은 다르게 지정하셔야 합니다.`
+                                `${data.unInstallTxt} 희망일과 ${data.installTxt} 희망일은 다르게 지정하셔야 합니다.`
                             );
 
                             return false;
@@ -213,7 +213,7 @@ const ServiceTransfer = () => {
                     if (data.orderTypeSub == "1") {
                         if (Validation.isEmpty(data.location)) {
                             alert(
-                                `${data.unInstallTxt} 이동 구분을 선택 후 희망일자를 다시 확인해 주세요.`
+                                `${data.installTxt} 이동 구분을 선택 후 희망일자를 다시 확인해 주세요.`
                             );
                             return false;
                         }
@@ -260,59 +260,80 @@ const ServiceTransfer = () => {
     return (
         <AppLayout>
             <Breadcrumb pageId="service" pageSubId="service2" />
-            {/* {(loginDone || certifyState) && ( */}
-            <Container>
-                <PageName title="이전/설치 접수" />
+            {(loginDone || certifyState) && (
+                <Container>
+                    <PageName title="이전/설치 접수" />
 
-                <ServiceProgress step="3" progress={progress} />
+                    <ServiceProgress step="3" progress={progress} />
 
-                {/* 이전설치접수 */}
-                {CurrentForm && (
-                    <CurrentForm
-                        formData={formData}
-                        onFormChange={handleFormChange}
-                    />
-                )}
-
-                {process == 2 && <NoticeService noticeName="svcTrans1" />}
-
-                {progress == 3 && (
-                    <>
-                        {/* 약관동의 */}
-                        <Term
-                            allChk="Y"
-                            termslist={[
-                                "policy",
-                                "agreeServiceTrans1",
-                                "agreeServiceTrans2",
-                                "agreeServiceTrans3",
-                                "agreeServiceTrans4",
-                                "marketing",
-                            ]}
+                    {/* 이전설치접수 */}
+                    {CurrentForm && (
+                        <CurrentForm
+                            formData={formData}
                             onFormChange={handleFormChange}
-                            type="allChkDiv"
                         />
+                    )}
 
-                        <NoticeService noticeName="svcTrans2" />
-                    </>
-                )}
+                    {process == 2 && <NoticeService noticeName="svcTrans1" />}
 
-                {/* 버튼 */}
-                {progress == 1 && (
-                    <>
-                        <div
-                            className="type1 btn-wrap"
-                            style={{ textAlign: "center" }}
-                        >
-                            <button onClick={() => handleSubmit("NEXT")}>
-                                다음
-                            </button>
-                        </div>
-                    </>
-                )}
+                    {progress == 3 && (
+                        <>
+                            {/* 약관동의 */}
+                            <Term
+                                allChk="Y"
+                                termslist={[
+                                    "policy",
+                                    "agreeServiceTrans1",
+                                    "agreeServiceTrans2",
+                                    "agreeServiceTrans3",
+                                    "agreeServiceTrans4",
+                                    "marketing",
+                                ]}
+                                onFormChange={handleFormChange}
+                                type="allChkDiv"
+                            />
 
-                {progress == 2 && (
-                    <>
+                            <NoticeService noticeName="svcTrans2" />
+                        </>
+                    )}
+
+                    {/* 버튼 */}
+                    {progress == 1 && (
+                        <>
+                            <div
+                                className="type1 btn-wrap"
+                                style={{ textAlign: "center" }}
+                            >
+                                <button onClick={() => handleSubmit("NEXT")}>
+                                    다음
+                                </button>
+                            </div>
+                        </>
+                    )}
+
+                    {progress == 2 && (
+                        <>
+                            <div
+                                className="type2 btn-wrap"
+                                style={{ textAlign: "center" }}
+                            >
+                                <button
+                                    className="btn-white"
+                                    onClick={() => handleSubmit("PREV")}
+                                >
+                                    취소
+                                </button>
+                                <button
+                                    className="btn-primary"
+                                    onClick={() => handleSubmit("NEXT")}
+                                >
+                                    다음
+                                </button>
+                            </div>
+                        </>
+                    )}
+
+                    {progress == 3 && (
                         <div
                             className="type2 btn-wrap"
                             style={{ textAlign: "center" }}
@@ -324,36 +345,15 @@ const ServiceTransfer = () => {
                                 취소
                             </button>
                             <button
-                                className="btn-primary"
-                                onClick={() => handleSubmit("NEXT")}
+                                className="btn-pay"
+                                onClick={() => handleSubmit("SUBMIT")}
                             >
-                                다음
+                                0원 결제하기
                             </button>
                         </div>
-                    </>
-                )}
-
-                {progress == 3 && (
-                    <div
-                        className="type2 btn-wrap"
-                        style={{ textAlign: "center" }}
-                    >
-                        <button
-                            className="btn-white"
-                            onClick={() => handleSubmit("PREV")}
-                        >
-                            취소
-                        </button>
-                        <button
-                            className="btn-pay"
-                            onClick={() => handleSubmit("SUBMIT")}
-                        >
-                            0원 결제하기
-                        </button>
-                    </div>
-                )}
-            </Container>
-            {/* )} */}
+                    )}
+                </Container>
+            )}
         </AppLayout>
     );
 };

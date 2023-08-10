@@ -4,6 +4,7 @@ import { combineReducers } from "redux";
 import user from "./user";
 import page from "./page";
 import service from "./service";
+import setviceTransfer from "./serviceTransfer";
 
 //reducer
 const rootReducer = (state, action) => {
@@ -16,6 +17,7 @@ const rootReducer = (state, action) => {
                 user,
                 page,
                 service,
+                setviceTransfer,
             });
             return combinedReducer(state, action);
         }

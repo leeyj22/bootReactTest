@@ -25,6 +25,9 @@ import {
     LOGIN_OLD_SUCCESS,
     LOGIN_OLD_FAILUR,
     LOGIN_OLD_REQUEST,
+    GET_MARKETING_AGREE_REQUEST,
+    GET_MARKETING_AGREE_SUCCESS,
+    GET_MARKETING_AGREE_FAILURE,
 } from "../reducers/user";
 
 //test
@@ -210,6 +213,31 @@ function* certifyUserInfo() {
     }
 }
 
+//마케팅 동의 여부 데이터 가져오기
+function getMarketingAgreeAPI() {
+    // return axios.get(`/certify/certifyCheck`);
+    return axios.get("/marketing/getAgreeInfo");
+}
+
+function* getMarketingAgree() {
+    try {
+        const result = yield call(getMarketingAgreeAPI);
+        console.log("getMarketingAgreeAPI result", result);
+
+        if (result.status == 200) {
+            yield put({
+                type: GET_MARKETING_AGREE_SUCCESS,
+                data: result.data.marketingAgree,
+            });
+        }
+    } catch (err) {
+        yield put({
+            type: GET_MARKETING_AGREE_FAILURE,
+            error: err.response.status,
+        });
+    }
+}
+
 function* watchLoadTest() {
     yield takeLatest(GET_TEST_APT_REQUEST, getTest);
 }
@@ -231,6 +259,9 @@ function* watchCertify() {
 function* watchCertifyUserInfo() {
     yield takeLatest(CERTIFY_USER_INFO_REQUEST, certifyUserInfo);
 }
+function* watchGetMarketingAgree() {
+    yield takeLatest(GET_MARKETING_AGREE_REQUEST, getMarketingAgree);
+}
 // function* watchLoadUserInfo() {
 //     yield takeLatest(LOAD_USER_INFO_REQUEST, loadUserInfo);
 // }
@@ -243,5 +274,6 @@ export default function* userSaga() {
     yield all([fork(watchCertifyPageType)]);
     yield all([fork(watchCertify)]);
     yield all([fork(watchCertifyUserInfo)]);
+    yield all([fork(watchGetMarketingAgree)]);
     // yield all([fork(watchLoadUserInfo)]);
 }

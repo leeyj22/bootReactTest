@@ -1,0 +1,16 @@
+@keyframes loadingRotate{
+    // 로딩 오각형 rotate
+	0%{transform:translate(-50%,-50%) rotate(0deg); }
+	25%{transform:translate(-50%,-50%) rotate(72deg); }
+	50%{transform:translate(-50%,-50%) rotate(144deg); }
+	75%{transform:translate(-50%,-50%) rotate(216deg); }
+	100%{transform:translate(-50%,-50%) rotate(288deg);}
+}
+@keyframes loadingColor{
+    // 로딩 컬러 변경
+	0%{fill:$color-grey-c5;}
+	25%{fill:$color-black-0;}
+	50%{fill:$color-orange-ffbb4f;}
+	75%{fill:$color-purple-9060ff;}
+	100%{fill:$color-primary;}
+}

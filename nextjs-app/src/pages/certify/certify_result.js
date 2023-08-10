@@ -22,13 +22,13 @@ const certify_result = () => {
                     ) != null ||
                     UserAgent.match(/LG|SAMSUNG|Samsung/) != null
                 ) {
-                    // window.close();
+                    window.close();
                     window.opener.postMessage(certifyInfo);
                 } else if (window.opener.parent != null) {
-                    // window.close();
+                    window.close();
                     window.opener.parent.postMessage(certifyInfo);
                 } else {
-                    // window.close();
+                    window.close();
                     window.opener.postMessage(certifyInfo);
                 }
             }, 1000);

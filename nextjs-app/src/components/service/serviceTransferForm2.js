@@ -3,8 +3,18 @@ import FormWriteTitle from "../form/formWriteTitle";
 import AddrForm from "../form/addrForm";
 import Calendar from "../form/calendar";
 import { Validation } from "../../func/validation";
+import { service } from "../../func/service";
+import { useDispatch, useSelector } from "react-redux";
+import {
+    GET_HOLIDAY_REQUEST,
+    GET_TRANSFER_PRICE_REQUEST,
+} from "../../reducers/serviceTransfer";
 
 const ServiceTransferForm2 = ({ formData, onFormChange }) => {
+    const dispatch = useDispatch();
+    const { getTransferPriceDone, transferPrice } = useSelector(
+        (state) => state.setviceTransfer
+    );
     const [serviceTransferFormData, setServiceTransferFormData] = useState({
         //이전설치접수2 초기값 설정 : 회수 정보, 설치 정보
         orderPerson: "", // 회수자 이름
@@ -14,6 +24,7 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
         zipCode1: "", //회수 우편번호
         orderAddr1: "", //회수 주소
         orderAddr2: "", //회수 상세 주소
+        orderPostData: "", //회수 주소.(가격 계산용)
         unInsDate: "", //회수 희망일
         receiver: "", //설치자 이름
         telNumb02: "010", //설치자 연락처1
@@ -22,22 +33,33 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
         zipCode2: "", //설치 우편번호
         receiveAddr1: "", //설치 주소
         receiverAddr2: "", //설치 상세 주소
+        receivePostData: "", //설치 주소.(가격 계산용)
         insDate: "", //설치 희망일
         moveDate: "", //이사 예정일
         location: "", //이동 구분 1:외륙(제주도 등) 2:내륙간 이동
         comment: "", //요청사항
         installTxt: "회수", //회수 또는 철거 텍스트
         unInstallTxt: "설치", //설치 또는 진행 텍스트
+        originalPrice: "", //가격
+        addPrice: "",
+        totalPrice: "", //총 가격 , goodsPrice
     });
     const [orderTypeInit, setOrderTypeInit] = useState({
-        installTxt: "회수",
-        unInstallTxt: "설치",
+        installTxt: "설치",
+        unInstallTxt: "회수",
         showInstall: true, //설치 정보 숨김처리 true보임|false안보임
         showUnInstall: true,
         showInstallDate: true, //회수 희망일
         showLocation: false, //이동 구분
     });
 
+    useEffect(() => {
+        dispatch({
+            type: GET_HOLIDAY_REQUEST,
+            data: "T",
+            //이전설치 T, 분해조립 A
+        });
+    }, []);
     useEffect(() => {
         if (formData.orderTypeSub !== "") {
             let installTxt = orderTypeInit.installTxt;
@@ -46,32 +68,31 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
             let showUnInstall = orderTypeInit.showUnInstall;
             let showInstallDate = orderTypeInit.showInstallDate;
             let showLocation = orderTypeInit.showLocation;
-            console.log("formData.orderTypeSub", formData.orderTypeSub);
             switch (formData.orderTypeSub) {
                 case "1": //포장(회수+설치)
                     showLocation = true;
                     break;
                 case "3": //다른층 이동(회수 + 설치)
                     showInstallDate = false; //회수 희망일 숨김
-                    unInstallTxt = "진행";
+                    installTxt = "진행";
                     break;
                 case "4": //같은층 이동(진행) - 설치만
                     showUnInstall = false;
-                    unInstallTxt = "진행";
+                    installTxt = "진행";
                     break;
                 case "5": //포장(철거 + 설치) - 회수+설치
-                    installTxt = "철거";
+                    unInstallTxt = "철거";
                     break;
                 case "6": //철거(회수)만
                     showInstall = false;
-                    installTxt = "철거";
+                    unInstallTxt = "철거";
                     break;
                 case "7": //설치만
                     showUnInstall = false;
                     break;
                 default:
-                    installTxt = "회수";
-                    unInstallTxt = "설치";
+                    unInstallTxt = "회수";
+                    installTxt = "설치";
                     break;
             }
             setOrderTypeInit({
@@ -86,6 +107,8 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                 ...prevFormData,
                 installTxt,
                 unInstallTxt,
+                showInstall,
+                showUnInstall,
             }));
         }
     }, [formData.orderTypeSub !== ""]);
@@ -96,6 +119,53 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
             ...serviceTransferFormData,
         });
     }, [serviceTransferFormData]);
+
+    useEffect(() => {
+        if (
+            serviceTransferFormData.orderAddr1 !== "" ||
+            serviceTransferFormData.receiveAddr1 !== ""
+        ) {
+            service.setPrice(serviceTransferFormData);
+            getTransferPriceAPI();
+        }
+    }, [
+        serviceTransferFormData.orderAddr1,
+        serviceTransferFormData.receiveAddr1,
+    ]);
+
+    useEffect(() => {
+        if (getTransferPriceDone) {
+            const { originalPrice, addPrice } = transferPrice;
+            setServiceTransferFormData((prevFormData) => ({
+                ...prevFormData,
+                originalPrice: parseInt(originalPrice),
+                addPrice: parseInt(addPrice),
+                totalPrice: parseInt(originalPrice) + parseInt(addPrice),
+            }));
+        }
+    }, [getTransferPriceDone]);
+
+    const getTransferPriceAPI = () => {
+        const orderRoadAddr = serviceTransferFormData.orderPostData
+            .roadAddrPart1
+            ? serviceTransferFormData.orderPostData.roadAddrPart1
+            : serviceTransferFormData.receivePostData.roadAddrPart1;
+        const recRoadAddress = serviceTransferFormData.receivePostData
+            .roadAddrPart1
+            ? serviceTransferFormData.receivePostData.roadAddrPart1
+            : serviceTransferFormData.orderPostData.roadAddrPart1;
+        const params = {
+            custKind: formData.prdtCate, //제품구분코드(필)
+            shippingType: formData.orderTypeSub, //서비스타입(필)
+            oldRoadAddress: orderRoadAddr, //회수 (이전설치유형에 따라 없을수 있음)
+            recRoadAddress: recRoadAddress, //설치(필수)
+        };
+
+        dispatch({
+            type: GET_TRANSFER_PRICE_REQUEST,
+            data: params,
+        });
+    };
 
     const handleChange = useCallback(
         (e) => {
@@ -138,7 +208,7 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                 {orderTypeInit.showUnInstall && (
                     <>
                         <FormWriteTitle
-                            title={`1. ${orderTypeInit.installTxt} 정보`}
+                            title={`1. ${orderTypeInit.unInstallTxt} 정보`}
                             service="serviceTransfer"
                         />
 
@@ -226,16 +296,16 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                         <div className="form-write-item">
                             <div className="form-title">
                                 <p className="necessary">
-                                    {orderTypeInit.installTxt} 주소
+                                    {orderTypeInit.unInstallTxt} 주소
                                 </p>
                             </div>
                             <AddrForm
                                 zipcode="zipCode1"
                                 addr1="orderAddr1"
                                 addr2="orderAddr2"
+                                postData="orderPostData"
                                 formData={serviceTransferFormData}
                                 setFormData={setServiceTransferFormData}
-                                onFormChange={onFormChange}
                             />
                         </div>
 
@@ -244,7 +314,7 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                             <div className="form-write-item">
                                 <div className="form-title">
                                     <p className="necessary">
-                                        {orderTypeInit.installTxt} 희망일
+                                        {orderTypeInit.unInstallTxt} 희망일
                                     </p>
                                 </div>
                                 <div className="form-item col-1">
@@ -252,11 +322,15 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                                         <div className="form-input">
                                             <Calendar
                                                 name="unInsDate"
+                                                grpCode={formData.prdtCate}
                                                 formData={
-                                                    serviceTransferFormData.unInsDate
+                                                    serviceTransferFormData
                                                 }
                                                 setFormData={
                                                     setServiceTransferFormData
+                                                }
+                                                orderTypeSub={
+                                                    formData.orderTypeSub
                                                 }
                                             />
                                         </div>
@@ -270,7 +344,7 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                 {orderTypeInit.showInstall && (
                     <>
                         <FormWriteTitle
-                            title={`2. ${orderTypeInit.unInstallTxt} 정보`}
+                            title={`2. ${orderTypeInit.installTxt} 정보`}
                             service="serviceTransfer"
                         />
 
@@ -283,7 +357,7 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                                     onChange={handleSameInfo}
                                 />
                                 <label htmlFor="sameInfo">
-                                    {orderTypeInit.installTxt} 정보와 동일
+                                    {orderTypeInit.unInstallTxt} 정보와 동일
                                 </label>
                             </div>
                         </div>
@@ -372,16 +446,16 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                         <div className="form-write-item">
                             <div className="form-title">
                                 <p className="necessary">
-                                    {orderTypeInit.unInstallTxt} 주소
+                                    {orderTypeInit.installTxt} 주소
                                 </p>
                             </div>
                             <AddrForm
                                 zipcode="zipCode2"
                                 addr1="receiveAddr1"
                                 addr2="receiverAddr2"
+                                postData="receivePostData"
                                 formData={serviceTransferFormData}
                                 setFormData={setServiceTransferFormData}
-                                onFormChange={onFormChange}
                             />
                         </div>
 
@@ -390,7 +464,7 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                             <div className="form-write-item">
                                 <div className="form-title">
                                     <p className="necessary">
-                                        {orderTypeInit.unInstallTxt} 이동 구분
+                                        {orderTypeInit.installTxt} 이동 구분
                                     </p>
                                 </div>
                                 <div className="form-item col-1">
@@ -427,7 +501,7 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                         <div className="form-write-item">
                             <div className="form-title">
                                 <p className="necessary">
-                                    {orderTypeInit.unInstallTxt} 희망일
+                                    {orderTypeInit.installTxt} 희망일
                                 </p>
                             </div>
                             <div className="form-item col-1">
@@ -435,12 +509,12 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                                     <div className="form-input">
                                         <Calendar
                                             name="insDate"
-                                            formData={
-                                                serviceTransferFormData.insDate
-                                            }
+                                            grpCode={formData.prdtCate}
+                                            formData={serviceTransferFormData}
                                             setFormData={
                                                 setServiceTransferFormData
                                             }
+                                            orderTypeSub={formData.orderTypeSub}
                                         />
                                     </div>
                                     <p className="txt color-grey-b4">
@@ -460,12 +534,12 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                                     <div className="form-input">
                                         <Calendar
                                             name="moveDate"
-                                            formData={
-                                                serviceTransferFormData.moveDate
-                                            }
+                                            grpCode={formData.prdtCate}
+                                            formData={serviceTransferFormData}
                                             setFormData={
                                                 setServiceTransferFormData
                                             }
+                                            orderTypeSub={formData.orderTypeSub}
                                         />
                                     </div>
                                 </div>

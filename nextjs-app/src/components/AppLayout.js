@@ -4,6 +4,7 @@ import Headers from "./headers";
 import Footer from "./footer";
 import FooterNotice from "./footerNotice";
 import { GlobalStyle } from "../style/commonStyle";
+import LoadingComponent from "./loadingComponent";
 
 const AppLayout = ({ children }) => {
     return (
@@ -15,6 +16,7 @@ const AppLayout = ({ children }) => {
 
             <FooterNotice />
             <Footer />
+            <LoadingComponent />
         </>
     );
 };

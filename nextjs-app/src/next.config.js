@@ -8,7 +8,7 @@ const nextConfig = {
         unoptimized: true,
     },
     env: {
-        BASE_URL: process.env.BASE_URL,
+        BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
     },
     compiler: {
         styledComponents: true,
@@ -17,7 +17,7 @@ const nextConfig = {
         return [
             {
                 source: "/:path*",
-                destination: `${process.env.BASE_URL}/api/:path*`,
+                destination: `${process.env.NEXT_PUBLIC_BASE_URL}/api/:path*`,
             },
         ];
     },
@@ -27,7 +27,7 @@ module.exports = withBundleAnalyzer({
     ...nextConfig,
     compress: true,
     webpack(config) {
-        const prod = process.env.NODE_ENV === "production";
+        const prod = process.env.NEXT_PUBLIC_ENV === "production";
         const plugins = [...config.plugins];
         return {
             ...config,

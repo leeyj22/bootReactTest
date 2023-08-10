@@ -1,34 +1,38 @@
 import produce from "../util/produce";
 
 export const initalState = {
-    getTestLoading: true,
+    getTestLoading: false,
     getTestDone: false,
     getTestError: null,
     test: null,
     //로그인
-    loginUrlLoading: true,
+    loginUrlLoading: false,
     loginUrlDone: false,
     loginUrlError: null,
     loginUrl: null,
-    loginLoading: true,
+    loginLoading: false,
     loginDone: false, //로그인상태. 로그인 했을 경우 true
     loginError: null,
     //본인인증
-    certifyPagetypeLoading: true,
+    certifyPagetypeLoading: false,
     certifyPagetypeDone: false,
     certifyPagetypeError: null,
     certifyPageType: null,
-    certifyLoading: true,
+    certifyLoading: false,
     certifyDone: false,
     certifyError: null,
     certifyFormData: null,
     certifyInfo: null,
     //본인인증 확인 여부
-    certifyStateLoading: true,
+    certifyStateLoading: false,
     certifyStateDone: false,
     certifyStateError: null,
     certifyState: false, //본인확인여부.본인인증했을 경우 true
     user: null,
+    getMarketingLoading: false,
+    getMarketingDone: false,
+    getMarketingError: null,
+    marketingAgree: null, //마케팅 동의  1:동의한 상태 | 0:동의안한 상태
 };
 
 export const GET_TEST_APT_REQUEST = "GET_TEST_APT_REQUEST";
@@ -67,6 +71,11 @@ export const CERTIFY_SAVE_SSR_REQUEST = "CERTIFY_SAVE_SSR_REQUEST";
 export const CERTIFY_USER_INFO_REQUEST = "CERTIFY_USER_INFO_REQUEST";
 export const CERTIFY_USER_INFO_SUCCESS = "CERTIFY_USER_INFO_SUCCESS";
 export const CERTIFY_USER_INFO_FAILURE = "CERTIFY_USER_INFO_FAILURE";
+
+//마케팅 여부 체크
+export const GET_MARKETING_AGREE_REQUEST = "GET_MARKETING_AGREE_REQUEST";
+export const GET_MARKETING_AGREE_SUCCESS = "GET_MARKETING_AGREE_SUCCESS";
+export const GET_MARKETING_AGREE_FAILURE = "GET_MARKETING_AGREE_FAILURE";
 
 export const reducer = (state = initalState, action) => {
     return produce(state, (d) => {
@@ -188,6 +197,21 @@ export const reducer = (state = initalState, action) => {
                 draft.certifyStateLoading = false;
                 draft.certifyStateError = action.error;
                 draft.certifyState = false;
+                break;
+            //마케팅 동의 여부 데이터 가져오기
+            case GET_MARKETING_AGREE_REQUEST:
+                draft.getMarketingLoading = true;
+                draft.getMarketingDone = false;
+                draft.getMarketingError = null;
+                break;
+            case GET_MARKETING_AGREE_SUCCESS:
+                draft.getMarketingLoading = false;
+                draft.getMarketingDone = true;
+                draft.marketingAgree = action.data;
+                break;
+            case GET_MARKETING_AGREE_FAILURE:
+                draft.getMarketingLoading = false;
+                draft.getMarketingError = action.error;
                 break;
         }
     });

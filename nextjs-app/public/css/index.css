@@ -1,5 +1,39 @@
 @charset "UTF-8";
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap");
+@keyframes loadingRotate {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  25% {
+    transform: translate(-50%, -50%) rotate(72deg);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(144deg);
+  }
+  75% {
+    transform: translate(-50%, -50%) rotate(216deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(288deg);
+  }
+}
+@keyframes loadingColor {
+  0% {
+    fill: #C5C5C5;
+  }
+  25% {
+    fill: #000;
+  }
+  50% {
+    fill: #ffbb4f;
+  }
+  75% {
+    fill: #9060ff;
+  }
+  100% {
+    fill: #437EF7;
+  }
+}
 * {
   margin: 0;
   padding: 0;
@@ -168,6 +202,15 @@ font-family: 'Noto Sans KR', sans-serif;
   overflow: hidden;
 }
 
+/*display*/
+.dis-block {
+  display: block !important;
+}
+
+.dis-none {
+  display: none !important;
+}
+
 /*layout*/
 /*color*/
 .color-black0 {
@@ -192,6 +235,14 @@ font-family: 'Noto Sans KR', sans-serif;
 
 .color-red-f0 {
   color: #f00 !important;
+}
+
+.color-purple-9060ff {
+  color: #9060ff !important;
+}
+
+.color-orange-ffbb4f {
+  color: #ffbb4f !important;
 }
 
 .color-grey-9 {
@@ -234,9 +285,78 @@ font-family: 'Noto Sans KR', sans-serif;
   color: #F5F5F7 !important;
 }
 
+.color-grey-bbbcc8 {
+  color: #bbbcc8 !important;
+}
+
+.color-border1 {
+  color: #DAE0E6 !important;
+}
+
 /*marget*/
 .mgt10 {
   margin-top: 10px;
+}
+
+/*로딩*/
+.loading-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  z-index: 9999;
+}
+.loading-wrap.on {
+  display: block;
+}
+.loading-wrap.cls-1 {
+  fill: #000;
+}
+.loading-wrap .round {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  animation-name: loadingRotate;
+  animation-duration: 3s;
+  animation-iteration-count: infinite;
+  animation-direction: normal;
+  animation-fill-mode: forwards;
+  animation-timing-function: revert;
+  background: #fff;
+  border: 10px solid #fff;
+  box-sizing: content-box;
+  z-index: 9999;
+}
+.loading-wrap .round svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.loading-wrap .logo,
+.loading-wrap .polygon {
+  animation-name: loadingColor;
+  animation-duration: 5s;
+  animation-iteration-count: infinite;
+  animation-direction: normal;
+  animation-fill-mode: forwards;
+}
+.loading-wrap .logoshape {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 110px;
+  height: 110px;
+  z-index: 9999;
+}
+.loading-wrap #loadingPolygon {
+  width: 100%;
+  height: 100%;
 }
 
 #header {
@@ -581,6 +701,10 @@ footer .bottom .app a img {
   font-size: 2rem;
   font-weight: 700;
 }
+.form-viewer-basic .form-title p.grey,
+.form-write-basic .form-title p.grey {
+  color: #bbbcc8;
+}
 .form-viewer-basic .necessary:after,
 .form-write-basic .necessary:after {
   content: "*";
@@ -717,7 +841,7 @@ footer .bottom .app a img {
 }
 .form-view-title p {
   display: inline-block;
-  font-size: 2rem;
+  font-size: 2.4rem;
   font-weight: 700;
 }
 

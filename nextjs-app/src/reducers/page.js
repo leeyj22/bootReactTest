@@ -1,7 +1,7 @@
 import produce from "../util/produce";
 
 export const initalState = {
-    qnaLoading: true,
+    qnaLoading: false,
     qnaDone: false,
     qetQnaError: null,
     qna: null,

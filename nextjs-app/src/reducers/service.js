@@ -1,19 +1,17 @@
 import produce from "../util/produce";
 
 export const initalState = {
-    formData: {
-        getMyRentalListLoading: true,
-        getMyRentalListDone: false,
-        getMyRentalListError: null,
-        myLentalList: null,
-        getTermLoading: true,
-        getTermDone: false,
-        getTermError: null,
-        termTxt: null,
-        submitServiceLoading: true,
-        submitServiceDone: false,
-        submitServiceError: null,
-    },
+    getMyRentalListLoading: false,
+    getMyRentalListDone: false,
+    getMyRentalListError: null,
+    myLentalList: null,
+    getTermLoading: false,
+    getTermDone: false,
+    getTermError: null,
+    termTxt: null,
+    submitServiceLoading: false,
+    submitServiceDone: false,
+    submitServiceError: null,
 };
 //내 렌탈 제품 리스트 가져오기
 //(서비스접수 : 제품 불러오기)

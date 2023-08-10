@@ -1,4 +1,4 @@
 export const backUrl =
-    process.env.NODE_ENV === "production"
-        ? "http://172.30.40.34:4343"
-        : "http://172.30.40.34:4343";
+    process.env.NEXT_PUBLIC_ENV === "production"
+        ? process.env.NEXT_PUBLIC_BASE_URL
+        : process.env.NEXT_PUBLIC_BASE_URL;
