@@ -48,6 +48,9 @@ build/
 /node
 /out
 .env
+.env.local
+.env.prod
+.env.dev
 .next
 /.next
 package-lock.json
