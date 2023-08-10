@@ -25,10 +25,23 @@ const ServiceTransferForm1 = ({ formData, onFormChange }) => {
     });
 
     useEffect(() => {
-        onFormChange({
-            ...formData,
-            ...serviceTransferFormData,
-        });
+        const delay = 300; // 디바운싱 딜레이 (300ms)
+        let timerId;
+        const updateFormData = () => {
+            onFormChange({
+                ...formData,
+                ...serviceTransferFormData,
+            });
+        };
+        if (timerId) {
+            clearTimeout(timerId); // 타이머 리셋
+        }
+
+        timerId = setTimeout(updateFormData, delay);
+
+        return () => {
+            clearTimeout(timerId); // 컴포넌트가 unmount 되거나 업데이트 되기 전에 타이머 클리어
+        };
     }, [serviceTransferFormData]);
 
     useEffect(() => {

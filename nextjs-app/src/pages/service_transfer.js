@@ -8,13 +8,16 @@ import ServiceTransferForm1 from "../components/service/serviceTransferForm1";
 import ServiceTransferForm2 from "../components/service/serviceTransferForm2";
 import ServiceTransferForm3 from "../components/service/serviceTransferForm3";
 import ServiceProgress from "../components/service/serviceProgress";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useSaveBeforePathname } from "../hooks/useSaveBeforePathname";
 import { useRouter } from "next/router";
 import { END } from "redux-saga";
 import axios from "axios";
 import wrapper from "../store/configureStore";
-import { CERTIFY_USER_INFO_REQUEST } from "../reducers/user";
+import {
+    CERTIFY_USER_INFO_REQUEST,
+    GET_MARKETING_AGREE_REQUEST,
+} from "../reducers/user";
 import NoticeService from "../components/service/noticeService";
 import { Validation } from "../func/validation";
 //이전설치 service2
@@ -35,11 +38,16 @@ const formInit = {
 
 const ServiceTransfer = () => {
     const router = useRouter();
+    const dispatch = useDispatch();
     useSaveBeforePathname();
-    const { loginDone, certifyState, certifyStateError } = useSelector(
-        (state) => state.user
-    );
-    const [progress, setProgress] = useState(1);
+    const {
+        loginDone,
+        certifyState,
+        certifyStateError,
+        getMarketingDone,
+        marketingAgree,
+    } = useSelector((state) => state.user);
+    const [progress, setProgress] = useState(3);
     const serviceForms = [
         ServiceTransferForm1,
         ServiceTransferForm2,
@@ -47,6 +55,13 @@ const ServiceTransfer = () => {
     ];
     const CurrentForm = serviceForms[progress - 1];
     const [formData, setFormData] = useState(formInit);
+    const [termslist, setTermsList] = useState([
+        "policy",
+        "agreeServiceTrans1",
+        "agreeServiceTrans2",
+        "agreeServiceTrans3",
+        // "agreeServiceTrans4",
+    ]);
 
     //본인인증 | 로그인 체크
     useEffect(() => {
@@ -61,12 +76,36 @@ const ServiceTransfer = () => {
             if (certifyStateError !== null) {
                 certifyStateError == 400 && router.push("/error/error404");
             }
+
+            if (certifyState || loginDone) {
+                dispatch({
+                    type: GET_MARKETING_AGREE_REQUEST,
+                });
+            }
         }, 200);
 
         return () => {
             clearTimeout(certifyTimer);
         };
     }, [loginDone, certifyState, certifyStateError]);
+
+    //마케팅 동의 여부
+    useEffect(() => {
+        let updateTermList = [];
+        if (marketingAgree === 0) {
+            updateTermList.push("marketing");
+        }
+
+        if (formData.payMethod !== undefined && formData.payMethod == "VBANK") {
+            updateTermList.push("agreeServiceTrans4");
+            setTermsList([...termslist, ...new Set(updateTermList)]);
+        } else {
+            updateTermList = termslist.filter(
+                (term) => term !== "agreeServiceTrans4"
+            );
+            setTermsList([...new Set(updateTermList)]);
+        }
+    }, [getMarketingDone, formData.payMethod]);
 
     //작성시 데이터 set
     const handleFormChange = useCallback(
@@ -221,7 +260,28 @@ const ServiceTransfer = () => {
 
                     break;
                 case 3:
+                    //결제 방법체크
+                    if (Validation.isEmpty(data.payMethod)) {
+                        alert("결제 방법을 선택하세요.");
+                        return false;
+                    }
+
+                    //계좌이체, 가상계좌시 환불데이터 입력
+                    if (data.payMethod !== "CARD") {
+                        if (
+                            Validation.isEmpty(data.bankSelect) ||
+                            Validation.isEmpty(data.bankAccHolder) ||
+                            Validation.isEmpty(data.bankNo)
+                        ) {
+                            alert("환불 계좌 정보를 모두 입력해주세요.");
+                            return false;
+                        }
+                    }
                     //개인정보 수집 동의 체크
+                    if (!Validation.isChk(data.policy)) {
+                        alert("개인정보 수집 · 이용 동의 안내에 체크해주세요.");
+                        return false;
+                    }
                     break;
                 default:
                     break;
@@ -239,8 +299,6 @@ const ServiceTransfer = () => {
                     setProgress((prevProgress) => prevProgress - 1);
                     break;
                 case "NEXT":
-                    result = checkValidation(progress, formData);
-                    break;
                 case "SUBMIT":
                     result = checkValidation(progress, formData);
                     break;
@@ -281,14 +339,7 @@ const ServiceTransfer = () => {
                             {/* 약관동의 */}
                             <Term
                                 allChk="Y"
-                                termslist={[
-                                    "policy",
-                                    "agreeServiceTrans1",
-                                    "agreeServiceTrans2",
-                                    "agreeServiceTrans3",
-                                    "agreeServiceTrans4",
-                                    "marketing",
-                                ]}
+                                termslist={termslist}
                                 onFormChange={handleFormChange}
                                 type="allChkDiv"
                             />
@@ -348,7 +399,10 @@ const ServiceTransfer = () => {
                                 className="btn-pay"
                                 onClick={() => handleSubmit("SUBMIT")}
                             >
-                                0원 결제하기
+                                {formData.totalPrice
+                                    ? formData.totalPrice
+                                    : "0"}
+                                원 결제하기
                             </button>
                         </div>
                     )}

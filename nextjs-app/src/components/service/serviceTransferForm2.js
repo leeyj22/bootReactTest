@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from "react";
 import FormWriteTitle from "../form/formWriteTitle";
 import AddrForm from "../form/addrForm";
-import Calendar from "../form/calendar";
+import CalendarServiceTransfer from "../form/calendarServiceTransfer";
 import { Validation } from "../../func/validation";
 import { service } from "../../func/service";
 import { useDispatch, useSelector } from "react-redux";
@@ -114,10 +114,23 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
     }, [formData.orderTypeSub !== ""]);
 
     useEffect(() => {
-        onFormChange({
-            ...formData,
-            ...serviceTransferFormData,
-        });
+        const delay = 300; // 디바운싱 딜레이 (300ms)
+        let timerId;
+        const updateFormData = () => {
+            onFormChange({
+                ...formData,
+                ...serviceTransferFormData,
+            });
+        };
+        if (timerId) {
+            clearTimeout(timerId); // 타이머 리셋
+        }
+
+        timerId = setTimeout(updateFormData, delay);
+
+        return () => {
+            clearTimeout(timerId); // 컴포넌트가 unmount 되거나 업데이트 되기 전에 타이머 클리어
+        };
     }, [serviceTransferFormData]);
 
     useEffect(() => {
@@ -175,6 +188,8 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
             switch (name) {
                 case "telNumb01_01":
                 case "telNumb01_02":
+                case "telNumb02_01":
+                case "telNumb02_02":
                     newValue = Validation.inputOnlyNum(newValue);
                     break;
                 case "location":
@@ -320,7 +335,7 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                                 <div className="form-item col-1">
                                     <div className="col">
                                         <div className="form-input">
-                                            <Calendar
+                                            <CalendarServiceTransfer
                                                 name="unInsDate"
                                                 grpCode={formData.prdtCate}
                                                 formData={
@@ -507,7 +522,7 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                             <div className="form-item col-1">
                                 <div className="col">
                                     <div className="form-input">
-                                        <Calendar
+                                        <CalendarServiceTransfer
                                             name="insDate"
                                             grpCode={formData.prdtCate}
                                             formData={serviceTransferFormData}
@@ -525,14 +540,14 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                             </div>
                         </div>
                         {/* 이사 예정일 */}
-                        <div className="form-write-item">
+                        {/* <div className="form-write-item">
                             <div className="form-title">
                                 <p className="">이사 예정일</p>
                             </div>
                             <div className="form-item col-1">
                                 <div className="col">
                                     <div className="form-input">
-                                        <Calendar
+                                        <CalendarServiceTransfer
                                             name="moveDate"
                                             grpCode={formData.prdtCate}
                                             formData={serviceTransferFormData}
@@ -544,7 +559,7 @@ const ServiceTransferForm2 = ({ formData, onFormChange }) => {
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> */}
                         {/* 요청사항 */}
                         <div className="form-write-item">
                             <div className="form-title">

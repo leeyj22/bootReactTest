@@ -119,12 +119,12 @@ export const dateData = {
         //기본 신청일~최대가능날짜 셋팅
         // 이사날짜 : 주말 상관없이 일단 체크 가능.
         if (self.calName !== "moveDate") {
+            //회수|철거, 설치
             self.setStartEndDate();
-            //주말 제외
             self.setFilterWeekend();
         } else {
+            //이사
             self.setStartEndDateMoveDate();
-            self.setFilterMoveWeekend();
         }
 
         //특정날짜 휴무일 셋팅
@@ -212,17 +212,35 @@ export const dateData = {
 
         self.disabledDate = self.disabledDate.concat(weekendArray);
     },
+    checkLocationMoveDate: (date, location) => {
+        const self = dateData;
+        //회수, 철거, 설치 변경 -> 이사일
+        if (date == void 0 || date == "") {
+            return;
+        }
+        const diffDate = location == "1" ? 14 : 7;
+        const timemilli = date.getTime() + 1000 * 60 * 60 * 24 * diffDate;
+        let minDate = new Date(timemilli);
+
+        while (self.checkHolidays(minDate) !== true) {
+            let newDate = minDate.getTime() + 1000 * 60 * 60 * 24;
+
+            minDate = new Date(newDate);
+        }
+
+        return minDate;
+    },
     checkLocation: (date, location) => {
         const self = dateData;
         // location 의 값 = 1  	외륙(제주도 등) ↔ 내륙 = 내·외륙간의 재설치 	희망일로부터 	2주 뒤
         // location 의 값 = 2	내륙간 이동 = 타 지역간의 재설치 				희망일로부터 	1주 뒤
-        //회수, 철거일
+
+        // 회수,철거일 변경 -> 설치일 셋팅
         if (date == void 0 || date == "") {
             return;
         }
-        const unInsDate = date;
         const diffDate = location == "1" ? 14 : 7;
-        const timemilli = unInsDate.getTime() + 1000 * 60 * 60 * 24 * diffDate;
+        const timemilli = date.getTime() + 1000 * 60 * 60 * 24 * diffDate;
         let minDate = new Date(timemilli);
 
         while (self.checkHolidays(minDate) !== true) {

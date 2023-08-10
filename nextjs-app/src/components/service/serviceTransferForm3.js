@@ -3,24 +3,56 @@ import React, { useCallback, useEffect, useState } from "react";
 import FormViewTitle from "../form/formViewTitle";
 import { FormInfoViewStyle } from "../../style/FormStyle";
 import { common } from "../../func/common";
+import { Validation } from "../../func/validation";
+import { bankData } from "../../data/bank";
 
 const ServiceTransferForm3 = ({ formData, onFormChange }) => {
     const [serviceTransferFormData, setServiceTransferFormData] = useState({
         //이전설치접수3 초기값 설정 : 결제방법, 비용
-        chkInfo: "", //결제 수단 BANK 실시간계좌이체| VBANK 가상계좌| CARD 신용카드
+        payMethod: "CARD", //결제수단 BANK 실시간계좌이체| VBANK 가상계좌| CARD 신용카드
+        bankSelect: "none", //환불 은행코드
+        bankName: "", //환불 은행명
+        bankAccHolder: "", //환불 예금주명
+        bankNo: "", //환불 계좌번호
     });
 
     useEffect(() => {
-        onFormChange({
-            ...formData,
-            ...serviceTransferFormData,
-        });
+        const delay = 300; // 디바운싱 딜레이 (300ms)
+        let timerId;
+        const updateFormData = () => {
+            onFormChange({
+                ...formData,
+                ...serviceTransferFormData,
+            });
+        };
+        if (timerId) {
+            clearTimeout(timerId); // 타이머 리셋
+        }
+
+        timerId = setTimeout(updateFormData, delay);
+
+        return () => {
+            clearTimeout(timerId); // 컴포넌트가 unmount 되거나 업데이트 되기 전에 타이머 클리어
+        };
     }, [serviceTransferFormData]);
 
     const handleChange = useCallback(
         (e) => {
             const { name, value, type, checked } = e.target;
-            const newValue = type === "checkbox" ? checked : value;
+            let newValue = type === "checkbox" ? checked : value;
+
+            switch (name) {
+                case "bankNo":
+                    newValue = Validation.inputOnlyNum(newValue);
+                    break;
+                case "bankSelect":
+                    const selectedOption = e.target.selectedOptions[0];
+                    serviceTransferFormData.bankName =
+                        selectedOption.getAttribute("data-bankname");
+                    break;
+                default:
+                    break;
+            }
 
             setServiceTransferFormData((prevFormData) => ({
                 ...prevFormData,
@@ -140,33 +172,48 @@ const ServiceTransferForm3 = ({ formData, onFormChange }) => {
                                     <div className="radio-btn col">
                                         <input
                                             type="radio"
-                                            id="chkInfo1"
-                                            name="chkInfo"
+                                            id="payMethod1"
+                                            name="payMethod"
                                             value="CARD"
+                                            onChange={handleChange}
+                                            checked={
+                                                serviceTransferFormData.payMethod ===
+                                                "CARD"
+                                            }
                                         />
-                                        <label htmlFor="chkInfo1">
+                                        <label htmlFor="payMethod1">
                                             <span>신용카드</span>
                                         </label>
                                     </div>
                                     <div className="radio-btn col">
                                         <input
                                             type="radio"
-                                            id="chkInf2"
-                                            name="chkInfo"
+                                            id="payMethod2"
+                                            name="payMethod"
                                             value="BANK"
+                                            onChange={handleChange}
+                                            checked={
+                                                serviceTransferFormData.payMethod ===
+                                                "BANK"
+                                            }
                                         />
-                                        <label htmlFor="chkInfo2">
+                                        <label htmlFor="payMethod2">
                                             <span>계좌이체</span>
                                         </label>
                                     </div>
                                     <div className="radio-btn col">
                                         <input
                                             type="radio"
-                                            id="chkInfo3"
-                                            name="chkInfo"
+                                            id="payMethod3"
+                                            name="payMethod"
                                             value="VBANK"
+                                            onChange={handleChange}
+                                            checked={
+                                                serviceTransferFormData.payMethod ===
+                                                "VBANK"
+                                            }
                                         />
-                                        <label htmlFor="chkInfo3">
+                                        <label htmlFor="payMethod3">
                                             <span>가상계좌</span>
                                         </label>
                                     </div>
@@ -177,36 +224,68 @@ const ServiceTransferForm3 = ({ formData, onFormChange }) => {
                             </div>
                         </div>
                     </div>
-                    <div className="form-write-item">
-                        <div className="form-title">
-                            <p className="necessary grey">환불 계좌 입력</p>
-                        </div>
-                        <div className="form-item col-1">
-                            <div className="col">
-                                <div className="col-3">
-                                    <div className="form-selectbox col">
-                                        <label htmlFor="bankSelect">
-                                            입금 은행을 선택하세요.
-                                        </label>
-                                        <select
-                                            name="bankSelect"
-                                            onChange={handleChange}
-                                        >
-                                            <option value="none">
+                    {serviceTransferFormData.payMethod !== "CARD" && (
+                        <div className="form-write-item">
+                            <div className="form-title">
+                                <p className="necessary grey">환불 계좌 입력</p>
+                            </div>
+                            <div className="form-item col-1">
+                                <div className="col">
+                                    <div className="col-3">
+                                        <div className="form-selectbox col">
+                                            <label htmlFor="bankSelect">
                                                 입금 은행을 선택하세요.
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div className="form-input col">
-                                        <input type="text" />
-                                    </div>
-                                    <div className="form-input col">
-                                        <input type="text" />
+                                            </label>
+                                            <select
+                                                name="bankSelect"
+                                                value={
+                                                    serviceTransferFormData.bankSelect
+                                                }
+                                                onChange={handleChange}
+                                            >
+                                                <option value="none">
+                                                    입금 은행을 선택하세요.
+                                                </option>
+                                                {bankData?.map((bank) => (
+                                                    <option
+                                                        key={bank.bankCode}
+                                                        data-bankname={
+                                                            bank.name
+                                                        }
+                                                        value={bank.bankCode}
+                                                    >
+                                                        {bank.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="form-input col">
+                                            <input
+                                                type="text"
+                                                name="bankAccHolder"
+                                                placeholder="예금주를 입력하세요."
+                                                value={
+                                                    serviceTransferFormData.bankAccHolder
+                                                }
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                        <div className="form-input col">
+                                            <input
+                                                type="text"
+                                                name="bankNo"
+                                                placeholder="계좌번호를 입력하세요. (하이픈 - 생략)"
+                                                value={
+                                                    serviceTransferFormData.bankNo
+                                                }
+                                                onChange={handleChange}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </FormInfoViewStyle>
             </article>
         </>

@@ -6,7 +6,13 @@ import moment from "moment";
 import { dateData } from "../../func/service";
 import { useSelector } from "react-redux";
 
-const Calendar = ({ name, grpCode, formData, setFormData, orderTypeSub }) => {
+const CalendarServiceTransfer = ({
+    name,
+    grpCode,
+    formData,
+    setFormData,
+    orderTypeSub,
+}) => {
     const { holidayData } = useSelector((state) => state.setviceTransfer);
     const [calendarDate, setCalendarDate] = useState({
         selectedDate: formData[name], //선택날짜
@@ -15,23 +21,22 @@ const Calendar = ({ name, grpCode, formData, setFormData, orderTypeSub }) => {
         excludedDates: [], //제외날짜
     });
 
-    const chkMinDate = () => {
-        const newMinDate = dateData.checkLocation(
-            formData.unInsDate !== ""
-                ? new Date(formData.unInsDate)
-                : new Date(),
-            formData.location
-        );
-        setFormData((prevFormDate) => ({
-            ...prevFormDate,
-            minDate: newMinDate,
-        }));
+    const chkMinDate = (name) => {
+        const date =
+            formData[name] !== "" ? new Date(formData[name]) : new Date();
+
+        if (name === "unInsDate") {
+            const newMinDate = dateData.checkLocation(date, formData.location);
+            setFormData((prevFormDate) => ({
+                ...prevFormDate,
+                minDate: newMinDate,
+            }));
+        }
     };
     useEffect(() => {
         //기본 셋팅(휴일/주말 제외, 시작일, 마지막일 셋팅)
         if (holidayData !== null) {
             const settingData = dateData.init({ name, grpCode, holidayData });
-            console.log("settingData", settingData);
             setCalendarDate({
                 ...calendarDate,
                 minDate: settingData.minDate,
@@ -49,19 +54,22 @@ const Calendar = ({ name, grpCode, formData, setFormData, orderTypeSub }) => {
             formData[name] !== "" &&
             formData[name] !== undefined
         ) {
-            if (name == "unInsDate") {
-                chkMinDate();
-            }
+            chkMinDate(name);
         }
     }, [formData[name]]);
 
     useEffect(() => {
-        if (name == "insDate") {
+        let minDate = formData.minDate;
+        if (name === "insDate") {
             setCalendarDate({
                 ...calendarDate,
-                selectedDate: formData.minDate,
-                minDate: formData.minDate,
+                selectedDate: minDate,
+                minDate: minDate,
             });
+            setFormData((prevFormDate) => ({
+                ...prevFormDate,
+                [name]: moment(minDate).format("YYYY-MM-DD"),
+            }));
         }
     }, [formData.minDate]);
 
@@ -71,7 +79,7 @@ const Calendar = ({ name, grpCode, formData, setFormData, orderTypeSub }) => {
             formData[name] !== "" &&
             formData[name] !== undefined
         ) {
-            chkMinDate();
+            chkMinDate(name);
         }
     }, [formData.location]);
 
@@ -88,16 +96,6 @@ const Calendar = ({ name, grpCode, formData, setFormData, orderTypeSub }) => {
                 ...prevFormDate,
                 [name]: date,
             }));
-
-            if (
-                (orderTypeSub == "1" || orderTypeSub == "5") &&
-                formData[name] !== "" &&
-                formData[name] !== undefined
-            ) {
-                if (new Date(formData.unInsDate) > new Date(formData.insDate)) {
-                    alert("설치일이 회수(철거)일보다 빠를 수 없습니다.");
-                }
-            }
         }
     };
 
@@ -123,4 +121,4 @@ const Calendar = ({ name, grpCode, formData, setFormData, orderTypeSub }) => {
     );
 };
 
-export default Calendar;
+export default CalendarServiceTransfer;
