@@ -5,10 +5,8 @@ export const Certify = {
     getPageType: () => {},
     openCert: (url) => {
         if (Certify.deviceCheck() == "MOBILE") {
-            console.log("모바일!");
             window.open(url, "popupCert");
         } else {
-            console.log("피씨!");
             const certFrame = document.getElementById("certFrame");
             if (certFrame) {
                 certFrame.remove();

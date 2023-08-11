@@ -1,5 +1,5 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import AppLayout from "../components/AppLayout";
 import { GET_TEST_APT_REQUEST } from "../reducers/user";
 import PageName from "../components/pagename";
@@ -8,6 +8,7 @@ import Link from "next/link";
 
 const index = () => {
     const dispatch = useDispatch();
+    const { test } = useSelector((status) => status.user);
 
     const plz = () => {
         dispatch({
@@ -20,6 +21,7 @@ const index = () => {
             <Container>
                 <PageName />
                 <button onClick={() => plz()}> API연결확인 테스트 버튼</button>
+                {test}
                 <br />
                 <br />
                 <br />

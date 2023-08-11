@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Headers from "./headers";
 import Footer from "./footer";
 import FooterNotice from "./footerNotice";
-import { GlobalStyle } from "../style/commonStyle";
+import { GlobalStyle } from "../style/CommonStyle";
 import LoadingComponent from "./loadingComponent";
 
 const AppLayout = ({ children }) => {

@@ -12,7 +12,9 @@ export const setPostApi = (postData) => {
 
 export const api = {
     fetchGetTest: () => {
-        return fetch(`${API_ENDPOINT}/api/getTest`).then((res) => res.json());
+        return fetch(`${API_ENDPOINT}/api/getTest`, setPostApi()).then((res) =>
+            res.json()
+        );
     },
     fetchPostTest: (param) => {
         return fetch(`${API_ENDPOINT}/api/postTest`).then((res) => res.json());

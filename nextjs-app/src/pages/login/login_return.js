@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { LOGIN_REQUEST } from "../../reducers/user";
 import { useDispatch } from "react-redux";
-import { parseQueryString } from "../../hooks/parseQueryString";
+import { useParseQueryString } from "../../hooks/useParseQueryString";
 const LoginReturn = () => {
     const dispatch = useDispatch();
     useEffect(() => {
         const schUrl = window.location.search;
-        const schObj = parseQueryString(schUrl);
+        const schObj = useParseQueryString(schUrl);
 
         dispatch({
             type: LOGIN_REQUEST,
